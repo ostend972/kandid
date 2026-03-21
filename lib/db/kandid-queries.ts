@@ -1,4 +1,4 @@
-import { eq, and, or, desc, sql, inArray, count } from 'drizzle-orm';
+import { eq, and, or, desc, asc, sql, inArray, count, gte } from 'drizzle-orm';
 import { db } from './drizzle';
 import {
   users,
@@ -6,9 +6,16 @@ import {
   jobs,
   jobMatches,
   savedJobs,
+  candidateDocuments,
+  candidateReferences,
+  applications,
+  aiGenerationsLog,
   type NewKandidUser,
   type NewCvAnalysis,
   type NewJobMatch,
+  type NewCandidateDocument,
+  type NewCandidateReference,
+  type NewApplication,
 } from './schema';
 
 // =============================================================================
@@ -407,4 +414,424 @@ export async function getUserStats(userId: string) {
     totalAnalyses: analysesCount?.total ?? 0,
     savedJobsCount: savedCount?.total ?? 0,
   };
+}
+
+// =============================================================================
+// Candidate Documents Queries
+// =============================================================================
+
+export async function getCandidateDocuments(userId: string) {
+  return db
+    .select()
+    .from(candidateDocuments)
+    .where(eq(candidateDocuments.userId, userId))
+    .orderBy(asc(candidateDocuments.sortOrder), asc(candidateDocuments.createdAt));
+}
+
+export async function getCandidateDocumentsByCategory(
+  userId: string,
+  category: string
+) {
+  return db
+    .select()
+    .from(candidateDocuments)
+    .where(
+      and(
+        eq(candidateDocuments.userId, userId),
+        eq(candidateDocuments.category, category)
+      )
+    )
+    .orderBy(asc(candidateDocuments.sortOrder), asc(candidateDocuments.createdAt));
+}
+
+export async function createCandidateDocument(data: {
+  userId: string;
+  category: string;
+  label: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+}) {
+  // Auto-increment sortOrder: get the current max + 1
+  const [maxOrder] = await db
+    .select({ max: sql<number>`COALESCE(MAX(${candidateDocuments.sortOrder}), -1)` })
+    .from(candidateDocuments)
+    .where(eq(candidateDocuments.userId, data.userId));
+
+  const [doc] = await db
+    .insert(candidateDocuments)
+    .values({
+      userId: data.userId,
+      category: data.category,
+      label: data.label,
+      fileUrl: data.fileUrl,
+      fileName: data.fileName,
+      fileSize: data.fileSize,
+      sortOrder: (maxOrder?.max ?? -1) + 1,
+    })
+    .returning();
+
+  return doc;
+}
+
+export async function updateCandidateDocument(
+  id: string,
+  userId: string,
+  data: { label?: string; category?: string; sortOrder?: number }
+) {
+  const result = await db
+    .update(candidateDocuments)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(candidateDocuments.id, id), eq(candidateDocuments.userId, userId))
+    )
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function deleteCandidateDocument(id: string, userId: string) {
+  const result = await db
+    .delete(candidateDocuments)
+    .where(
+      and(eq(candidateDocuments.id, id), eq(candidateDocuments.userId, userId))
+    )
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function reorderCandidateDocuments(
+  userId: string,
+  orderedIds: string[]
+) {
+  // Update sortOrder for each id based on its position in the array
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      db
+        .update(candidateDocuments)
+        .set({ sortOrder: index, updatedAt: new Date() })
+        .where(
+          and(
+            eq(candidateDocuments.id, id),
+            eq(candidateDocuments.userId, userId)
+          )
+        )
+    )
+  );
+}
+
+export async function countCandidateDocuments(userId: string) {
+  const [result] = await db
+    .select({ total: count() })
+    .from(candidateDocuments)
+    .where(eq(candidateDocuments.userId, userId));
+
+  return result?.total ?? 0;
+}
+
+// =============================================================================
+// Candidate References Queries
+// =============================================================================
+
+export async function getCandidateReferences(userId: string) {
+  return db
+    .select()
+    .from(candidateReferences)
+    .where(eq(candidateReferences.userId, userId))
+    .orderBy(asc(candidateReferences.sortOrder));
+}
+
+export async function createCandidateReference(data: {
+  userId: string;
+  fullName: string;
+  jobTitle: string;
+  company: string;
+  phone?: string;
+  email?: string;
+  relationship?: string;
+}) {
+  // Auto-increment sortOrder: get the current max + 1
+  const [maxOrder] = await db
+    .select({ max: sql<number>`COALESCE(MAX(${candidateReferences.sortOrder}), -1)` })
+    .from(candidateReferences)
+    .where(eq(candidateReferences.userId, data.userId));
+
+  const [ref] = await db
+    .insert(candidateReferences)
+    .values({
+      userId: data.userId,
+      fullName: data.fullName,
+      jobTitle: data.jobTitle,
+      company: data.company,
+      phone: data.phone ?? null,
+      email: data.email ?? null,
+      relationship: data.relationship ?? null,
+      sortOrder: (maxOrder?.max ?? -1) + 1,
+    })
+    .returning();
+
+  return ref;
+}
+
+export async function updateCandidateReference(
+  id: string,
+  userId: string,
+  data: {
+    fullName?: string;
+    jobTitle?: string;
+    company?: string;
+    phone?: string;
+    email?: string;
+    relationship?: string;
+    sortOrder?: number;
+  }
+) {
+  const result = await db
+    .update(candidateReferences)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(candidateReferences.id, id),
+        eq(candidateReferences.userId, userId)
+      )
+    )
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function deleteCandidateReference(id: string, userId: string) {
+  const result = await db
+    .delete(candidateReferences)
+    .where(
+      and(
+        eq(candidateReferences.id, id),
+        eq(candidateReferences.userId, userId)
+      )
+    )
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function reorderCandidateReferences(
+  userId: string,
+  orderedIds: string[]
+) {
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      db
+        .update(candidateReferences)
+        .set({ sortOrder: index, updatedAt: new Date() })
+        .where(
+          and(
+            eq(candidateReferences.id, id),
+            eq(candidateReferences.userId, userId)
+          )
+        )
+    )
+  );
+}
+
+export async function countCandidateReferences(userId: string) {
+  const [result] = await db
+    .select({ total: count() })
+    .from(candidateReferences)
+    .where(eq(candidateReferences.userId, userId));
+
+  return result?.total ?? 0;
+}
+
+// =============================================================================
+// Application Queries
+// =============================================================================
+
+export async function createApplication(data: {
+  userId: string;
+  jobId?: string;
+  cvAnalysisId?: string;
+  jobTitle?: string;
+  jobCompany?: string;
+  jobDescription?: string;
+  status?: string;
+}) {
+  const [app] = await db
+    .insert(applications)
+    .values({
+      userId: data.userId,
+      jobId: data.jobId ?? null,
+      cvAnalysisId: data.cvAnalysisId ?? null,
+      jobTitle: data.jobTitle ?? null,
+      jobCompany: data.jobCompany ?? null,
+      jobDescription: data.jobDescription ?? null,
+      status: data.status ?? 'draft',
+    })
+    .onConflictDoUpdate({
+      target: [applications.userId, applications.jobId],
+      set: {
+        cvAnalysisId: data.cvAnalysisId ?? null,
+        jobTitle: data.jobTitle ?? null,
+        jobCompany: data.jobCompany ?? null,
+        jobDescription: data.jobDescription ?? null,
+        status: data.status ?? 'draft',
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
+
+  return app;
+}
+
+export async function getApplicationById(id: string, userId: string) {
+  const result = await db
+    .select()
+    .from(applications)
+    .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+    .limit(1);
+
+  return result[0] ?? null;
+}
+
+export async function getApplicationsByUserId(
+  userId: string,
+  page = 1,
+  limit = 20
+) {
+  const offset = (page - 1) * limit;
+
+  const [countResult] = await db
+    .select({ total: count() })
+    .from(applications)
+    .where(eq(applications.userId, userId));
+
+  const results = await db
+    .select()
+    .from(applications)
+    .where(eq(applications.userId, userId))
+    .orderBy(desc(applications.updatedAt))
+    .limit(limit)
+    .offset(offset);
+
+  const total = countResult?.total ?? 0;
+
+  return {
+    applications: results,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
+export async function updateApplication(
+  id: string,
+  userId: string,
+  data: Partial<{
+    cvAnalysisId: string | null;
+    jobTitle: string | null;
+    jobCompany: string | null;
+    jobDescription: string | null;
+    generatedCvUrl: string | null;
+    generatedCvData: Record<string, unknown> | null;
+    coverLetterUrl: string | null;
+    coverLetterText: string | null;
+    coverLetterInstructions: string | null;
+    emailSubject: string | null;
+    emailBody: string | null;
+    referencesPageUrl: string | null;
+    dossierUrl: string | null;
+    dossierMode: string | null;
+    status: string;
+  }>
+) {
+  const result = await db
+    .update(applications)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function deleteApplication(id: string, userId: string) {
+  const result = await db
+    .delete(applications)
+    .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function countApplicationsByUser(userId: string) {
+  const [result] = await db
+    .select({ total: count() })
+    .from(applications)
+    .where(eq(applications.userId, userId));
+
+  return result?.total ?? 0;
+}
+
+// =============================================================================
+// AI Generations Log Queries
+// =============================================================================
+
+export async function logAiGeneration(
+  userId: string,
+  type: string,
+  applicationId: string
+) {
+  const [entry] = await db
+    .insert(aiGenerationsLog)
+    .values({
+      userId,
+      type,
+      applicationId,
+    })
+    .returning();
+
+  return entry;
+}
+
+export async function countTodayGenerations(userId: string) {
+  const todayMidnight = new Date();
+  todayMidnight.setHours(0, 0, 0, 0);
+
+  const [result] = await db
+    .select({ total: count() })
+    .from(aiGenerationsLog)
+    .where(
+      and(
+        eq(aiGenerationsLog.userId, userId),
+        gte(aiGenerationsLog.createdAt, todayMidnight)
+      )
+    );
+
+  return result?.total ?? 0;
+}
+
+// =============================================================================
+// User Photo Query
+// =============================================================================
+
+export async function updateUserPhoto(userId: string, photoUrl: string) {
+  const [user] = await db
+    .update(users)
+    .set({
+      photoUrl,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return user;
 }
