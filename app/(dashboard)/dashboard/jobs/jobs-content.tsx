@@ -29,6 +29,8 @@ interface JobsApiResponse {
 interface JobDetailApiResponse {
   job: JobDetailData;
   hasCvAnalysis: boolean;
+  cvAnalysisId: string | null;
+  cvFileName: string | null;
 }
 
 interface SavedIdsResponse {
@@ -250,6 +252,8 @@ export function JobsPageContent() {
                     if (selectedJobId) handleToggleSave(selectedJobId);
                   }}
                   hasCvAnalysis={detailData?.hasCvAnalysis ?? false}
+                  cvAnalysisId={detailData?.cvAnalysisId ?? null}
+                  cvFileName={detailData?.cvFileName ?? null}
                 />
               </div>
             </ScrollArea>

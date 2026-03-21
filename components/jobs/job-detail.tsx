@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   MapPin,
   Calendar,
@@ -17,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { MatchBadge } from './match-badge';
+import { MatchBreakdown } from './match-breakdown';
 import { cn } from '@/lib/utils';
 
 export interface JobDetailData {
@@ -38,6 +40,8 @@ interface JobDetailProps {
   isSaved: boolean;
   onToggleSave: () => void;
   hasCvAnalysis?: boolean;
+  cvAnalysisId?: string | null;
+  cvFileName?: string | null;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -86,7 +90,10 @@ export function JobDetail({
   isSaved,
   onToggleSave,
   hasCvAnalysis = false,
+  cvAnalysisId = null,
+  cvFileName = null,
 }: JobDetailProps) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
   // Empty state
   if (!job) {
     return (
@@ -187,17 +194,27 @@ export function JobDetail({
                 className={cn('h-2.5', getProgressColor(job.matchScore))}
               />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-indigo-600 hover:text-indigo-700 p-0 h-auto font-medium"
-              onClick={() => {
-                // Task 13 — detailed analysis
-              }}
-            >
-              Voir l'analyse detaillee
-            </Button>
+            {cvAnalysisId && !showBreakdown && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-indigo-600 hover:text-indigo-700 p-0 h-auto font-medium"
+                onClick={() => setShowBreakdown(true)}
+              >
+                Voir l'analyse detaillee
+              </Button>
+            )}
           </div>
+
+          {/* AI Detailed Match Breakdown */}
+          {showBreakdown && cvAnalysisId && (
+            <MatchBreakdown
+              jobId={job.id}
+              cvAnalysisId={cvAnalysisId}
+              cvFileName={cvFileName || 'CV'}
+            />
+          )}
+
           <Separator />
         </>
       )}

@@ -26,6 +26,8 @@ export async function GET(
   // Calculate match score if user has a CV analysis
   let matchScore: number | null = null;
   let hasCvAnalysis = false;
+  let cvAnalysisId: string | null = null;
+  let cvFileName: string | null = null;
 
   try {
     const { userId } = await auth();
@@ -37,30 +39,35 @@ export async function GET(
         hasCvAnalysis = true;
         const cvAnalysis = await getCvAnalysisById(user.activeCvAnalysisId);
 
-        if (cvAnalysis?.profile) {
-          const profile = cvAnalysis.profile as unknown as ExtractedProfile;
+        if (cvAnalysis) {
+          cvAnalysisId = cvAnalysis.id;
+          cvFileName = cvAnalysis.fileName;
 
-          const jobInput = {
-            skills: (job.skills as string[]) ?? [],
-            languageSkills:
-              (job.languageSkills as Array<{
-                language: string;
-                level: string;
-              }>) ?? [],
-            categories:
-              (job.categories as Array<{
-                id: number;
-                name: string;
-              }>) ?? [],
-            activityRate: job.activityRate,
-          };
+          if (cvAnalysis.profile) {
+            const profile = cvAnalysis.profile as unknown as ExtractedProfile;
 
-          const result = calculateMatchScore(
-            profile,
-            jobInput,
-            user.preferredActivityRate
-          );
-          matchScore = result.score;
+            const jobInput = {
+              skills: (job.skills as string[]) ?? [],
+              languageSkills:
+                (job.languageSkills as Array<{
+                  language: string;
+                  level: string;
+                }>) ?? [],
+              categories:
+                (job.categories as Array<{
+                  id: number;
+                  name: string;
+                }>) ?? [],
+              activityRate: job.activityRate,
+            };
+
+            const result = calculateMatchScore(
+              profile,
+              jobInput,
+              user.preferredActivityRate
+            );
+            matchScore = result.score;
+          }
         }
       }
     }
@@ -83,5 +90,7 @@ export async function GET(
       matchScore,
     },
     hasCvAnalysis,
+    cvAnalysisId,
+    cvFileName,
   });
 }

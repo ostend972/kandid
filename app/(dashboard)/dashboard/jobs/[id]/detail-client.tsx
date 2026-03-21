@@ -7,12 +7,16 @@ interface JobDetailMobileClientProps {
   job: JobDetailData;
   initialIsSaved: boolean;
   hasCvAnalysis: boolean;
+  cvAnalysisId?: string | null;
+  cvFileName?: string | null;
 }
 
 export function JobDetailMobileClient({
   job,
   initialIsSaved,
   hasCvAnalysis,
+  cvAnalysisId = null,
+  cvFileName = null,
 }: JobDetailMobileClientProps) {
   const [isSaved, setIsSaved] = useState(initialIsSaved);
 
@@ -38,6 +42,8 @@ export function JobDetailMobileClient({
       isSaved={isSaved}
       onToggleSave={handleToggleSave}
       hasCvAnalysis={hasCvAnalysis}
+      cvAnalysisId={cvAnalysisId}
+      cvFileName={cvFileName}
     />
   );
 }
