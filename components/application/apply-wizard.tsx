@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 
 import { WizardStepProfile } from './wizard-step-profile';
 import { WizardStepCv } from './wizard-step-cv';
+import { WizardStepLetter } from './wizard-step-letter';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -172,11 +173,13 @@ export function ApplyWizard({
           />
         ) : null;
       case 3:
-        return (
-          <div className="flex items-center justify-center py-20 text-muted-foreground">
-            Step 3 - Cover Letter (Coming soon)
-          </div>
-        );
+        return applicationId ? (
+          <WizardStepLetter
+            applicationId={applicationId}
+            onNext={goNext}
+            onBack={goBack}
+          />
+        ) : null;
       case 4:
         return (
           <div className="flex items-center justify-center py-20 text-muted-foreground">
