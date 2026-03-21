@@ -285,6 +285,15 @@ export async function getSavedJobs(userId: string) {
     .orderBy(desc(savedJobs.createdAt));
 }
 
+export async function getSavedJobIds(userId: string): Promise<string[]> {
+  const rows = await db
+    .select({ jobId: savedJobs.jobId })
+    .from(savedJobs)
+    .where(eq(savedJobs.userId, userId));
+
+  return rows.map((r) => r.jobId);
+}
+
 // =============================================================================
 // Stats Queries
 // =============================================================================
