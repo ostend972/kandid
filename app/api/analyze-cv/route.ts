@@ -7,7 +7,9 @@ import {
   createCvAnalysis,
   updateUserActiveCv,
   getCvAnalysesByUserId,
+  getUserById,
 } from "@/lib/db/kandid-queries";
+import { sendAnalysisCompleteEmail } from "@/lib/email/resend";
 
 // ---------------------------------------------------------------------------
 // POST /api/analyze-cv
@@ -178,7 +180,21 @@ export async function POST(request: NextRequest) {
     console.error("Failed to update active CV analysis:", error);
   }
 
-  // ── 9. Return result ─────────────────────────────────────────────────
+  // ── 9. Send analysis complete email (fire-and-forget) ────────────────
+  getUserById(userId).then((user) => {
+    if (user?.email) {
+      sendAnalysisCompleteEmail(
+        user.email,
+        user.fullName?.split(" ")[0] || "",
+        feedback.overallScore,
+        analysis.id
+      );
+    }
+  }).catch((err) => {
+    console.error("Failed to fetch user for analysis email:", err);
+  });
+
+  // ── 10. Return result ────────────────────────────────────────────────
   return NextResponse.json({
     id: analysis.id,
     overallScore: feedback.overallScore,

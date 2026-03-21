@@ -2,6 +2,7 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { upsertUser } from "@/lib/db/kandid-queries";
+import { sendWelcomeEmail } from "@/lib/email/resend";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -44,6 +45,11 @@ export async function POST(req: Request) {
       fullName: [first_name, last_name].filter(Boolean).join(" ") || null,
       avatarUrl: image_url || null,
     });
+
+    // Send welcome email for new users (fire-and-forget)
+    if (evt.type === "user.created") {
+      sendWelcomeEmail(email, first_name || "");
+    }
   }
 
   return new Response("OK", { status: 200 });
