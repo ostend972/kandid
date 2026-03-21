@@ -52,7 +52,21 @@ export async function POST(request: NextRequest) {
 
   const file = formData.get("file");
   const imageBase64 = formData.get("imageBase64");
+  const allImagesBase64Raw = formData.get("allImagesBase64");
   const jobDescription = formData.get("jobDescription");
+
+  // Parse all page images (fallback to single image for backward compat)
+  let allImages: string[] = [];
+  if (typeof allImagesBase64Raw === "string") {
+    try {
+      allImages = JSON.parse(allImagesBase64Raw);
+    } catch {
+      // Fallback to single image
+    }
+  }
+  if (allImages.length === 0 && typeof imageBase64 === "string") {
+    allImages = [imageBase64];
+  }
 
   if (!(file instanceof File)) {
     return NextResponse.json(
@@ -156,7 +170,7 @@ export async function POST(request: NextRequest) {
   let feedback;
   try {
     feedback = await analyzeCvWithRetry(
-      imageBase64,
+      allImages,
       typeof jobDescription === "string" && jobDescription.length > 0
         ? jobDescription
         : undefined

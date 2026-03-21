@@ -44,36 +44,44 @@ export interface CategoryFeedback {
 }
 
 // ---------------------------------------------------------------------------
-// Core analysis function
+// Core analysis function — accepts multiple page images
 // ---------------------------------------------------------------------------
 
 export async function analyzeCv(
-  imageBase64: string,
+  pageImages: string | string[],
   jobDescription?: string
 ): Promise<CVFeedback> {
   const systemPrompt = buildCvAnalysisPrompt(jobDescription);
+
+  // Support both single image (backward compat) and array of images
+  const images = Array.isArray(pageImages) ? pageImages : [pageImages];
+
+  // Build content array with all page images
+  const userContent: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [];
+
+  for (let i = 0; i < images.length; i++) {
+    userContent.push({
+      type: "image_url",
+      image_url: {
+        url: `data:image/png;base64,${images[i]}`,
+        detail: "high",
+      },
+    });
+  }
+
+  userContent.push({
+    type: "text",
+    text: images.length > 1
+      ? `Ce CV contient ${images.length} pages. Analyse TOUTES les pages du CV selon les criteres ATS suisses. Chaque image ci-dessus correspond a une page. Retourne le JSON demande.`
+      : "Analyse ce CV selon les criteres ATS suisses et retourne le JSON demande.",
+  });
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: [
-          {
-            type: "image_url",
-            image_url: {
-              url: `data:image/png;base64,${imageBase64}`,
-              detail: "high",
-            },
-          },
-          {
-            type: "text",
-            text: "Analyse ce CV selon les criteres ATS suisses et retourne le JSON demande.",
-          },
-        ],
-      },
+      { role: "user", content: userContent },
     ],
     max_tokens: 4000,
     temperature: 0.3,
@@ -126,14 +134,13 @@ export async function analyzeCv(
 // ---------------------------------------------------------------------------
 
 export async function analyzeCvWithRetry(
-  imageBase64: string,
+  pageImages: string | string[],
   jobDescription?: string
 ): Promise<CVFeedback> {
   try {
-    return await analyzeCv(imageBase64, jobDescription);
+    return await analyzeCv(pageImages, jobDescription);
   } catch (error) {
-    // One retry on failure
     console.error("CV analysis first attempt failed:", error);
-    return await analyzeCv(imageBase64, jobDescription);
+    return await analyzeCv(pageImages, jobDescription);
   }
 }
