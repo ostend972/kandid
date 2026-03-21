@@ -27,15 +27,18 @@ export default async function CvAnalysisResultPage({ params }: PageProps) {
     notFound();
   }
 
-  // Generate signed URL for the PDF
+  // Generate signed URLs for the PDF and preview image
   const signedUrl = await getCVSignedUrl(analysis.fileUrl);
+  const signedImageUrl = analysis.imageUrl
+    ? await getCVSignedUrl(analysis.imageUrl)
+    : null;
 
   // Serialize data for the client component
   const serializedAnalysis = {
     id: analysis.id,
     fileName: analysis.fileName,
     overallScore: analysis.overallScore,
-    imageUrl: analysis.imageUrl,
+    imageUrl: signedImageUrl,
     feedback: analysis.feedback as Record<
       string,
       { score: number; tips: Array<{ type: string; title: string; explanation: string; suggestion?: string }> }

@@ -1,13 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { validatePdfBuffer, MAX_FILE_SIZE } from "@/lib/file-validation";
-import { uploadCV } from "@/lib/storage/cv-upload";
+import { uploadCV, uploadCVImage, getCVSignedUrl } from "@/lib/storage/cv-upload";
 import { analyzeCvWithRetry } from "@/lib/ai/analyze-cv";
 import {
   createCvAnalysis,
   updateUserActiveCv,
   getCvAnalysesByUserId,
   getUserById,
+  upsertUser,
 } from "@/lib/db/kandid-queries";
 import { sendAnalysisCompleteEmail } from "@/lib/email/resend";
 
@@ -96,6 +97,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // ── 3b. Ensure user exists in DB (fallback if webhook hasn't fired) ──
+  const existingUser = await getUserById(userId);
+  if (!existingUser) {
+    const clerkUser = await currentUser();
+    if (clerkUser) {
+      await upsertUser({
+        id: userId,
+        email: clerkUser.emailAddresses[0]?.emailAddress || "",
+        fullName: [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || null,
+        avatarUrl: clerkUser.imageUrl || null,
+      });
+    }
+  }
+
   // ── 4. Rate limit check ──────────────────────────────────────────────
   if (!BETA_MODE) {
     const existingAnalyses = await getCvAnalysesByUserId(userId);
@@ -129,6 +144,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // ── 5b. Upload preview image to Supabase Storage ────────────────────
+  let imagePath: string | null = null;
+  try {
+    imagePath = await uploadCVImage(imageBase64, userId, file.name);
+  } catch (error) {
+    console.error("CV image upload failed (non-blocking):", error);
+  }
+
   // ── 6. AI analysis ──────────────────────────────────────────────────
   let feedback;
   try {
@@ -156,7 +179,7 @@ export async function POST(request: NextRequest) {
       userId,
       fileName: file.name,
       fileUrl: storagePath,
-      imageUrl: null, // base64 is too large to store; client can re-render
+      imageUrl: imagePath, // Storage path for preview image
       overallScore: feedback.overallScore,
       profile: feedback.profile as unknown as Record<string, unknown>,
       feedback: feedback.categories as unknown as Record<string, unknown>,

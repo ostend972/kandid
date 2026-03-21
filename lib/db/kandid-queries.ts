@@ -116,6 +116,28 @@ export async function getCvAnalysesByUserId(userId: string) {
     .orderBy(desc(cvAnalyses.createdAt));
 }
 
+export async function deleteCvAnalysis(id: string, userId: string) {
+  // Returns the deleted row (to get file paths for Storage cleanup)
+  const result = await db
+    .delete(cvAnalyses)
+    .where(and(eq(cvAnalyses.id, id), eq(cvAnalyses.userId, userId)))
+    .returning();
+
+  if (result.length > 0) {
+    // If this was the active CV, clear or set to most recent
+    const user = await getUserById(userId);
+    if (user?.activeCvAnalysisId === id) {
+      const remaining = await getCvAnalysesByUserId(userId);
+      await db
+        .update(users)
+        .set({ activeCvAnalysisId: remaining[0]?.id ?? null })
+        .where(eq(users.id, userId));
+    }
+  }
+
+  return result[0] ?? null;
+}
+
 // =============================================================================
 // Job Queries
 // =============================================================================

@@ -8,7 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, FileText, ArrowRight, Clock } from "lucide-react";
+import { Loader2, FileText, ArrowRight, Clock, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -59,6 +68,83 @@ function ScoreBadge({ score }: { score: number }) {
     <Badge variant="secondary" className={cn("font-bold tabular-nums", variant)}>
       {score}/100
     </Badge>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Delete button with confirmation
+// ---------------------------------------------------------------------------
+function DeleteAnalysisButton({
+  analysisId,
+  fileName,
+  onDeleted,
+}: {
+  analysisId: string;
+  fileName: string;
+  onDeleted: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/cv-analyses", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: analysisId }),
+      });
+      if (res.ok) {
+        onDeleted();
+        setOpen(false);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-red-600"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(true);
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
+        <DialogHeader>
+          <DialogTitle>Supprimer cette analyse ?</DialogTitle>
+          <DialogDescription>
+            Le fichier &laquo;{fileName}&raquo; et tous les resultats associes
+            seront supprimes definitivement. Cette action est irreversible.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={deleting}>
+            Annuler
+          </Button>
+          <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+            {deleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Suppression...
+              </>
+            ) : (
+              "Supprimer"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -270,6 +356,15 @@ export default function CvAnalysisPage() {
                     </div>
                   </div>
                   <ScoreBadge score={analysis.overallScore} />
+                  <DeleteAnalysisButton
+                    analysisId={analysis.id}
+                    fileName={analysis.fileName}
+                    onDeleted={() =>
+                      setPreviousAnalyses((prev) =>
+                        prev.filter((a) => a.id !== analysis.id)
+                      )
+                    }
+                  />
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </CardContent>
               </Card>
