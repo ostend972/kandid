@@ -76,12 +76,25 @@ function getProgressColor(score: number): string {
  * keeping basic formatting (p, br, strong, em, ul, li, h1-h6, a, span, div, table, tr, td, th).
  */
 function sanitizeHtml(html: string): string {
+  let clean = html;
   // Remove script tags and their content
-  let clean = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  // Remove style tags and their content
+  clean = clean.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+  // Remove all images (logos, banners, photos from job postings)
+  clean = clean.replace(/<img\b[^>]*>/gi, '');
+  // Remove link tags (CSS imports)
+  clean = clean.replace(/<link\b[^>]*>/gi, '');
   // Remove event handler attributes
   clean = clean.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
   // Remove javascript: urls
   clean = clean.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, 'href="#"');
+  // Remove inline style attributes (they break our layout)
+  clean = clean.replace(/\s+style\s*=\s*"[^"]*"/gi, '');
+  clean = clean.replace(/\s+style\s*=\s*'[^']*'/gi, '');
+  // Remove class attributes from JobUp templates (we apply our own)
+  clean = clean.replace(/\s+class\s*=\s*"[^"]*"/gi, '');
+  clean = clean.replace(/\s+class\s*=\s*'[^']*'/gi, '');
   return clean;
 }
 
