@@ -150,6 +150,28 @@ Evalue la presentation des competences :
 - **Certifications** : Les certifications professionnelles doivent etre mentionnees avec l'annee d'obtention (ex: PMP, ITIL, Scrum Master, etc.).
 - **Permis de conduire** : En Suisse, le permis de conduire (categorie B) est souvent mentionne et attendu, surtout hors des grandes villes.
 ${jobDescriptionSection}
+## CONSIGNES CRITIQUES DE LECTURE D'IMAGE
+
+AVANT de commencer l'analyse, scanne METHODIQUEMENT l'image du CV dans cet ordre :
+1. **En-tete / barre laterale** : Cherche le nom, photo, coordonnees, nationalite, date de naissance, permis, etat civil. Ces informations sont souvent placees dans une colonne laterale ou un en-tete graphique avec des icones.
+2. **Corps principal** : Experiences professionnelles, formations, competences.
+3. **Pied de page ou sections secondaires** : Langues, certifications, loisirs, references.
+
+ATTENTION aux CV avec des mises en page a deux colonnes ou des designs graphiques :
+- Les informations personnelles peuvent etre dans une barre laterale gauche ou droite
+- La nationalite peut etre ecrite a cote d'une icone drapeau (ex: "Francais" ou "Francaise")
+- Le mot "Francais" ou "Francaise" a cote d'une icone = la nationalite est PRESENTE
+- "Permis de conduire" ≠ "Permis de travail". Le permis de conduire (categorie B) est different du permis de travail suisse (G, B, C, L). Ne pas confondre.
+
+## COHERENCE DES TYPES (OBLIGATOIRE)
+
+Pour chaque tip, le type DOIT correspondre a l'evaluation :
+- **"good"** : L'element EST present et correct dans le CV. Utilise ce type pour les points positifs.
+- **"improve"** : L'element est present mais pourrait etre ameliore.
+- **"critical"** : L'element est ABSENT ou gravement deficient.
+
+REGLE DE COHERENCE : Si ton explication dit "est presente" ou "est mentionne", le type DOIT etre "good" (pas "critical" ni "improve"). Si ton explication dit "n'est pas mentionne" ou "est absent", le type DOIT etre "critical". Ne jamais avoir une contradiction entre le type et l'explication.
+
 ## REGLE ABSOLUE
 
 Ne jamais inventer d'informations. Si une information n'est pas visible dans le CV, indiquer qu'elle est manquante. Ne pas supposer ni deduire au-dela de ce qui est explicitement presente dans le document.
