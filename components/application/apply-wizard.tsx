@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { WizardStepProfile } from './wizard-step-profile';
 import { WizardStepCv } from './wizard-step-cv';
 import { WizardStepLetter } from './wizard-step-letter';
+import { WizardStepAssemble } from './wizard-step-assemble';
+import { WizardStepReady } from './wizard-step-ready';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,6 +27,7 @@ interface ApplyWizardProps {
   jobId: string;
   jobTitle: string;
   jobCompany: string;
+  jobSourceUrl: string;
   cvAnalysisId: string;
   trigger: React.ReactNode;
 }
@@ -104,6 +107,7 @@ export function ApplyWizard({
   jobId,
   jobTitle,
   jobCompany,
+  jobSourceUrl,
   cvAnalysisId,
   trigger,
 }: ApplyWizardProps) {
@@ -181,17 +185,22 @@ export function ApplyWizard({
           />
         ) : null;
       case 4:
-        return (
-          <div className="flex items-center justify-center py-20 text-muted-foreground">
-            Step 4 - Assembly (Coming soon)
-          </div>
-        );
+        return applicationId ? (
+          <WizardStepAssemble
+            applicationId={applicationId}
+            onNext={goNext}
+            onBack={goBack}
+          />
+        ) : null;
       case 5:
-        return (
-          <div className="flex items-center justify-center py-20 text-muted-foreground">
-            Step 5 - Ready (Coming soon)
-          </div>
-        );
+        return applicationId ? (
+          <WizardStepReady
+            applicationId={applicationId}
+            jobSourceUrl={jobSourceUrl}
+            onBack={goBack}
+            onComplete={() => setOpen(false)}
+          />
+        ) : null;
       default:
         return null;
     }
