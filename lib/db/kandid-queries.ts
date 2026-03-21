@@ -236,12 +236,12 @@ export async function searchJobs(filters: SearchJobsFilters) {
   }
 
   if (remoteOnly) {
-    conditions.push(sql`${jobs.benefitIds}::jsonb @> '"working-from-home"'`);
+    conditions.push(sql`${jobs.benefitIds}::text LIKE '%working-from-home%'`);
   }
 
   if (positionIds && positionIds.length > 0) {
     const posConditions = positionIds.map(
-      (pid) => sql`${jobs.employmentPositionIds}::jsonb @> ${JSON.stringify(pid)}::jsonb`
+      (pid) => sql`${jobs.employmentPositionIds}::text LIKE ${'%' + pid + '%'}`
     );
     conditions.push(or(...posConditions)!);
   }
