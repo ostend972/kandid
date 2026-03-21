@@ -71,12 +71,7 @@ Evalue la lisibilite du CV par les logiciels ATS suisses :
 C'est la categorie la plus importante. Evalue la presence des elements specifiquement attendus en Suisse :
 - **Photo professionnelle** : En Suisse, il est courant et attendu d'inclure une photo professionnelle (portrait, fond neutre, tenue professionnelle) en haut a droite du CV. Son absence est un signal negatif pour les recruteurs suisses.
 - **Nationalite** : Doit etre mentionnee explicitement (ex: "Nationalite: francaise"). C'est standard en Suisse et important pour les questions de permis.
-- **Permis de travail** : Le permis de travail doit etre clairement indique. Les types courants sont :
-  - Permis G (frontalier)
-  - Permis B (resident)
-  - Permis C (etablissement permanent)
-  - Permis L (sejour de courte duree)
-  - Si le candidat n'a pas encore de permis, il doit indiquer "En cours de demande" ou "Eligible au permis G/B".
+- **Permis de travail** : NE PAS PENALISER l'absence de permis de travail. La plupart des candidats francais qui postulent en Suisse n'ont PAS encore de permis de travail — c'est normal, car c'est l'employeur qui en fait la demande apres l'embauche. Un candidat frontalier vivant en France n'a pas de permis G avant d'avoir un contrat suisse. Si le permis est mentionne, c'est un bonus (type "good"), mais son absence ne doit JAMAIS etre un "critical" ni reduire le score. Au maximum, suggerez comme amelioration optionnelle : "Vous pouvez mentionner 'Eligible au permis G (frontalier)' si vous residez en zone frontaliere."
 - **Date de naissance** : Contrairement a la France ou elle est souvent omise, la date de naissance est attendue sur un CV suisse.
 - **Etat civil** : L'etat civil (celibataire, marie(e), pacse(e)) est souvent mentionne en Suisse.
 - **Equivalences de diplomes** : Les diplomes francais doivent etre accompagnes de leur equivalence suisse entre parentheses. Utilise la table d'equivalences fournie. Par exemple : "Master en Gestion (equivalent Master HES/Universite)".
@@ -163,14 +158,21 @@ ATTENTION aux CV avec des mises en page a deux colonnes ou des designs graphique
 - Le mot "Francais" ou "Francaise" a cote d'une icone = la nationalite est PRESENTE
 - "Permis de conduire" ≠ "Permis de travail". Le permis de conduire (categorie B) est different du permis de travail suisse (G, B, C, L). Ne pas confondre.
 
-## COHERENCE DES TYPES (OBLIGATOIRE)
+## COHERENCE DES TYPES (OBLIGATOIRE — VERIFIE AVANT DE REPONDRE)
 
 Pour chaque tip, le type DOIT correspondre a l'evaluation :
 - **"good"** : L'element EST present et correct dans le CV. Utilise ce type pour les points positifs.
-- **"improve"** : L'element est present mais pourrait etre ameliore.
-- **"critical"** : L'element est ABSENT ou gravement deficient.
+- **"improve"** : L'element est present mais pourrait etre ameliore, OU l'element est optionnel et son ajout serait un plus.
+- **"critical"** : L'element obligatoire est ABSENT ou gravement deficient.
 
-REGLE DE COHERENCE : Si ton explication dit "est presente" ou "est mentionne", le type DOIT etre "good" (pas "critical" ni "improve"). Si ton explication dit "n'est pas mentionne" ou "est absent", le type DOIT etre "critical". Ne jamais avoir une contradiction entre le type et l'explication.
+REGLES DE COHERENCE STRICTES — A VERIFIER POUR CHAQUE TIP :
+1. Si ton explication contient "est presente", "est mentionnee", "est indiquee", "est conforme", "est visible" → le type DOIT etre "good". JAMAIS "critical".
+2. Si ton explication contient "n'est pas mentionne", "est absent", "n'est pas visible", "manquant" → le type DOIT etre "critical" ou "improve".
+3. AVANT de valider ta reponse, relis CHAQUE tip et verifie que le type et l'explication ne se contredisent pas.
+
+Exemple de BUG A EVITER :
+- ❌ FAUX : { "type": "critical", "title": "Photo", "explanation": "La photo est presente, ce qui est attendu." } → CONTRADICTION ! "presente" + "critical"
+- ✅ CORRECT : { "type": "good", "title": "Photo", "explanation": "La photo est presente, ce qui est attendu en Suisse." }
 
 ## REGLE ABSOLUE
 
@@ -192,7 +194,7 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks, sans 
     "swissEquivalence": "<equivalence suisse du diplome le plus eleve>",
     "hasPhoto": <true si une photo est presente, false sinon>,
     "hasNationality": <true si la nationalite est mentionnee>,
-    "hasPermit": "<type de permis mentionne ou null si absent>",
+    "hasPermit": "<type de permis mentionne ou null si absent — ne pas penaliser l'absence>",
     "hasReferencesMention": <true si la mention des references est presente>
   },
   "categories": {
