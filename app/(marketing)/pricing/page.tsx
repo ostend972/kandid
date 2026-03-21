@@ -33,7 +33,7 @@ const plans = [
     cta: 'Commencer gratuitement',
     ctaVariant: 'outline' as const,
     features: [
-      'Score ATS de votre CV',
+      'Analyse CV de votre CV',
       '3 offres d\'emploi par jour',
       'Chatbot : 3 messages par jour',
       'Conseils de base',
@@ -82,7 +82,7 @@ interface ComparisonFeature {
 }
 
 const comparisonFeatures: ComparisonFeature[] = [
-  { name: 'Score ATS', free: true, pro: true, premium: true },
+  { name: 'Analyse CV', free: true, pro: true, premium: true },
   { name: 'Analyse detaillee du CV', free: '1 analyse', pro: 'Illimite', premium: 'Illimite' },
   { name: 'Lettres de motivation', free: false, pro: 'Illimite', premium: 'Illimite' },
   { name: 'Offres d\'emploi / jour', free: '3', pro: 'Toutes', premium: 'Toutes' },

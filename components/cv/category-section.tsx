@@ -29,7 +29,7 @@ type CategoryKey =
   | "skills";
 
 const categoryLabels: Record<CategoryKey, string> = {
-  ats: "Compatibilite ATS",
+  ats: "Lisibilite et organisation",
   swissAdaptation: "Adaptation au marche suisse",
   content: "Qualite du contenu",
   structure: "Structure et format",

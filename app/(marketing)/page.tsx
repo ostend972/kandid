@@ -25,7 +25,7 @@ import {
 export const metadata = {
   title: 'Kandid — Votre CV adapte au marche suisse',
   description:
-    'Analysez votre CV pour le marche suisse, trouvez des offres d\'emploi en Suisse romande et boostez vos candidatures de frontalier. Score ATS gratuit.',
+    'Analysez votre CV pour le marche suisse, trouvez des offres d\'emploi en Suisse romande et boostez vos candidatures de frontalier. Analyse gratuite.',
 };
 
 export default function LandingPage() {
@@ -287,7 +287,7 @@ export default function LandingPage() {
                 <Separator className="mb-6" />
                 <ul className="space-y-3">
                   {[
-                    'Score ATS de votre CV',
+                    'Analyse de votre CV',
                     '3 offres d\'emploi par jour',
                     'Chatbot : 3 messages par jour',
                   ].map((f) => (

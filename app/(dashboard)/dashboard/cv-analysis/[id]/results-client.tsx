@@ -151,7 +151,7 @@ export function CvResultsClient({
             <CardContent className="flex flex-col items-center py-8">
               <ScoreGauge score={analysis.overallScore} size="lg" />
               <h2 className="mt-4 text-lg font-bold text-gray-900">
-                Score ATS Suisse
+                Score Kandid
               </h2>
               <p className={cn("mt-1 text-center text-sm", verdict.color)}>
                 {verdict.text}
