@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { pdf } from '@react-pdf/renderer';
 
 import { Button } from '@/components/ui/button';
-import { LetterTemplate } from '@/lib/pdf/letter-template';
 import { LetterEditor } from './letter-editor';
 
 import type { GeneratedLetterData } from '@/lib/ai/generate-letter';
@@ -174,7 +172,9 @@ export function WizardStepLetter({
         year: 'numeric',
       });
 
-      // 1. Generate PDF blob client-side
+      // 1. Generate PDF blob client-side (dynamic import to avoid SSR issues)
+      const { pdf } = await import('@react-pdf/renderer');
+      const { LetterTemplate } = await import('@/lib/pdf/letter-template');
       const blob = await pdf(
         <LetterTemplate
           data={pdfLetterData}

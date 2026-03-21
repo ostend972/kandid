@@ -4,8 +4,8 @@ import { withSentryConfig } from '@sentry/nextjs';
 const nextConfig: NextConfig = {
   experimental: {
     ppr: true,
-    clientSegmentCache: true
-  }
+    clientSegmentCache: true,
+  },
 };
 
 export default withSentryConfig(nextConfig, {

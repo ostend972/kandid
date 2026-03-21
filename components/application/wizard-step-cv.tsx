@@ -3,12 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Loader2, Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { pdf } from '@react-pdf/renderer';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { CvTemplate } from '@/lib/pdf/cv-template';
 
 import { CvSectionEditor } from './cv-section-editor';
 import { CvPreview } from './cv-preview';
@@ -156,7 +154,9 @@ export function WizardStepCv({
     setIsValidating(true);
 
     try {
-      // 1. Generate PDF blob client-side
+      // 1. Generate PDF blob client-side (dynamic import to avoid SSR issues)
+      const { pdf } = await import('@react-pdf/renderer');
+      const { CvTemplate } = await import('@/lib/pdf/cv-template');
       const blob = await pdf(
         <CvTemplate data={cvData} photoBase64={photoBase64} />
       ).toBlob();
