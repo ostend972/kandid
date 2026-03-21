@@ -29,6 +29,11 @@ export async function GET(request: NextRequest) {
   const contractType = searchParams.get('contractType');
   const query = searchParams.get('q') || undefined;
   const activityRate = searchParams.get('activityRate') || undefined;
+  const publishedSince = searchParams.get('publishedSince') || undefined;
+  const remoteOnly = searchParams.get('remoteOnly') === 'true';
+  const positionIds = searchParams.getAll('positionId').map(Number).filter(Boolean);
+  const industryId = searchParams.get('industryId') ? Number(searchParams.get('industryId')) : undefined;
+  const company = searchParams.get('company') || undefined;
   const sort = searchParams.get('sort') || 'date';
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const limit = Math.min(
@@ -70,6 +75,11 @@ export async function GET(request: NextRequest) {
     contractTypes,
     query,
     activityRate,
+    publishedSince,
+    remoteOnly: remoteOnly || undefined,
+    positionIds: positionIds.length > 0 ? positionIds : undefined,
+    industryId,
+    company,
     page,
     limit,
   });

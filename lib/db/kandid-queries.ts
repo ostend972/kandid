@@ -157,6 +157,11 @@ export interface SearchJobsFilters {
   contractTypes?: string[];
   query?: string;
   activityRate?: string;
+  publishedSince?: string; // "24h" | "7d" | "30d"
+  remoteOnly?: boolean;
+  positionIds?: number[]; // 1=Management, 2=Cadre, 3=Employe
+  industryId?: number;
+  company?: string;
   page?: number;
   limit?: number;
 }
@@ -167,6 +172,11 @@ export async function searchJobs(filters: SearchJobsFilters) {
     contractTypes,
     query,
     activityRate,
+    publishedSince,
+    remoteOnly,
+    positionIds,
+    industryId,
+    company,
     page = 1,
     limit = 20,
   } = filters;
@@ -195,6 +205,33 @@ export async function searchJobs(filters: SearchJobsFilters) {
         @@ plainto_tsquery('french', ${query})
       )`
     );
+  }
+
+  if (publishedSince) {
+    const intervals: Record<string, string> = { "24h": "1 day", "7d": "7 days", "30d": "30 days" };
+    const interval = intervals[publishedSince];
+    if (interval) {
+      conditions.push(sql`${jobs.publishedAt} > NOW() - INTERVAL '${sql.raw(interval)}'`);
+    }
+  }
+
+  if (remoteOnly) {
+    conditions.push(sql`${jobs.benefitIds}::jsonb @> '"working-from-home"'`);
+  }
+
+  if (positionIds && positionIds.length > 0) {
+    const posConditions = positionIds.map(
+      (pid) => sql`${jobs.employmentPositionIds}::jsonb @> ${JSON.stringify(pid)}::jsonb`
+    );
+    conditions.push(or(...posConditions)!);
+  }
+
+  if (industryId) {
+    conditions.push(eq(jobs.industryId, industryId));
+  }
+
+  if (company && company.trim().length > 0) {
+    conditions.push(sql`${jobs.company} ILIKE ${'%' + company.trim() + '%'}`);
   }
 
   const whereClause = and(...conditions);

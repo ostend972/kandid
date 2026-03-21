@@ -88,6 +88,9 @@ export const jobs = pgTable(
     email: text('email'),
     latitude: doublePrecision('latitude'),
     longitude: doublePrecision('longitude'),
+    benefitIds: jsonb('benefit_ids').default(sql`'[]'::jsonb`),
+    employmentPositionIds: jsonb('employment_position_ids').default(sql`'[]'::jsonb`),
+    industryId: integer('industry_id'),
     status: text('status').default('active'), // active | expired | reposted
     publishedAt: timestamp('published_at'),
     expiresAt: timestamp('expires_at'),
