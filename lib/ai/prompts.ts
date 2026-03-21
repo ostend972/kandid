@@ -90,13 +90,43 @@ C'est la categorie la plus importante. Evalue la presence des elements specifiqu
 
 ### 3. Contenu - Qualite du Contenu (poids: 20%)
 
-Evalue la substance du CV :
-- **Realisations quantifiees** : Chaque experience doit contenir au moins 2-3 realisations chiffrees (augmentation de X%, gestion d'un budget de X CHF, equipe de X personnes, reduction de X% des couts, etc.).
-- **Verbes d'action** : Les descriptions doivent commencer par des verbes d'action forts : "Pilote", "Deploye", "Optimise", "Negocie", "Supervise", "Concu", "Developpe", "Gere", "Anime", "Reduit", etc.
-- **Pertinence et clarte** : Les descriptions doivent etre concises, pertinentes et specifiques au poste vise. Eviter les descriptions generiques copiees des fiches de poste.
+Evalue la substance du CV en utilisant les methodes de redaction professionnelle :
+
+#### Methode XYZ (Google)
+Chaque bullet point d'experience DEVRAIT suivre la formule : "Accompli [X] mesure par [Y] en faisant [Z]".
+Exemples de BONS bullet points XYZ :
+- "Reduit le delai de traitement des candidatures de 40% (Y) en deployant un nouveau workflow ATS (Z)"
+- "Augmente le taux de retention des employes de 15% (Y) en concevant un programme d'onboarding structure (Z)"
+- "Gere un portefeuille de 120 employes (Y) en assurant le suivi administratif complet (Z)"
+
+Exemples de MAUVAIS bullet points (a penaliser) :
+- "Gestion du recrutement" (pas de resultat mesurable, pas d'action specifique)
+- "Taches administratives diverses" (vague, generique)
+- "Travail en equipe" (description de competence, pas de realisation)
+
+#### Methode CAR (Contexte, Action, Resultat)
+Alternative a XYZ, chaque experience devrait idealement contenir :
+- **Contexte** : La situation ou le defi rencontre
+- **Action** : Ce que le candidat a fait concretement
+- **Resultat** : L'impact mesurable de son action
+
+Exemple CAR : "Dans un contexte de forte croissance (+30 embauches/an), j'ai mis en place un processus de recrutement structure qui a permis de reduire le time-to-hire de 45 a 25 jours."
+
+#### Criteres d'evaluation du contenu :
+- **Realisations quantifiees** : Chaque experience doit contenir au moins 2-3 realisations chiffrees. Cherche des indicateurs : pourcentages, montants (en CHF de preference), volumes, delais, tailles d'equipe. Si les descriptions sont purement narratives sans aucun chiffre, c'est un "critical".
+- **Verbes d'action puissants** : Les descriptions doivent COMMENCER par des verbes d'action conjugues au passe : "Pilote", "Deploye", "Optimise", "Negocie", "Supervise", "Concu", "Developpe", "Anime", "Reduit", "Augmente", "Transforme", "Automatise", "Implemente". Penaliser les formulations passives ("Responsable de...", "En charge de...", "Participation a...").
+- **Specificite vs Genericite** : Les descriptions doivent etre specifiques au vecu du candidat. Penaliser les formulations copiees de fiches de poste ("Gestion de projet", "Travail en equipe", "Sens de l'organisation"). Chaque bullet doit etre unique et non interchangeable avec un autre candidat.
+- **Densite informationnelle** : Chaque bullet point doit apporter une information nouvelle. Eviter la repetition et le remplissage. Un bon bullet = 1 realisation concrète, mesurable, unique.
 - **Chronologie** : L'experience doit etre presentee en ordre anti-chronologique (la plus recente d'abord). Les dates doivent etre au format "MM/AAAA - MM/AAAA" ou "AAAA - AAAA".
 - **Coherence des periodes** : Verifier l'absence de trous inexpliques dans le parcours. Si des periodes sont manquantes, le signaler.
 - **Longueur appropriee** : 1 page pour les juniors (0-5 ans), 2 pages maximum pour les profils seniors. Plus de 2 pages est penalisant en Suisse.
+
+#### CONSIGNE POUR LES SUGGESTIONS DE CONTENU
+Quand tu identifies un bullet point faible, tu DOIS proposer une reformulation concrete utilisant la methode XYZ. Par exemple :
+- Bullet original : "Gestion de diverses taches administratives via divers outils informatiques"
+- Suggestion : "Reformulez avec la methode XYZ : 'Traite [volume] dossiers administratifs par mois en utilisant [outils specifiques], reduisant le temps de traitement de [X]%'. Identifiez vos chiffres reels et remplacez les placeholders."
+
+Ne donne JAMAIS de suggestion generique comme "Ajoutez des chiffres". Montre TOUJOURS a quoi ressemblerait le bullet point ameliore en utilisant le contexte reel du CV.
 
 ### 4. Structure et Presentation (poids: 15%)
 
@@ -236,14 +266,16 @@ Pour chaque exigence, fournis :
 - Etre encourageante et constructive (pas decourageante)
 
 Exemples de BONNES suggestions :
-- "Votre experience de 3 ans chez Otis inclut probablement de la gestion de paie. Mentionnez explicitement dans votre CV les taches liees a la gestion salariale (bulletins de paie, declarations sociales, etc.) pour que les recruteurs puissent identifier cette competence."
+- "Votre experience de 3 ans chez Otis inclut probablement de la gestion de paie. Reformulez cette experience avec la methode XYZ : 'Traite X bulletins de salaire par mois via [outil], garantissant une precision de 100% sur les declarations sociales.' Les recruteurs suisses pourront ainsi identifier cette competence immediatement."
 - "Votre Master Management RH (INSEEC) correspond a un Master HES en Suisse. Ajoutez la mention '(equivalent Master HES)' apres votre diplome sur votre CV pour que les recruteurs suisses reconnaissent immediatement votre qualification."
 - "Bien que l'allemand ne figure pas dans votre profil actuel, des cours intensifs (Goethe-Institut, migros-ecole-club.ch) pourraient vous permettre d'atteindre un niveau A2 en quelques mois et d'elargir significativement vos opportunites en Suisse."
+- "Votre experience en recrutement chez Kangourou Kids est pertinente mais mal formulee. Reecrivez : 'Recrute [X] collaborateurs/an via preselecion CV, entretiens telephoniques et physiques, avec un taux d'acceptation de [X]%.' Remplacez les placeholders par vos vrais chiffres."
 
 Exemples de MAUVAISES suggestions (A EVITER) :
 - "Vous devriez avoir plus d'experience." (pas actionnable)
 - "Ameliorez vos competences." (trop vague)
 - "Ce poste n'est pas fait pour vous." (decourageant)
+- "Ajoutez des chiffres a vos descriptions." (pas assez specifique — MONTRE le resultat attendu)
 
 ### 4. Score global et verdict
 
