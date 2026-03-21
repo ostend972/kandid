@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { frFR } from '@clerk/localizations';
+import { CookieConsent } from '@/components/cookie-consent';
 
 export const metadata: Metadata = {
   title: 'Kandid - Analyse CV & Recherche Emploi Suisse',
@@ -27,7 +28,10 @@ export default function RootLayout({
         lang="fr"
         className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
       >
-        <body className="min-h-[100dvh] bg-gray-50">{children}</body>
+        <body className="min-h-[100dvh] bg-gray-50">
+          {children}
+          <CookieConsent />
+        </body>
       </html>
     </ClerkProvider>
   );
