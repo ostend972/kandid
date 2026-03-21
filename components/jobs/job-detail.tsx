@@ -12,7 +12,9 @@ import {
   Building2,
   BarChart3,
   FileText,
+  Send,
 } from 'lucide-react';
+import { ApplyWizard } from '@/components/application/apply-wizard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -281,13 +283,33 @@ export function JobDetail({
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <Button
-          asChild
-          className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-none"
-        >
+        {hasCvAnalysis && cvAnalysisId ? (
+          <ApplyWizard
+            jobId={job.id}
+            jobTitle={job.title}
+            jobCompany={job.company}
+            cvAnalysisId={cvAnalysisId}
+            jobSourceUrl={job.sourceUrl}
+            trigger={
+              <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-none">
+                <Send className="h-4 w-4 mr-2" />
+                Postuler
+              </Button>
+            }
+          />
+        ) : (
+          <Button asChild variant="outline" className="flex-1 sm:flex-none">
+            <a href="/dashboard/cv-analysis">
+              <FileText className="h-4 w-4 mr-2" />
+              Analysez d&apos;abord votre CV
+            </a>
+          </Button>
+        )}
+
+        <Button asChild variant="outline" size="sm">
           <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4 mr-2" />
-            Postuler sur JobUp
+            Voir sur JobUp
           </a>
         </Button>
 
