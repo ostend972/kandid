@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import { WizardStepProfile } from './wizard-step-profile';
+import { WizardStepCv } from './wizard-step-cv';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -163,11 +164,13 @@ export function ApplyWizard({
           />
         );
       case 2:
-        return (
-          <div className="flex items-center justify-center py-20 text-muted-foreground">
-            Step 2 - CV Editor (Coming soon)
-          </div>
-        );
+        return applicationId ? (
+          <WizardStepCv
+            applicationId={applicationId}
+            onNext={goNext}
+            onBack={goBack}
+          />
+        ) : null;
       case 3:
         return (
           <div className="flex items-center justify-center py-20 text-muted-foreground">
@@ -198,7 +201,10 @@ export function ApplyWizard({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         showCloseButton
-        className="h-[100dvh] max-h-[100dvh] w-full max-w-full rounded-none border-0 sm:h-[90dvh] sm:max-h-[90dvh] sm:max-w-3xl sm:rounded-lg sm:border"
+        className={cn(
+          "h-[100dvh] max-h-[100dvh] w-full max-w-full rounded-none border-0 sm:h-[90dvh] sm:max-h-[90dvh] sm:rounded-lg sm:border",
+          currentStep === 2 ? "sm:max-w-6xl" : "sm:max-w-3xl"
+        )}
       >
         {/* Accessible dialog title */}
         <DialogTitle className="sr-only">
@@ -233,8 +239,11 @@ export function ApplyWizard({
             </div>
           </div>
 
-          {/* Content area (scrollable) */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          {/* Content area */}
+          <div className={cn(
+            "flex-1 px-6 py-4 min-h-0",
+            currentStep === 2 ? "overflow-hidden flex flex-col" : "overflow-y-auto"
+          )}>
             {renderStep()}
           </div>
         </div>

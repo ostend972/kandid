@@ -3,11 +3,31 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   uploadProfilePhoto,
   deleteProfilePhoto,
+  getProfileSignedUrl,
 } from "@/lib/storage/cv-upload";
-import { updateUserPhoto } from "@/lib/db/kandid-queries";
+import { getUserById, updateUserPhoto } from "@/lib/db/kandid-queries";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+
+// ---------------------------------------------------------------------------
+// GET /api/profile/photo — return a signed URL for the current user's photo
+// ---------------------------------------------------------------------------
+
+export async function GET() {
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Non autorise." }, { status: 401 });
+  }
+
+  const dbUser = await getUserById(user.id);
+  if (!dbUser?.photoUrl) {
+    return NextResponse.json({ signedUrl: null });
+  }
+
+  const signedUrl = await getProfileSignedUrl(dbUser.photoUrl);
+  return NextResponse.json({ signedUrl });
+}
 
 // ---------------------------------------------------------------------------
 // POST /api/profile/photo — upload profile photo
