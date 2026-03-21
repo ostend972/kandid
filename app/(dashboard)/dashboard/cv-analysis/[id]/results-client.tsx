@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ScoreGauge } from "@/components/cv/score-gauge";
 import {
   AllCategories,
@@ -15,6 +16,8 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -80,8 +83,50 @@ export function CvResultsClient({
 }: {
   analysis: SerializedAnalysis;
 }) {
+  const router = useRouter();
   const [showPreview, setShowPreview] = useState(false);
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
   const verdict = getVerdict(analysis.overallScore);
+
+  async function handleReanalyze() {
+    if (!analysis.signedPdfUrl) return;
+    setIsReanalyzing(true);
+
+    try {
+      // 1. Download the PDF from signed URL
+      const pdfResponse = await fetch(analysis.signedPdfUrl);
+      const pdfBlob = await pdfResponse.blob();
+      const pdfFile = new File([pdfBlob], analysis.fileName, { type: "application/pdf" });
+
+      // 2. Convert all pages to images (dynamic import to keep bundle small)
+      const { pdfToImages } = await import("@/lib/pdf-to-image");
+      const allImages = await pdfToImages(pdfFile);
+
+      // 3. Send to reanalyze API
+      const res = await fetch("/api/reanalyze-cv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          analysisId: analysis.id,
+          allImagesBase64: allImages,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erreur");
+      }
+
+      // 4. Reload page to show updated results
+      router.refresh();
+      window.location.reload();
+    } catch (error) {
+      console.error("Reanalysis failed:", error);
+      alert("La reanalyse a echoue. Veuillez reessayer.");
+    } finally {
+      setIsReanalyzing(false);
+    }
+  }
 
   // Cast feedback categories
   const categoryKeys: CategoryKey[] = [
@@ -156,6 +201,25 @@ export function CvResultsClient({
               <p className={cn("mt-1 text-center text-sm", verdict.color)}>
                 {verdict.text}
               </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4 gap-2"
+                onClick={handleReanalyze}
+                disabled={isReanalyzing || !analysis.signedPdfUrl}
+              >
+                {isReanalyzing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Reanalyse en cours...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    Reanalyser ce CV
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
 

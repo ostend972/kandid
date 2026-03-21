@@ -116,6 +116,24 @@ export async function getCvAnalysesByUserId(userId: string) {
     .orderBy(desc(cvAnalyses.createdAt));
 }
 
+export async function updateCvAnalysisResults(
+  id: string,
+  userId: string,
+  data: { overallScore: number; profile: Record<string, unknown>; feedback: Record<string, unknown> }
+) {
+  const result = await db
+    .update(cvAnalyses)
+    .set({
+      overallScore: data.overallScore,
+      profile: data.profile,
+      feedback: data.feedback,
+    })
+    .where(and(eq(cvAnalyses.id, id), eq(cvAnalyses.userId, userId)))
+    .returning();
+
+  return result[0] ?? null;
+}
+
 export async function deleteCvAnalysis(id: string, userId: string) {
   // Returns the deleted row (to get file paths for Storage cleanup)
   const result = await db
