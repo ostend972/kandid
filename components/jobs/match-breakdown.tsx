@@ -29,6 +29,7 @@ interface MatchBreakdownProps {
   jobId: string;
   cvAnalysisId: string;
   cvFileName: string;
+  onScoreLoaded?: (score: number) => void;
 }
 
 // =============================================================================
@@ -96,7 +97,7 @@ function getStatusBgColor(status: string) {
 // Component
 // =============================================================================
 
-export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName }: MatchBreakdownProps) {
+export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded }: MatchBreakdownProps) {
   const [result, setResult] = useState<MatchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +120,7 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName }: MatchBreakdo
 
       const data: MatchResult = await response.json();
       setResult(data);
+      onScoreLoaded?.(data.overallScore);
     } catch (err) {
       setError(
         err instanceof Error

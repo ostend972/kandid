@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   MapPin,
   Calendar,
@@ -94,6 +94,14 @@ export function JobDetail({
   cvFileName = null,
 }: JobDetailProps) {
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [aiScore, setAiScore] = useState<number | null>(null);
+
+  // Reset breakdown state when switching jobs
+  useEffect(() => {
+    setShowBreakdown(false);
+    setAiScore(null);
+  }, [job?.id]);
+
   // Empty state
   if (!job) {
     return (
@@ -130,7 +138,7 @@ export function JobDetail({
               </span>
             </div>
           </div>
-          <MatchBadge score={job.matchScore} className="text-sm shrink-0" />
+          <MatchBadge score={aiScore ?? job.matchScore} className="text-sm shrink-0" />
         </div>
 
         {/* Meta tags */}
@@ -181,6 +189,7 @@ export function JobDetail({
               jobId={job.id}
               cvAnalysisId={cvAnalysisId}
               cvFileName={cvFileName || 'CV'}
+              onScoreLoaded={(score) => setAiScore(score)}
             />
           ) : (
             /* Quick algorithmic match summary */
