@@ -12,6 +12,12 @@ import {
   savedJobs,
 } from '@/lib/db/schema';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import {
+  createCandidateReference,
+  updateCandidateReference,
+  deleteCandidateReference,
+  countCandidateReferences,
+} from '@/lib/db/kandid-queries';
 
 export async function updatePreferencesAction(data: {
   preferredCantons: string[];
@@ -77,4 +83,63 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
 
   // 6. Redirect to landing page (outside try/catch because redirect throws)
   redirect('/');
+}
+
+// =============================================================================
+// References CRUD
+// =============================================================================
+
+export async function createReferenceAction(data: {
+  fullName: string;
+  jobTitle: string;
+  company: string;
+  phone?: string;
+  email?: string;
+  relationship?: string;
+}) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Non authentifie');
+  }
+
+  const total = await countCandidateReferences(userId);
+  if (total >= 10) {
+    throw new Error('Vous avez atteint la limite de 10 references.');
+  }
+
+  await createCandidateReference({ userId, ...data });
+
+  revalidatePath('/dashboard/settings');
+}
+
+export async function updateReferenceAction(
+  id: string,
+  data: {
+    fullName?: string;
+    jobTitle?: string;
+    company?: string;
+    phone?: string;
+    email?: string;
+    relationship?: string;
+  }
+) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Non authentifie');
+  }
+
+  await updateCandidateReference(id, userId, data);
+
+  revalidatePath('/dashboard/settings');
+}
+
+export async function deleteReferenceAction(id: string) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Non authentifie');
+  }
+
+  await deleteCandidateReference(id, userId);
+
+  revalidatePath('/dashboard/settings');
 }
