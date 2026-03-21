@@ -15,6 +15,13 @@
       "when": 1774103546707,
       "tag": "0001_past_sabretooth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774126327636,
+      "tag": "0002_friendly_vermin",
+      "breakpoints": true
     }
   ]
 }

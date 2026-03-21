@@ -31,6 +31,7 @@ export const users = pgTable('users', {
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),
   activeCvAnalysisId: uuid('active_cv_analysis_id'), // FK added via relations
+  photoUrl: text('photo_url'),
   preferredCantons: text('preferred_cantons')
     .array()
     .default(sql`'{}'::text[]`),
@@ -159,6 +160,114 @@ export const savedJobs = pgTable(
   ]
 );
 
+/**
+ * Candidate Documents — stores uploaded profile documents (diplomas, certificates, etc.).
+ */
+export const candidateDocuments = pgTable(
+  'candidate_documents',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    category: text('category').notNull(), // diploma | certificate | permit | recommendation
+    label: text('label').notNull(),
+    fileUrl: text('file_url').notNull(),
+    fileName: text('file_name').notNull(),
+    fileSize: integer('file_size').notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_candidate_documents_user_category').on(table.userId, table.category),
+  ]
+);
+
+/**
+ * Candidate References — professional reference contacts.
+ */
+export const candidateReferences = pgTable(
+  'candidate_references',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    fullName: text('full_name').notNull(),
+    jobTitle: text('job_title').notNull(),
+    company: text('company').notNull(),
+    phone: text('phone'),
+    email: text('email'),
+    relationship: text('relationship'),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_candidate_references_user').on(table.userId),
+  ]
+);
+
+/**
+ * Applications — each generated candidature (CV + letter + dossier).
+ */
+export const applications = pgTable(
+  'applications',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    jobId: uuid('job_id')
+      .references(() => jobs.id, { onDelete: 'set null' }),
+    cvAnalysisId: uuid('cv_analysis_id')
+      .references(() => cvAnalyses.id, { onDelete: 'set null' }),
+    jobTitle: text('job_title'),
+    jobCompany: text('job_company'),
+    jobDescription: text('job_description'),
+    generatedCvUrl: text('generated_cv_url'),
+    generatedCvData: jsonb('generated_cv_data'),
+    coverLetterUrl: text('cover_letter_url'),
+    coverLetterText: text('cover_letter_text'),
+    coverLetterInstructions: text('cover_letter_instructions'),
+    emailSubject: text('email_subject'),
+    emailBody: text('email_body'),
+    referencesPageUrl: text('references_page_url'),
+    dossierUrl: text('dossier_url'),
+    dossierMode: text('dossier_mode'),
+    status: text('status').notNull().default('draft'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('idx_applications_user_job').on(table.userId, table.jobId),
+  ]
+);
+
+/**
+ * AI Generations Log — rate limiting tracker for AI-generated content.
+ */
+export const aiGenerationsLog = pgTable('ai_generations_log', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  applicationId: uuid('application_id')
+    .notNull()
+    .references(() => applications.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(), // cv | letter | email
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 // =============================================================================
 // Relations
 // =============================================================================
@@ -172,6 +281,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   cvAnalyses: many(cvAnalyses, { relationName: 'userCvAnalyses' }),
   jobMatches: many(jobMatches),
   savedJobs: many(savedJobs),
+  candidateDocuments: many(candidateDocuments),
+  candidateReferences: many(candidateReferences),
+  applications: many(applications),
 }));
 
 export const cvAnalysesRelations = relations(cvAnalyses, ({ one, many }) => ({
@@ -181,11 +293,13 @@ export const cvAnalysesRelations = relations(cvAnalyses, ({ one, many }) => ({
     relationName: 'userCvAnalyses',
   }),
   jobMatches: many(jobMatches),
+  applications: many(applications),
 }));
 
 export const jobsRelations = relations(jobs, ({ many }) => ({
   jobMatches: many(jobMatches),
   savedJobs: many(savedJobs),
+  applications: many(applications),
 }));
 
 export const jobMatchesRelations = relations(jobMatches, ({ one }) => ({
@@ -211,6 +325,47 @@ export const savedJobsRelations = relations(savedJobs, ({ one }) => ({
   job: one(jobs, {
     fields: [savedJobs.jobId],
     references: [jobs.id],
+  }),
+}));
+
+export const candidateDocumentsRelations = relations(candidateDocuments, ({ one }) => ({
+  user: one(users, {
+    fields: [candidateDocuments.userId],
+    references: [users.id],
+  }),
+}));
+
+export const candidateReferencesRelations = relations(candidateReferences, ({ one }) => ({
+  user: one(users, {
+    fields: [candidateReferences.userId],
+    references: [users.id],
+  }),
+}));
+
+export const applicationsRelations = relations(applications, ({ one, many }) => ({
+  user: one(users, {
+    fields: [applications.userId],
+    references: [users.id],
+  }),
+  job: one(jobs, {
+    fields: [applications.jobId],
+    references: [jobs.id],
+  }),
+  cvAnalysis: one(cvAnalyses, {
+    fields: [applications.cvAnalysisId],
+    references: [cvAnalyses.id],
+  }),
+  aiGenerationsLog: many(aiGenerationsLog),
+}));
+
+export const aiGenerationsLogRelations = relations(aiGenerationsLog, ({ one }) => ({
+  user: one(users, {
+    fields: [aiGenerationsLog.userId],
+    references: [users.id],
+  }),
+  application: one(applications, {
+    fields: [aiGenerationsLog.applicationId],
+    references: [applications.id],
   }),
 }));
 
@@ -326,6 +481,12 @@ export type JobMatch = typeof jobMatches.$inferSelect;
 export type NewJobMatch = typeof jobMatches.$inferInsert;
 export type SavedJob = typeof savedJobs.$inferSelect;
 export type NewSavedJob = typeof savedJobs.$inferInsert;
+export type CandidateDocument = typeof candidateDocuments.$inferSelect;
+export type NewCandidateDocument = typeof candidateDocuments.$inferInsert;
+export type CandidateReference = typeof candidateReferences.$inferSelect;
+export type NewCandidateReference = typeof candidateReferences.$inferInsert;
+export type Application = typeof applications.$inferSelect;
+export type NewApplication = typeof applications.$inferInsert;
 
 // Legacy types (kept for backward compatibility)
 /** @deprecated Use KandidUser instead — will be removed after Clerk migration */
