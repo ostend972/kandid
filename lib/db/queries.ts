@@ -1,6 +1,15 @@
+/**
+ * Legacy queries from next-saas-starter boilerplate.
+ * These will be replaced by Clerk auth and kandid-queries.ts.
+ */
 import { desc, and, eq, isNull } from 'drizzle-orm';
 import { db } from './drizzle';
-import { activityLogs, teamMembers, teams, users } from './schema';
+import {
+  legacyActivityLogs as activityLogs,
+  legacyTeamMembers as teamMembers,
+  legacyTeams as teams,
+  legacyUsers as users,
+} from './schema';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
 
@@ -105,22 +114,12 @@ export async function getTeamForUser() {
     return null;
   }
 
-  const result = await db.query.teamMembers.findFirst({
+  const result = await db.query.legacyTeamMembers.findFirst({
     where: eq(teamMembers.userId, user.id),
     with: {
       team: {
         with: {
-          teamMembers: {
-            with: {
-              user: {
-                columns: {
-                  id: true,
-                  name: true,
-                  email: true
-                }
-              }
-            }
-          }
+          teamMembers: true,
         }
       }
     }
