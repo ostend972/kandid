@@ -218,11 +218,15 @@ export function calculateSectorMatch(
   if (!jobCategories || jobCategories.length === 0) return 50; // neutral
   if (!cvSectors || cvSectors.length === 0) return 50; // neutral
 
-  const normalizedCategories = jobCategories.map((c) =>
-    c.name.toLowerCase().trim()
-  );
+  const normalizedCategories = jobCategories
+    .filter((c) => c && typeof c.name === "string")
+    .map((c) => c.name.toLowerCase().trim())
+    .filter(Boolean);
+
+  if (normalizedCategories.length === 0) return 50;
 
   for (const sector of cvSectors) {
+    if (!sector || typeof sector !== "string") continue;
     const sectorLower = sector.toLowerCase().trim();
     // Check if the whole sector string appears as substring in any category
     if (normalizedCategories.some((cat) => cat.includes(sectorLower))) {
