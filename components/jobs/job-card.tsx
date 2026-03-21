@@ -79,10 +79,10 @@ export function JobCard({
       {/* Top row: title + match badge */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm text-gray-900 leading-tight truncate">
+          <h3 className="font-semibold text-sm text-gray-900 leading-tight line-clamp-2">
             {job.title}
           </h3>
-          <p className="text-sm text-gray-600 mt-0.5 truncate">{job.company}</p>
+          <p className="text-sm text-gray-600 mt-0.5 line-clamp-1">{job.company}</p>
         </div>
         <MatchBadge score={job.matchScore} className="shrink-0" />
       </div>
