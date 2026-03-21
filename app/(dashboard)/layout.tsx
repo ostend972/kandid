@@ -1,36 +1,26 @@
-import Link from 'next/link';
-import { CircleIcon } from 'lucide-react';
-import { UserButton } from '@clerk/nextjs';
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { DashboardHeader } from '@/components/dashboard/header';
 
-function Header() {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <header className="border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center">
-          <CircleIcon className="h-6 w-6 text-orange-500" />
-          <span className="ml-2 text-xl font-semibold text-gray-900">
-            Kandid
-          </span>
-        </Link>
-        <div className="flex items-center space-x-4">
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-gray-700 hover:text-gray-900"
-          >
-            Tableau de bord
-          </Link>
-          <UserButton />
-        </div>
+    <div className="flex h-screen overflow-hidden">
+      {/* Desktop sidebar — always visible on lg+ */}
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0">
+        <Sidebar />
+      </aside>
+
+      {/* Main area */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <DashboardHeader />
+
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-8">
+          {children}
+        </main>
       </div>
-    </header>
-  );
-}
-
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col min-h-screen">
-      <Header />
-      {children}
-    </section>
+    </div>
   );
 }
