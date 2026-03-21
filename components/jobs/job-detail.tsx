@@ -172,47 +172,48 @@ export function JobDetail({
 
       <Separator />
 
-      {/* Match summary box */}
+      {/* Match summary box — hidden when AI breakdown is shown */}
       {hasCvAnalysis && job.matchScore !== null && matchVerdict && (
         <>
-          <div className="rounded-lg border bg-gray-50 p-4 space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-              <BarChart3 className="h-4 w-4" />
-              Compatibilite avec votre profil
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className={cn('font-medium', matchVerdict.color)}>
-                  {matchVerdict.label}
-                </span>
-                <span className="font-semibold text-gray-900">
-                  {job.matchScore}%
-                </span>
-              </div>
-              <Progress
-                value={job.matchScore}
-                className={cn('h-2.5', getProgressColor(job.matchScore))}
-              />
-            </div>
-            {cvAnalysisId && !showBreakdown && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-indigo-600 hover:text-indigo-700 p-0 h-auto font-medium"
-                onClick={() => setShowBreakdown(true)}
-              >
-                Voir l'analyse detaillee
-              </Button>
-            )}
-          </div>
-
-          {/* AI Detailed Match Breakdown */}
-          {showBreakdown && cvAnalysisId && (
+          {showBreakdown && cvAnalysisId ? (
+            /* AI Detailed Match Breakdown replaces the quick summary */
             <MatchBreakdown
               jobId={job.id}
               cvAnalysisId={cvAnalysisId}
               cvFileName={cvFileName || 'CV'}
             />
+          ) : (
+            /* Quick algorithmic match summary */
+            <div className="rounded-lg border bg-gray-50 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <BarChart3 className="h-4 w-4" />
+                Compatibilite avec votre profil
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className={cn('font-medium', matchVerdict.color)}>
+                    {matchVerdict.label}
+                  </span>
+                  <span className="font-semibold text-gray-900">
+                    {job.matchScore}%
+                  </span>
+                </div>
+                <Progress
+                  value={job.matchScore}
+                  className={cn('h-2.5', getProgressColor(job.matchScore))}
+                />
+              </div>
+              {cvAnalysisId && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-indigo-600 hover:text-indigo-700 p-0 h-auto font-medium"
+                  onClick={() => setShowBreakdown(true)}
+                >
+                  Voir l'analyse detaillee
+                </Button>
+              )}
+            </div>
           )}
 
           <Separator />
