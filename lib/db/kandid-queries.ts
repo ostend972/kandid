@@ -823,7 +823,7 @@ export async function countTodayGenerations(userId: string) {
 // User Photo Query
 // =============================================================================
 
-export async function updateUserPhoto(userId: string, photoUrl: string) {
+export async function updateUserPhoto(userId: string, photoUrl: string | null) {
   const [user] = await db
     .update(users)
     .set({
