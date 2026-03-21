@@ -236,18 +236,27 @@ export function JobDetail({
             Description du poste
           </h3>
           <div
-            className="prose prose-sm prose-gray max-w-none
+            className="prose prose-sm prose-gray max-w-none break-words overflow-hidden
+              [overflow-wrap:anywhere]
+              [&_*]:max-w-full [&_*]:overflow-wrap-anywhere
               [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2
               [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-2
               [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1
               [&_p]:text-sm [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:my-1.5
+              [&_br]:block [&_br]:content-[''] [&_br]:my-1
               [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2
               [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2
               [&_li]:text-sm [&_li]:text-gray-700 [&_li]:my-0.5
               [&_a]:text-indigo-600 [&_a]:underline
               [&_strong]:font-semibold
               [&_table]:w-full [&_table]:text-sm
-              [&_td]:p-1 [&_th]:p-1 [&_th]:text-left [&_th]:font-semibold"
+              [&_td]:p-1 [&_th]:p-1 [&_th]:text-left [&_th]:font-semibold
+              [&_div]:max-w-full [&_span]:max-w-full
+              [&_.C_PHTML]:text-sm [&_.C_PHTML]:leading-relaxed
+              [&_.C_PBODYHTML]:text-sm [&_.C_PBODYHTML]:leading-relaxed
+              [&_.C_PTITLEHTML]:text-base [&_.C_PTITLEHTML]:font-semibold [&_.C_PTITLEHTML]:my-2
+              [&_.C_PHEADHTML]:text-sm [&_.C_PHEADHTML]:leading-relaxed [&_.C_PHEADHTML]:my-2
+              [&_.C_PLOGOHTML]:hidden"
             dangerouslySetInnerHTML={{
               __html: sanitizeHtml(job.description),
             }}
