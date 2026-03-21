@@ -29,8 +29,29 @@ export const metadata = {
 };
 
 export default function LandingPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Kandid",
+    description:
+      "Analysez votre CV pour le marche suisse et trouvez des offres d'emploi adaptees aux frontaliers",
+    url: "https://kandid.ch",
+    applicationCategory: "BusinessApplication",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "CHF",
+    },
+  };
+
   return (
     <>
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50/60 to-white py-20 sm:py-28 lg:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
