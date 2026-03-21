@@ -102,6 +102,8 @@ export async function GET(request: NextRequest) {
           name: string;
         }>) ?? [],
         activityRate: job.activityRate,
+        title: job.title,
+        description: job.description,
       };
 
       const result = calculateMatchScore(

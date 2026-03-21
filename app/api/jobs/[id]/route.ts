@@ -59,6 +59,8 @@ export async function GET(
                   name: string;
                 }>) ?? [],
               activityRate: job.activityRate,
+              title: job.title,
+              description: job.description,
             };
 
             const result = calculateMatchScore(
