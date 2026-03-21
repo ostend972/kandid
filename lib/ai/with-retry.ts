@@ -1,0 +1,30 @@
+// =============================================================================
+// Generic retry wrapper with exponential backoff
+// =============================================================================
+
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 2,
+  baseDelay = 1000
+): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < maxRetries) {
+        const delay = baseDelay * Math.pow(2, attempt);
+        console.error(
+          `Attempt ${attempt + 1} failed, retrying in ${delay}ms...`,
+          error
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError;
+}
