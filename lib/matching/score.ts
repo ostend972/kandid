@@ -34,7 +34,8 @@ const CEFR_LEVELS: Record<string, number> = {
   c2: 6,
 };
 
-function cefrToNumber(level: string): number {
+function cefrToNumber(level: unknown): number {
+  if (!level || typeof level !== "string") return 0;
   const normalized = level.toLowerCase().trim();
   return CEFR_LEVELS[normalized] ?? 0;
 }
@@ -109,7 +110,8 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   ro: 'ro',
 };
 
-function normalizeLanguageName(name: string): string {
+function normalizeLanguageName(name: unknown): string {
+  if (!name || typeof name !== "string") return "";
   const key = name
     .toLowerCase()
     .trim()
@@ -177,9 +179,15 @@ export function calculateLanguageMatch(
   if (!jobLanguages || jobLanguages.length === 0) return 100;
   if (!cvLanguages || cvLanguages.length === 0) return 0;
 
+  // Filter out invalid entries
+  const validJobLangs = jobLanguages.filter(
+    (l) => l && typeof l.language === "string" && l.language.length > 0
+  );
+  if (validJobLangs.length === 0) return 100;
+
   let matchedCount = 0;
 
-  for (const req of jobLanguages) {
+  for (const req of validJobLangs) {
     const reqLangNorm = normalizeLanguageName(req.language);
     const reqLevel = cefrToNumber(req.level);
 
@@ -196,7 +204,7 @@ export function calculateLanguageMatch(
     }
   }
 
-  return Math.round((matchedCount / jobLanguages.length) * 100);
+  return Math.round((matchedCount / validJobLangs.length) * 100);
 }
 
 /**
