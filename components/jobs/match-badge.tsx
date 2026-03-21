@@ -45,7 +45,9 @@ export function MatchBadge({ score, className }: MatchBadgeProps) {
         : 'text-red-700';
 
   // SVG circle progress
-  const radius = 16;
+  const size = 52;
+  const center = size / 2;
+  const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 100) * circumference;
 
@@ -54,32 +56,32 @@ export function MatchBadge({ score, className }: MatchBadgeProps) {
       className={cn('relative inline-flex items-center justify-center shrink-0', className)}
       title={`Compatibilite : ${score}%`}
     >
-      <svg width="44" height="44" className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90">
         {/* Background circle */}
         <circle
-          cx="22"
-          cy="22"
+          cx={center}
+          cy={center}
           r={radius}
           fill="none"
           stroke="currentColor"
-          strokeWidth="3"
+          strokeWidth="3.5"
           className="text-gray-200"
         />
         {/* Progress circle */}
         <circle
-          cx="22"
-          cy="22"
+          cx={center}
+          cy={center}
           r={radius}
           fill="none"
           stroke="currentColor"
-          strokeWidth="3"
+          strokeWidth="3.5"
           strokeDasharray={circumference}
           strokeDashoffset={circumference - progress}
           strokeLinecap="round"
           className={ringColor}
         />
       </svg>
-      <span className={cn('absolute text-xs font-bold', textColor)}>
+      <span className={cn('absolute text-sm font-bold', textColor)}>
         {score}
       </span>
     </div>
