@@ -87,6 +87,7 @@ export function JobFilters() {
   const remoteOnly = searchParams.get('remoteOnly') === 'true';
   const selectedPositions = searchParams.getAll('positionId').map(Number);
   const industryId = searchParams.get('industryId') || '';
+  const language = searchParams.get('language') || 'fr';
 
   // Close canton dropdown when clicking outside
   useEffect(() => {
@@ -175,7 +176,8 @@ export function JobFilters() {
     publishedSince ||
     remoteOnly ||
     selectedPositions.length > 0 ||
-    industryId;
+    industryId ||
+    (language && language !== 'fr');
 
   const activeFilterCount = [
     selectedCantons.length > 0,
@@ -282,6 +284,22 @@ export function JobFilters() {
             <SelectItem value="all">Contrat</SelectItem>
             <SelectItem value="CDI">CDI</SelectItem>
             <SelectItem value="CDD">CDD</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Language */}
+        <Select
+          value={language}
+          onValueChange={(v) => updateFilters({ language: v })}
+        >
+          <SelectTrigger className="w-[120px] h-9" size="sm">
+            <SelectValue placeholder="Langue" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="fr">Francais</SelectItem>
+            <SelectItem value="de">Allemand</SelectItem>
+            <SelectItem value="en">Anglais</SelectItem>
+            <SelectItem value="all">Toutes</SelectItem>
           </SelectContent>
         </Select>
 
@@ -433,6 +451,20 @@ export function JobFilters() {
                   <SelectItem value="all">Tous</SelectItem>
                   <SelectItem value="CDI">CDI</SelectItem>
                   <SelectItem value="CDD">CDD</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Language */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Langue</p>
+              <Select value={language} onValueChange={(v) => updateFilters({ language: v })}>
+                <SelectTrigger className="w-full h-9" size="sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fr">Francais</SelectItem>
+                  <SelectItem value="de">Allemand</SelectItem>
+                  <SelectItem value="en">Anglais</SelectItem>
+                  <SelectItem value="all">Toutes</SelectItem>
                 </SelectContent>
               </Select>
             </div>

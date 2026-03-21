@@ -162,6 +162,7 @@ export interface SearchJobsFilters {
   positionIds?: number[]; // 1=Management, 2=Cadre, 3=Employe
   industryId?: number;
   company?: string;
+  language?: string; // "fr" | "de" | "en"
   page?: number;
   limit?: number;
 }
@@ -177,6 +178,7 @@ export async function searchJobs(filters: SearchJobsFilters) {
     positionIds,
     industryId,
     company,
+    language,
     page = 1,
     limit = 20,
   } = filters;
@@ -232,6 +234,10 @@ export async function searchJobs(filters: SearchJobsFilters) {
 
   if (company && company.trim().length > 0) {
     conditions.push(sql`${jobs.company} ILIKE ${'%' + company.trim() + '%'}`);
+  }
+
+  if (language) {
+    conditions.push(eq(jobs.language, language));
   }
 
   const whereClause = and(...conditions);

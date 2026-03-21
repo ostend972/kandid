@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
   const positionIds = searchParams.getAll('positionId').map(Number).filter(Boolean);
   const industryId = searchParams.get('industryId') ? Number(searchParams.get('industryId')) : undefined;
   const company = searchParams.get('company') || undefined;
+  const language = searchParams.get('language') || 'fr'; // Default to French
   const sort = searchParams.get('sort') || 'date';
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const limit = Math.min(
@@ -80,6 +81,7 @@ export async function GET(request: NextRequest) {
     positionIds: positionIds.length > 0 ? positionIds : undefined,
     industryId,
     company,
+    language: language === 'all' ? undefined : language,
     page,
     limit,
   });
