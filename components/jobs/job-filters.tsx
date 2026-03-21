@@ -82,7 +82,7 @@ export function JobFilters() {
   // Read current filter values from URL
   const selectedCantons = searchParams.getAll('canton');
   const contractType = searchParams.get('contractType') || '';
-  const sort = searchParams.get('sort') || 'date';
+  const sort = searchParams.get('sort') || 'relevance';
   const publishedSince = searchParams.get('publishedSince') || '';
   const remoteOnly = searchParams.get('remoteOnly') === 'true';
   const selectedPositions = searchParams.getAll('positionId').map(Number);

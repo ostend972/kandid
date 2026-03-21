@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
   const industryId = searchParams.get('industryId') ? Number(searchParams.get('industryId')) : undefined;
   const company = searchParams.get('company') || undefined;
   const language = searchParams.get('language') || 'fr'; // Default to French
-  const sort = searchParams.get('sort') || 'date';
+  const sort = searchParams.get('sort') || 'relevance';
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const limit = Math.min(
     100,
