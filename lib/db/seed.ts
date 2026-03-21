@@ -1,7 +1,11 @@
 import { stripe } from '../payments/stripe';
 import { db } from './drizzle';
-import { legacyUsers as users, legacyTeams as teams, legacyTeamMembers as teamMembers } from './schema';
-import { hashPassword } from '@/lib/auth/session';
+import {
+  legacyUsers as users,
+  legacyTeams as teams,
+  legacyTeamMembers as teamMembers,
+} from './schema';
+import { hashSync } from 'bcryptjs';
 
 async function createStripeProducts() {
   console.log('Creating Stripe products and prices...');
@@ -42,7 +46,7 @@ async function createStripeProducts() {
 async function seed() {
   const email = 'test@test.com';
   const password = 'admin123';
-  const passwordHash = await hashPassword(password);
+  const passwordHash = hashSync(password, 10);
 
   const [user] = await db
     .insert(users)
@@ -50,7 +54,7 @@ async function seed() {
       {
         email: email,
         passwordHash: passwordHash,
-        role: "owner",
+        role: 'owner',
       },
     ])
     .returning();

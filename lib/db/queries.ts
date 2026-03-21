@@ -1,6 +1,6 @@
 /**
  * Legacy queries from next-saas-starter boilerplate.
- * These will be replaced by Clerk auth and kandid-queries.ts.
+ * Updated to use Clerk auth instead of custom session tokens.
  */
 import { desc, and, eq, isNull } from 'drizzle-orm';
 import { db } from './drizzle';
@@ -10,39 +10,18 @@ import {
   legacyTeams as teams,
   legacyUsers as users,
 } from './schema';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth/session';
+import { auth } from '@clerk/nextjs/server';
 
 export async function getUser() {
-  const sessionCookie = (await cookies()).get('session');
-  if (!sessionCookie || !sessionCookie.value) {
+  const { userId } = await auth();
+  if (!userId) {
     return null;
   }
 
-  const sessionData = await verifyToken(sessionCookie.value);
-  if (
-    !sessionData ||
-    !sessionData.user ||
-    typeof sessionData.user.id !== 'number'
-  ) {
-    return null;
-  }
-
-  if (new Date(sessionData.expires) < new Date()) {
-    return null;
-  }
-
-  const user = await db
-    .select()
-    .from(users)
-    .where(and(eq(users.id, sessionData.user.id), isNull(users.deletedAt)))
-    .limit(1);
-
-  if (user.length === 0) {
-    return null;
-  }
-
-  return user[0];
+  // Legacy users table uses numeric IDs — this function is kept for
+  // backward compatibility with the boilerplate UI components that
+  // still reference it, but will not match Clerk user IDs.
+  return null;
 }
 
 export async function getTeamByStripeCustomerId(customerId: string) {
@@ -88,42 +67,27 @@ export async function getUserWithTeam(userId: number) {
 }
 
 export async function getActivityLogs() {
-  const user = await getUser();
-  if (!user) {
+  const { userId } = await auth();
+  if (!userId) {
     throw new Error('User not authenticated');
   }
 
-  return await db
-    .select({
-      id: activityLogs.id,
-      action: activityLogs.action,
-      timestamp: activityLogs.timestamp,
-      ipAddress: activityLogs.ipAddress,
-      userName: users.name
-    })
-    .from(activityLogs)
-    .leftJoin(users, eq(activityLogs.userId, users.id))
-    .where(eq(activityLogs.userId, user.id))
-    .orderBy(desc(activityLogs.timestamp))
-    .limit(10);
+  // Legacy activity logs use numeric user IDs — return empty for now
+  return [] as {
+    id: number;
+    action: string;
+    timestamp: Date;
+    ipAddress: string | null;
+    userName: string | null;
+  }[];
 }
 
 export async function getTeamForUser() {
-  const user = await getUser();
-  if (!user) {
+  const { userId } = await auth();
+  if (!userId) {
     return null;
   }
 
-  const result = await db.query.legacyTeamMembers.findFirst({
-    where: eq(teamMembers.userId, user.id),
-    with: {
-      team: {
-        with: {
-          teamMembers: true,
-        }
-      }
-    }
-  });
-
-  return result?.team || null;
+  // Legacy teams use numeric user IDs — return null for now
+  return null;
 }

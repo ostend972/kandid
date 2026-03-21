@@ -2,14 +2,24 @@
 
 import { redirect } from 'next/navigation';
 import { createCheckoutSession, createCustomerPortalSession } from './stripe';
-import { withTeam } from '@/lib/auth/middleware';
+import { auth } from '@clerk/nextjs/server';
 
-export const checkoutAction = withTeam(async (formData, team) => {
+export async function checkoutAction(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) {
+    redirect('/sign-in');
+  }
+
   const priceId = formData.get('priceId') as string;
-  await createCheckoutSession({ team: team, priceId });
-});
+  await createCheckoutSession({ team: null, priceId });
+}
 
-export const customerPortalAction = withTeam(async (_, team) => {
-  const portalSession = await createCustomerPortalSession(team);
-  redirect(portalSession.url);
-});
+export async function customerPortalAction() {
+  const { userId } = await auth();
+  if (!userId) {
+    redirect('/sign-in');
+  }
+
+  // Portal session requires a team with Stripe customer — stub for now
+  redirect('/dashboard');
+}
