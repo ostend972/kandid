@@ -9,7 +9,11 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { getUserById } from '@/lib/db/kandid-queries';
+import { getUserById, getCandidateReferences } from '@/lib/db/kandid-queries';
+import { getProfileSignedUrl } from '@/lib/storage/cv-upload';
+import { PhotoUpload } from '@/components/settings/photo-upload';
+import { DocumentsSection } from '@/components/settings/documents-section';
+import { ReferencesSection } from '@/components/settings/references-section';
 import { SettingsPreferencesForm } from './preferences-form';
 import { DeleteAccountSection } from './delete-account-section';
 
@@ -20,6 +24,8 @@ export default async function SettingsPage() {
   }
 
   const user = await getUserById(userId);
+  const references = await getCandidateReferences(userId);
+  const photoSignedUrl = user?.photoUrl ? await getProfileSignedUrl(user.photoUrl) : null;
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -56,6 +62,25 @@ export default async function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Photo CV section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Photo CV</CardTitle>
+          <CardDescription>
+            Votre photo professionnelle pour le CV suisse.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PhotoUpload currentPhotoUrl={photoSignedUrl} />
+        </CardContent>
+      </Card>
+
+      {/* Documents section */}
+      <DocumentsSection />
+
+      {/* References section */}
+      <ReferencesSection initialReferences={references} />
 
       {/* Preferences section */}
       <Card>

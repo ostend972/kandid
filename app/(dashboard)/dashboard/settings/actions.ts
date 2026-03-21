@@ -10,6 +10,9 @@ import {
   cvAnalyses,
   jobMatches,
   savedJobs,
+  candidateDocuments,
+  candidateReferences,
+  applications,
 } from '@/lib/db/schema';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import {
@@ -17,7 +20,13 @@ import {
   updateCandidateReference,
   deleteCandidateReference,
   countCandidateReferences,
+  getCandidateDocuments,
 } from '@/lib/db/kandid-queries';
+import {
+  deleteProfileDocument,
+  deleteProfilePhoto,
+  deleteApplicationFiles,
+} from '@/lib/storage/cv-upload';
 
 export async function updatePreferencesAction(data: {
   preferredCantons: string[];
@@ -49,28 +58,62 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
   }
 
   try {
-    // 1. Fetch all CV file paths for this user
+    // 1. Clean up profile documents from Storage
+    const docs = await getCandidateDocuments(userId);
+    for (const doc of docs) {
+      try {
+        await deleteProfileDocument(doc.fileUrl);
+      } catch {
+        // Ignore individual file deletion errors during account cleanup
+      }
+    }
+
+    // 2. Delete profile photo from Storage
+    try {
+      await deleteProfilePhoto(userId);
+    } catch {
+      // Ignore photo deletion errors during account cleanup
+    }
+
+    // 3. Clean up application files from Storage
+    const userApplications = await db
+      .select({ id: applications.id })
+      .from(applications)
+      .where(eq(applications.userId, userId));
+
+    for (const app of userApplications) {
+      try {
+        await deleteApplicationFiles(userId, app.id);
+      } catch {
+        // Ignore individual application file deletion errors during account cleanup
+      }
+    }
+
+    // 4. Fetch all CV file paths for this user
     const analyses = await db
       .select({ fileUrl: cvAnalyses.fileUrl })
       .from(cvAnalyses)
       .where(eq(cvAnalyses.userId, userId));
 
-    // 2. Delete CV files from Supabase Storage
+    // 5. Delete CV files from Supabase Storage
     if (analyses.length > 0) {
       const supabase = getSupabaseAdmin();
       const filePaths = analyses.map((a) => a.fileUrl);
       await supabase.storage.from('cv-files').remove(filePaths);
     }
 
-    // 3. Delete all related rows (CASCADE should handle this, but be explicit)
+    // 6. Delete all related rows (CASCADE should handle this, but be explicit)
+    await db.delete(applications).where(eq(applications.userId, userId));
+    await db.delete(candidateDocuments).where(eq(candidateDocuments.userId, userId));
+    await db.delete(candidateReferences).where(eq(candidateReferences.userId, userId));
     await db.delete(jobMatches).where(eq(jobMatches.userId, userId));
     await db.delete(savedJobs).where(eq(savedJobs.userId, userId));
     await db.delete(cvAnalyses).where(eq(cvAnalyses.userId, userId));
 
-    // 4. Delete the user row
+    // 7. Delete the user row
     await db.delete(users).where(eq(users.id, userId));
 
-    // 5. Delete the user from Clerk
+    // 8. Delete the user from Clerk
     const clerk = await clerkClient();
     await clerk.users.deleteUser(userId);
   } catch (error) {
@@ -81,7 +124,7 @@ export async function deleteAccountAction(): Promise<{ error?: string }> {
     };
   }
 
-  // 6. Redirect to landing page (outside try/catch because redirect throws)
+  // 9. Redirect to landing page (outside try/catch because redirect throws)
   redirect('/');
 }
 
