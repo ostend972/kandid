@@ -1,5 +1,5 @@
 import Pricing from '@/components/shadcn-space/blocks/pricing-04/pricing';
-import Faq from '@/components/shadcn-space/blocks/faq-04/faq';
+import FaqPricing from '@/components/shadcn-space/blocks/faq-pricing';
 
 export const metadata = {
   title: 'Tarifs — Kandid | CV suisse pour frontaliers',
@@ -15,9 +15,9 @@ export default function PricingPage() {
         <Pricing />
       </section>
 
-      {/* FAQ */}
+      {/* FAQ Pricing */}
       <section>
-        <Faq />
+        <FaqPricing />
       </section>
     </div>
   );
