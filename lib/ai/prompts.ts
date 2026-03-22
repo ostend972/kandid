@@ -186,6 +186,10 @@ Exemple de BUG A EVITER :
 
 Ne jamais inventer d'informations. Si une information n'est pas visible dans le CV, indiquer qu'elle est manquante. Ne pas supposer ni deduire au-dela de ce qui est explicitement presente dans le document.
 
+## EXTRACTION COMPLETE DU PARCOURS
+
+Extrais TOUTES les experiences professionnelles visibles dans le CV, meme les plus anciennes. Extrais TOUTES les formations. Extrais toutes les certifications. Ces donnees seront utilisees pour generer un CV suisse complet de 2 pages. N'en omets AUCUNE.
+
 ## FORMAT DE REPONSE
 
 Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks, sans commentaires. Le JSON doit respecter exactement cette structure :
@@ -212,7 +216,28 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks, sans 
     "nationality": "<nationalite si visible dans le CV, sinon null>",
     "dateOfBirth": "<date de naissance si visible dans le CV, sinon null>",
     "civilStatus": "<etat civil si visible dans le CV (celibataire, marie, etc.), sinon null>",
-    "title": "<titre professionnel ou poste actuel si visible dans le CV, sinon null>"
+    "title": "<titre professionnel ou poste actuel si visible dans le CV, sinon null>",
+    "experiences": [
+      {
+        "position": "<intitule du poste>",
+        "company": "<nom de l'entreprise>",
+        "location": "<ville, pays si visible>",
+        "startDate": "<date debut MM/YYYY>",
+        "endDate": "<date fin MM/YYYY ou Present>",
+        "description": "<description des missions, chaque bullet separe par \\n>",
+        "activityRate": "<taux d'activite si mentionne, ex: 100%>"
+      }
+    ],
+    "educationEntries": [
+      {
+        "degree": "<intitule du diplome>",
+        "institution": "<etablissement>",
+        "location": "<ville, pays>",
+        "year": "<annee d'obtention>",
+        "equivalence": "<equivalence suisse si applicable>"
+      }
+    ],
+    "certifications": ["<certification 1>", "<certification 2>"]
   },
   "categories": {
     "ats": {

@@ -96,13 +96,36 @@ export async function POST(
       identityContext.lastName = user.lastName;
     }
 
+    // Build detailed experience/education/certification context from extracted profile
+    let experienceContext = '';
+    if (Array.isArray(profile.experiences) && profile.experiences.length > 0) {
+      experienceContext = '\n\nEXPERIENCES PROFESSIONNELLES DU CANDIDAT :\n' +
+        (profile.experiences as Array<Record<string, string>>).map((exp, i) =>
+          `${i+1}. ${exp.position} chez ${exp.company} (${exp.startDate || '?'} - ${exp.endDate || '?'})${exp.location ? ', ' + exp.location : ''}${exp.activityRate ? ' - ' + exp.activityRate : ''}\n   ${exp.description || ''}`
+        ).join('\n');
+    }
+
+    let educationContext = '';
+    if (Array.isArray(profile.educationEntries) && profile.educationEntries.length > 0) {
+      educationContext = '\n\nFORMATIONS DU CANDIDAT :\n' +
+        (profile.educationEntries as Array<Record<string, string>>).map((edu, i) =>
+          `${i+1}. ${edu.degree} - ${edu.institution} (${edu.year || '?'})${edu.equivalence ? ' [Equiv. suisse: ' + edu.equivalence + ']' : ''}`
+        ).join('\n');
+    }
+
+    let certContext = '';
+    if (Array.isArray(profile.certifications) && profile.certifications.length > 0) {
+      certContext = '\n\nCERTIFICATIONS :\n' + (profile.certifications as string[]).join(', ');
+    }
+
     const result = await generateCvData(
       profile,
       application.jobTitle ?? "",
       application.jobCompany ?? "",
       application.jobDescription ?? "",
       instructions,
-      identityContext
+      identityContext,
+      experienceContext + educationContext + certContext
     );
 
     // Log generation

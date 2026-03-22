@@ -41,6 +41,24 @@ export interface ExtractedProfile {
   dateOfBirth?: string;
   civilStatus?: string;
   title?: string;
+  // Full experience/education/certification data extracted from CV
+  experiences?: Array<{
+    position: string;
+    company: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
+    description?: string;
+    activityRate?: string;
+  }>;
+  educationEntries?: Array<{
+    degree: string;
+    institution: string;
+    location?: string;
+    year?: string;
+    equivalence?: string;
+  }>;
+  certifications?: string[];
 }
 
 export interface CategoryFeedback {
@@ -93,7 +111,7 @@ export async function analyzeCv(
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent },
     ],
-    max_tokens: 4000,
+    max_tokens: 5500,
     temperature: 0.3,
   });
 

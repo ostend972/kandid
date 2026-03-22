@@ -81,7 +81,8 @@ export async function generateCvData(
   jobCompany: string,
   jobDescription: string,
   instructions?: string,
-  identityContext?: IdentityContext
+  identityContext?: IdentityContext,
+  detailedCvContext?: string
 ): Promise<GeneratedCvData> {
   const systemPrompt = buildCvGenerationPrompt();
 
@@ -104,6 +105,15 @@ Etat civil: ${identityContext.civilStatus || '[A completer]'}
 Titre professionnel: ${identityContext.title || '[A completer]'}
 
 IMPORTANT: Utilise ces donnees d'identite DIRECTEMENT dans la section "identity" du CV. Ne les remplace PAS par des valeurs inventees.`;
+  }
+
+  if (detailedCvContext) {
+    userMessage += `
+${detailedCvContext}
+
+IMPORTANT : Le CV suisse DOIT faire 2 pages. Tu as ci-dessus TOUTES les experiences du candidat.
+Inclus-les TOUTES dans le CV genere avec des bullet points detailles en methode XYZ/CAR pour chacune.
+Ne selectionne PAS — inclus TOUT.`;
   }
 
   userMessage += `
