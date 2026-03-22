@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +21,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Database, AlertTriangle, Trash2, RefreshCw } from "lucide-react";
+import {
+  Database,
+  AlertTriangle,
+  Trash2,
+  RefreshCw,
+  Play,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -49,6 +57,12 @@ type PurgePreview = {
   expiredJobsCount: number;
   affectedSavedJobs: number;
   affectedMatches: number;
+};
+
+type LogEntry = {
+  type: "log" | "error" | "done";
+  data: string;
+  timestamp: Date;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -86,11 +100,25 @@ export default function AdminScraperPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
 
+  // Scraper run state
+  const [isRunning, setIsRunning] = useState(false);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [showConsole, setShowConsole] = useState(false);
+  const consoleRef = useRef<HTMLDivElement>(null);
+
   // Purge dialog state
   const [purgeDialogOpen, setPurgeDialogOpen] = useState(false);
   const [purgePreview, setPurgePreview] = useState<PurgePreview | null>(null);
   const [purgeLoading, setPurgeLoading] = useState(false);
   const [purging, setPurging] = useState(false);
+
+  /* ----------------------------- Auto-scroll ------------------------------- */
+
+  useEffect(() => {
+    if (consoleRef.current) {
+      consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   /* ----------------------------- Fetch stats ------------------------------ */
 
@@ -111,6 +139,51 @@ export default function AdminScraperPage() {
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
+
+  /* ----------------------------- Run scraper ------------------------------- */
+
+  function handleRunScraper() {
+    setIsRunning(true);
+    setLogs([]);
+    setShowConsole(true);
+
+    const eventSource = new EventSource("/api/admin/scraper/run");
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data) as {
+          type: "log" | "error" | "done";
+          data: string;
+        };
+        setLogs((prev) => [
+          ...prev,
+          { type: parsed.type, data: parsed.data, timestamp: new Date() },
+        ]);
+
+        if (parsed.type === "done") {
+          setIsRunning(false);
+          eventSource.close();
+          // Refresh stats after scraper finishes
+          fetchStats();
+        }
+      } catch {
+        // ignore parse errors
+      }
+    };
+
+    eventSource.onerror = () => {
+      setLogs((prev) => [
+        ...prev,
+        {
+          type: "error",
+          data: "Connexion au scraper perdue",
+          timestamp: new Date(),
+        },
+      ]);
+      setIsRunning(false);
+      eventSource.close();
+    };
+  }
 
   /* ----------------------------- Purge flow ------------------------------- */
 
@@ -176,6 +249,59 @@ export default function AdminScraperPage() {
           <RefreshCw className={loading ? "animate-spin" : ""} />
           Rafraichir
         </Button>
+      </div>
+
+      {/* Scraper run section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Button onClick={handleRunScraper} disabled={isRunning}>
+            {isRunning ? (
+              <>
+                <Loader2 className="animate-spin" />
+                Scrape en cours...
+              </>
+            ) : (
+              <>
+                <Play />
+                Lancer le scrape
+              </>
+            )}
+          </Button>
+          {showConsole && !isRunning && logs.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowConsole(false)}
+            >
+              Masquer la console
+            </Button>
+          )}
+        </div>
+
+        {showConsole && logs.length > 0 && (
+          <Card className="bg-gray-950 text-gray-100 font-mono text-sm">
+            <CardContent
+              className="p-4 max-h-96 overflow-y-auto"
+              ref={consoleRef}
+            >
+              {logs.map((log, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "py-0.5",
+                    log.type === "error" && "text-red-400",
+                    log.type === "done" && "text-green-400 font-bold"
+                  )}
+                >
+                  <span className="text-gray-500 mr-2">
+                    {log.timestamp.toLocaleTimeString("fr-CH")}
+                  </span>
+                  {log.data}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Stat cards */}
