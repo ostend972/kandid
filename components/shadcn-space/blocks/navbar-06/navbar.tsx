@@ -237,16 +237,15 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto w-full px-4 py-4 sm:px-6">
         <nav
           className={cn(
-            "h-fit w-full lg:w-fit mx-auto border rounded-full px-1.5 lg:px-2 py-1 flex items-center justify-between lg:justify-center gap-3.5 lg:gap-16 transition-all duration-500",
+            "h-fit w-full mx-auto border rounded-full px-1.5 lg:px-2 py-1 flex items-center justify-between gap-3.5 transition-all duration-500",
             sticky
               ? "bg-background/60 backdrop-blur-lg shadow-2xl shadow-primary/5"
               : "bg-transparent",
           )}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-sm font-bold">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">K</div>
-            Kandid
+          <Link href="/">
+            <img src="/logo-kandid.png" alt="Kandid" className="h-6 dark:invert-0" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -280,127 +279,18 @@ const Navbar = () => {
           {/* CTA Button */}
           {isSignedIn ? (
             <Link href="/dashboard">
-              <Button className="hidden lg:flex h-8 px-3 py-1.5 rounded-full hover:bg-primary/80 cursor-pointer">
+              <Button className="h-8 px-3 py-1.5 rounded-full hover:bg-primary/80 cursor-pointer">
                 Mon dashboard
               </Button>
             </Link>
           ) : (
             <Link href="/sign-up">
-              <Button className="hidden lg:flex h-8 px-3 py-1.5 rounded-full hover:bg-primary/80 cursor-pointer">
+              <Button className="h-8 px-3 py-1.5 rounded-full hover:bg-primary/80 cursor-pointer">
                 Connexion
               </Button>
             </Link>
           )}
 
-          {/* Mobile Navigation */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full border border-border p-2 outline-none flex items-center justify-center cursor-pointer hover:bg-muted transition-colors h-9 w-9 lg:hidden text-muted-foreground"
-                />
-              }
-            >
-              <AlignJustify size={20} />
-            </SheetTrigger>
-            <SheetContent
-              showCloseButton={false}
-              side="right"
-              className="min-w-80 p-0"
-            >
-              <ScrollArea className="h-full px-6 py-6">
-                <SheetHeader className="mb-4 p-0">
-                  <SheetTitle className="text-left flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 text-sm font-bold">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">K</div>
-                      Kandid
-                    </Link>
-                    <SheetClose className="absolute top-5 right-4 rounded-full border dark:text-white text-black p-2.5 cursor-pointer ">
-                      <X size={16} />
-                    </SheetClose>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-2">
-                  {navigationLinks.map((link) =>
-                    link.hasDropdown ? (
-                      <Collapsible key={link.title} className="w-full">
-                        <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted aria-expanded:bg-muted aria-expanded:text-foreground rounded-lg transition-colors group/collapsible cursor-pointer">
-                          {link.title}
-                          <ChevronDown className="h-4 w-4 transition-transform duration-200 group-aria-expanded/collapsible:rotate-180" />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="flex flex-col gap-2 mt-4 p-2 border rounded-3xl">
-                            {link.sections?.map((section) => (
-                              <Card
-                                key={section.heading}
-                                className="border rounded-2xl p-4 ring-0"
-                              >
-                                <CardContent className="p-0 flex flex-col gap-4">
-                                  <p className="text-sm text-muted-foreground px-2">
-                                    {section.heading}
-                                  </p>
-                                  <Separator />
-                                  <div className="flex flex-col gap-0.5">
-                                    {section.items.map((item) => (
-                                      <a
-                                        key={item.title}
-                                        href={item.href}
-                                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted dark:hover:bg-muted/40 transition-colors group"
-                                        onClick={() => setIsOpen(false)}
-                                      >
-                                        <div className="flex flex-col gap-0.5">
-                                          <span className="text-sm font-medium flex items-center gap-1 text-card-foreground">
-                                            {item.title}
-                                            <ArrowRight
-                                              size={12}
-                                              className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 size-3"
-                                            />
-                                          </span>
-                                          <span className="text-xs text-muted-foreground">
-                                            {item.description}
-                                          </span>
-                                        </div>
-                                      </a>
-                                    ))}
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                            {/* Case Studies Link */}
-                            <CaseStudy />
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    ) : (
-                      <a
-                        key={link.title}
-                        href={link.href}
-                        className="text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2 rounded-lg transition-colors"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {link.title}
-                      </a>
-                    ),
-                  )}
-                </div>
-                {isSignedIn ? (
-                  <Link href="/dashboard">
-                    <Button className="w-full mt-3 h-8 px-3 py-1.5 rounded-full hover:bg-primary/80 cursor-pointer">
-                      Mon dashboard
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link href="/sign-up">
-                    <Button className="w-full mt-3 h-8 px-3 py-1.5 rounded-full hover:bg-primary/80 cursor-pointer">
-                      Connexion
-                    </Button>
-                  </Link>
-                )}
-              </ScrollArea>
-            </SheetContent>
-          </Sheet>
         </nav>
       </div>
     </header>
