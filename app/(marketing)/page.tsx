@@ -5,7 +5,7 @@ import HeroPage from '@/components/shadcn-space/blocks/hero-14/index';
 import Pricing from '@/components/shadcn-space/blocks/pricing-04/pricing';
 import Services from '@/components/shadcn-space/blocks/services-06/services';
 import TestimonialsDemo from '@/components/shadcn-space/blocks/testimonial-05/index';
-import FaqSection from '@/components/shadcn-space/blocks/faq-section';
+import Faq from '@/components/shadcn-space/blocks/faq-04/faq';
 
 export default function LandingPage() {
   return (
@@ -100,9 +100,9 @@ export default function LandingPage() {
         <Services />
       </section>
 
-      {/* faq */}
+      {/* faq-04 */}
       <section>
-        <FaqSection />
+        <Faq />
       </section>
 
       {/* testimonial-05 */}
