@@ -417,9 +417,9 @@ export function CvTemplate({ data, photoBase64 }: CvTemplateProps) {
   return (
     <Document>
       {/* ---- Page 1 -------------------------------------------------------- */}
-      <Page size="A4" style={styles.page}>
-        {/* Sidebar */}
-        <View style={styles.sidebar}>
+      <Page size="A4" style={styles.page} wrap>
+        {/* Sidebar — fixed on every page */}
+        <View style={styles.sidebar} fixed>
           {photoBase64 && (
             <View style={styles.photoWrapper}>
               <Image src={photoBase64} style={styles.photo} />
@@ -430,7 +430,7 @@ export function CvTemplate({ data, photoBase64 }: CvTemplateProps) {
           <SidebarLanguages languages={data.languages} />
         </View>
 
-        {/* Main */}
+        {/* Main — wraps to page 2 */}
         <View style={styles.main}>
           <Text style={styles.nameText}>
             {data.identity.firstName} {data.identity.lastName}

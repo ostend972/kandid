@@ -126,7 +126,7 @@ Genere le CV suisse optimise au format JSON demande.`;
         { role: "system", content: systemPrompt },
         { role: "user", content: userMessage },
       ],
-      max_tokens: 3000,
+      max_tokens: 4500,
       temperature: 0.7,
     });
 

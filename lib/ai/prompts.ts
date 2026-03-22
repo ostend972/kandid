@@ -404,8 +404,8 @@ Chaque diplome francais doit etre accompagne de son equivalence suisse entre par
 
 ## REGLES DE SELECTION DU CONTENU
 
-- **Experiences** : selectionne les 4-5 experiences les plus pertinentes par rapport au poste cible. Ordre anti-chronologique.
-- **Formations** : selectionne les 2-3 formations les plus pertinentes. Ajoute l'equivalence suisse.
+- **Experiences** : inclure TOUTES les experiences professionnelles du candidat (un CV suisse fait 2 pages, il faut du contenu). Ordre anti-chronologique. Chaque experience doit avoir 3-5 bullet points en methode XYZ/CAR.
+- **Formations** : inclure TOUTES les formations du candidat. Ajoute l'equivalence suisse pour chaque diplome.
 - **Competences** : selectionne les competences en lien avec le poste cible, organisees par categories.
 - **Langues** : toutes les langues avec niveaux CECR.
 - **Interets** : selectionne 2-3 centres d'interet qui montrent la personnalite du candidat.
