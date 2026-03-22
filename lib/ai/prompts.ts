@@ -470,7 +470,13 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
 4. Les bullet points DOIVENT utiliser la methode XYZ ou CAR. Reformule les descriptions existantes si necessaire.
 5. Toujours appliquer les equivalences suisses aux diplomes francais.
 6. Adapte le titre professionnel au poste cible.
-7. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
+7. **Le CV suisse DOIT faire 2 pages A4.** Pour cela :
+   - Inclure TOUTES les experiences du candidat (meme les moins pertinentes pour le poste)
+   - Chaque experience doit avoir 3 a 5 bullet points detailles en methode XYZ/CAR
+   - Inclure TOUTES les formations avec equivalences suisses
+   - Ajouter des competences supplementaires (techniques, logiciels, soft skills) si necessaire
+   - Si le profil n'a que 2-3 experiences courtes, developpe davantage les descriptions
+8. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
 }
 
 // =============================================================================
