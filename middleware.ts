@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
@@ -16,9 +16,20 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (req.nextUrl.pathname.startsWith("/admin")) {
-    const { sessionClaims } = await auth();
-    const metadata = sessionClaims?.metadata as Record<string, unknown> | undefined;
-    if (metadata?.role !== "admin") {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
+    // Fetch user from Clerk to check public_metadata.role
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
+      const role = (user.publicMetadata as Record<string, unknown>)?.role;
+      if (role !== "admin") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    } catch {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }
