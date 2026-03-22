@@ -26,10 +26,12 @@ export default clerkMiddleware(async (auth, req) => {
       const client = await clerkClient();
       const user = await client.users.getUser(userId);
       const role = (user.publicMetadata as Record<string, unknown>)?.role;
+      console.log('[ADMIN MIDDLEWARE] userId:', userId, 'role:', role);
       if (role !== "admin") {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
-    } catch {
+    } catch (err) {
+      console.error('[ADMIN MIDDLEWARE] Error:', err);
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }

@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db/drizzle';
 import {
@@ -34,12 +34,16 @@ import { SignupsChart, CantonChart } from './admin-charts';
 /* -------------------------------------------------------------------------- */
 
 async function assertAdmin() {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   if (!userId) redirect('/sign-in');
-  const metadata = sessionClaims?.metadata as
-    | Record<string, unknown>
-    | undefined;
-  if (metadata?.role !== 'admin') redirect('/dashboard');
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const role = (user.publicMetadata as Record<string, unknown>)?.role;
+    if (role !== 'admin') redirect('/dashboard');
+  } catch {
+    redirect('/dashboard');
+  }
 }
 
 /* -------------------------------------------------------------------------- */
