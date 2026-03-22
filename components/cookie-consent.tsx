@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const COOKIE_CONSENT_KEY = 'kandid-cookie-consent';
 
@@ -28,31 +29,30 @@ export function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-4 shadow-lg sm:p-6">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        <p className="text-sm text-gray-600 text-center sm:text-left">
-          Nous utilisons des cookies pour ameliorer votre experience. En
-          continuant, vous acceptez notre{' '}
-          <a
+    <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-xl">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-background/80 backdrop-blur-lg p-5 shadow-2xl shadow-primary/5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Nous utilisons des cookies pour ameliorer votre experience.{' '}
+          <Link
             href="/privacy"
-            className="text-indigo-600 hover:text-indigo-500 underline"
+            className="text-foreground underline underline-offset-4 hover:text-foreground/80"
           >
-            politique de cookies
-          </a>
-          .
+            En savoir plus
+          </Link>
         </p>
-        <div className="flex shrink-0 gap-3">
+        <div className="flex shrink-0 gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefuse}
+            className="rounded-full px-4 cursor-pointer"
           >
             Refuser
           </Button>
           <Button
             size="sm"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
             onClick={handleAccept}
+            className="rounded-full px-4 hover:bg-primary/80 cursor-pointer"
           >
             Accepter
           </Button>

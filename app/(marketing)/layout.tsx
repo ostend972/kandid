@@ -1,4 +1,4 @@
-import Navbar from '@/components/shadcn-space/blocks/navbar-06/navbar';
+import Navbar from '@/components/shadcn-space/blocks/navbar-01/navbar';
 import Footer from '@/components/shadcn-space/blocks/footer-04/footer';
 import { Inter } from 'next/font/google';
 
