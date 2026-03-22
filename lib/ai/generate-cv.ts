@@ -49,6 +49,22 @@ export interface GeneratedCvData {
 }
 
 // =============================================================================
+// Identity context passed from the route (extracted from CV analysis + fallbacks)
+// =============================================================================
+
+export interface IdentityContext {
+  firstName: string;
+  lastName: string;
+  address: string;
+  phone: string;
+  email: string;
+  nationality: string;
+  dateOfBirth: string;
+  civilStatus: string;
+  title: string;
+}
+
+// =============================================================================
 // Core generation function
 // =============================================================================
 
@@ -57,12 +73,33 @@ export async function generateCvData(
   jobTitle: string,
   jobCompany: string,
   jobDescription: string,
-  instructions?: string
+  instructions?: string,
+  identityContext?: IdentityContext
 ): Promise<GeneratedCvData> {
   const systemPrompt = buildCvGenerationPrompt();
 
   let userMessage = `PROFIL DU CANDIDAT:
-${JSON.stringify(profile, null, 2)}
+${JSON.stringify(profile, null, 2)}`;
+
+  // Inject identity context if available
+  if (identityContext) {
+    userMessage += `
+
+DONNEES D'IDENTITE DU CANDIDAT (extraites de son CV) :
+Prenom: ${identityContext.firstName || '[A completer]'}
+Nom: ${identityContext.lastName || '[A completer]'}
+Adresse: ${identityContext.address || '[A completer]'}
+Telephone: ${identityContext.phone || '[A completer]'}
+Email: ${identityContext.email || '[A completer]'}
+Nationalite: ${identityContext.nationality || '[A completer]'}
+Date de naissance: ${identityContext.dateOfBirth || '[A completer]'}
+Etat civil: ${identityContext.civilStatus || '[A completer]'}
+Titre professionnel: ${identityContext.title || '[A completer]'}
+
+IMPORTANT: Utilise ces donnees d'identite DIRECTEMENT dans la section "identity" du CV. Ne les remplace PAS par des valeurs inventees.`;
+  }
+
+  userMessage += `
 
 POSTE CIBLE: ${jobTitle}
 ENTREPRISE: ${jobCompany}

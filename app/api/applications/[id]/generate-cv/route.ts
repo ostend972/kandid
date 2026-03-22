@@ -7,7 +7,7 @@ import {
   logAiGeneration,
   updateApplication,
 } from "@/lib/db/kandid-queries";
-import { generateCvData } from "@/lib/ai/generate-cv";
+import { generateCvData, IdentityContext } from "@/lib/ai/generate-cv";
 
 // ---------------------------------------------------------------------------
 // POST /api/applications/[id]/generate-cv — AI CV generation
@@ -73,12 +73,36 @@ export async function POST(
   }
 
   try {
+    // Extract identity fields from the CV analysis profile
+    const profile = cvAnalysis.profile as Record<string, unknown>;
+
+    const identityContext: IdentityContext = {
+      firstName: (profile.firstName as string) || '',
+      lastName: (profile.lastName as string) || '',
+      address: (profile.address as string) || '',
+      phone: (profile.phone as string) || '',
+      email: (profile.email as string) || '',
+      nationality: (profile.nationality as string) || '',
+      dateOfBirth: (profile.dateOfBirth as string) || '',
+      civilStatus: (profile.civilStatus as string) || '',
+      title: (profile.title as string) || '',
+    };
+
+    // Fallback: get name from Clerk user if not in profile
+    if (!identityContext.firstName && user?.firstName) {
+      identityContext.firstName = user.firstName;
+    }
+    if (!identityContext.lastName && user?.lastName) {
+      identityContext.lastName = user.lastName;
+    }
+
     const result = await generateCvData(
-      cvAnalysis.profile as Record<string, unknown>,
+      profile,
       application.jobTitle ?? "",
       application.jobCompany ?? "",
       application.jobDescription ?? "",
-      instructions
+      instructions,
+      identityContext
     );
 
     // Log generation

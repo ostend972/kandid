@@ -203,7 +203,16 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks, sans 
     "hasPhoto": <true si une photo est presente, false sinon>,
     "hasNationality": <true si la nationalite est mentionnee>,
     "hasPermit": "<type de permis mentionne ou null si absent — ne pas penaliser l'absence>",
-    "hasReferencesMention": <true si la mention des references est presente>
+    "hasReferencesMention": <true si la mention des references est presente>,
+    "firstName": "<prenom du candidat si visible dans le CV, sinon null>",
+    "lastName": "<nom de famille du candidat si visible dans le CV, sinon null>",
+    "address": "<adresse complete si visible dans le CV, sinon null>",
+    "phone": "<numero de telephone si visible dans le CV, sinon null>",
+    "email": "<adresse email si visible dans le CV, sinon null>",
+    "nationality": "<nationalite si visible dans le CV, sinon null>",
+    "dateOfBirth": "<date de naissance si visible dans le CV, sinon null>",
+    "civilStatus": "<etat civil si visible dans le CV (celibataire, marie, etc.), sinon null>",
+    "title": "<titre professionnel ou poste actuel si visible dans le CV, sinon null>"
   },
   "categories": {
     "ats": {
@@ -456,11 +465,12 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
 ## REGLES ABSOLUES
 
 1. Ne jamais inventer d'informations. Utilise UNIQUEMENT les donnees du profil fourni.
-2. Si des informations manquent (date de naissance, etat civil, etc.), utilise une valeur placeholder explicite comme "[A completer]".
-3. Les bullet points DOIVENT utiliser la methode XYZ ou CAR. Reformule les descriptions existantes si necessaire.
-4. Toujours appliquer les equivalences suisses aux diplomes francais.
-5. Adapte le titre professionnel au poste cible.
-6. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
+2. Si des donnees d'identite sont fournies dans le profil (firstName, lastName, address, phone, email, nationality, dateOfBirth, civilStatus), utilise-les DIRECTEMENT dans la section "identity" du CV genere. Ne les invente JAMAIS.
+3. Si des informations manquent (date de naissance, etat civil, etc.) et ne sont pas fournies dans le profil, utilise une valeur placeholder explicite comme "[A completer]".
+4. Les bullet points DOIVENT utiliser la methode XYZ ou CAR. Reformule les descriptions existantes si necessaire.
+5. Toujours appliquer les equivalences suisses aux diplomes francais.
+6. Adapte le titre professionnel au poste cible.
+7. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
 }
 
 // =============================================================================

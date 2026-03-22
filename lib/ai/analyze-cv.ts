@@ -31,6 +31,16 @@ export interface ExtractedProfile {
   hasNationality: boolean;
   hasPermit: string | null;
   hasReferencesMention: boolean;
+  // Identity fields extracted from CV
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  nationality?: string;
+  dateOfBirth?: string;
+  civilStatus?: string;
+  title?: string;
 }
 
 export interface CategoryFeedback {
