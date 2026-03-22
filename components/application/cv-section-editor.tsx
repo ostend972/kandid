@@ -67,6 +67,7 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
           startDate: '',
           endDate: '',
           contractType: '',
+          activityRate: '100%',
           bullets: [''],
         },
       ],
@@ -242,6 +243,68 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
   );
 
   // -------------------------------------------------------------------------
+  // References
+  // -------------------------------------------------------------------------
+
+  const addReference = useCallback(() => {
+    onChange({
+      ...data,
+      references: [...(data.references ?? []), { name: '', position: '' }],
+    });
+  }, [data, onChange]);
+
+  const removeReference = useCallback(
+    (idx: number) => {
+      onChange({
+        ...data,
+        references: (data.references ?? []).filter((_, i) => i !== idx),
+      });
+    },
+    [data, onChange]
+  );
+
+  const updateReference = useCallback(
+    (idx: number, field: 'name' | 'position', value: string) => {
+      const updated = [...(data.references ?? [])];
+      updated[idx] = { ...updated[idx], [field]: value };
+      onChange({ ...data, references: updated });
+    },
+    [data, onChange]
+  );
+
+  // -------------------------------------------------------------------------
+  // Certifications
+  // -------------------------------------------------------------------------
+
+  const addCertification = useCallback(() => {
+    onChange({
+      ...data,
+      certifications: [...(data.certifications ?? []), ''],
+    });
+  }, [data, onChange]);
+
+  const removeCertification = useCallback(
+    (idx: number) => {
+      onChange({
+        ...data,
+        certifications: (data.certifications ?? []).filter(
+          (_, i) => i !== idx
+        ),
+      });
+    },
+    [data, onChange]
+  );
+
+  const updateCertification = useCallback(
+    (idx: number, value: string) => {
+      const updated = [...(data.certifications ?? [])];
+      updated[idx] = value;
+      onChange({ ...data, certifications: updated });
+    },
+    [data, onChange]
+  );
+
+  // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
 
@@ -327,6 +390,15 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
               onChange={(e) => updateIdentity('civilStatus', e.target.value)}
             />
           </div>
+          <div>
+            <Label htmlFor="cv-workPermit">Permis de travail</Label>
+            <Input
+              id="cv-workPermit"
+              value={data.identity.workPermit ?? ''}
+              onChange={(e) => updateIdentity('workPermit', e.target.value)}
+              placeholder="ex: Eligible au permis G (frontalier)"
+            />
+          </div>
         </div>
       </section>
 
@@ -377,6 +449,7 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
                         onChange={(e) =>
                           updateExperience(idx, 'location', e.target.value)
                         }
+                        placeholder="ex: Geneve, Suisse"
                       />
                     </div>
                     <div>
@@ -386,6 +459,21 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
                         onChange={(e) =>
                           updateExperience(idx, 'contractType', e.target.value)
                         }
+                        placeholder="ex: contrat fixe"
+                      />
+                    </div>
+                    <div>
+                      <Label>Taux d&apos;activite</Label>
+                      <Input
+                        value={exp.activityRate ?? ''}
+                        onChange={(e) =>
+                          updateExperience(
+                            idx,
+                            'activityRate',
+                            e.target.value
+                          )
+                        }
+                        placeholder="ex: 100%"
                       />
                     </div>
                     <div>
@@ -486,6 +574,7 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
                         onChange={(e) =>
                           updateEducation(idx, 'location', e.target.value)
                         }
+                        placeholder="ex: Paris, France"
                       />
                     </div>
                     <div>
@@ -520,6 +609,45 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
                 </div>
               </CardContent>
             </Card>
+          ))}
+        </div>
+      </section>
+
+      <Separator />
+
+      {/* ================================================================= */}
+      {/* Certifications */}
+      {/* ================================================================= */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+            Certifications
+          </h3>
+          <Button variant="outline" size="sm" onClick={addCertification}>
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Ajouter
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          {(data.certifications ?? []).map((cert, idx) => (
+            <div key={idx} className="flex items-end gap-2">
+              <div className="flex-1">
+                <Input
+                  value={cert}
+                  onChange={(e) => updateCertification(idx, e.target.value)}
+                  placeholder="ex: Certification AMF (2022)"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="shrink-0 text-destructive hover:text-destructive"
+                onClick={() => removeCertification(idx)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           ))}
         </div>
       </section>
@@ -678,6 +806,68 @@ export function CvSectionEditor({ data, onChange }: CvSectionEditorProps) {
           onChange={(e) => updateInterests(e.target.value)}
           placeholder="Voyages, Cuisine, Football, Lecture..."
         />
+      </section>
+
+      <Separator />
+
+      {/* ================================================================= */}
+      {/* References */}
+      {/* ================================================================= */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+            References
+          </h3>
+          <Button variant="outline" size="sm" onClick={addReference}>
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Ajouter
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground mb-3">
+          Si aucune reference n&apos;est ajoutee, le CV affichera &quot;Disponibles sur demande&quot;.
+        </p>
+
+        <div className="space-y-2">
+          {(data.references ?? []).map((ref, idx) => (
+            <Card key={idx}>
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                    <div>
+                      <Label>Nom complet</Label>
+                      <Input
+                        value={ref.name}
+                        onChange={(e) =>
+                          updateReference(idx, 'name', e.target.value)
+                        }
+                        placeholder="ex: Jean Dupont"
+                      />
+                    </div>
+                    <div>
+                      <Label>Poste et entreprise</Label>
+                      <Input
+                        value={ref.position}
+                        onChange={(e) =>
+                          updateReference(idx, 'position', e.target.value)
+                        }
+                        placeholder="ex: Directeur commercial, Nestle SA"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 text-destructive hover:text-destructive"
+                    onClick={() => removeReference(idx)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </section>
     </div>
   );

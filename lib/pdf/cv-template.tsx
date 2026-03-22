@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
   },
   personalInfoRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: 16,
   },
   personalInfoItem: {
@@ -262,6 +263,27 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginBottom: 4,
   },
+
+  // Certifications
+  certificationItem: {
+    fontSize: 9,
+    color: COLORS.black,
+    marginBottom: 3,
+  },
+
+  // References
+  referenceBlock: {
+    marginBottom: 6,
+  },
+  referenceName: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.black,
+  },
+  referencePosition: {
+    fontSize: 8,
+    color: COLORS.gray,
+  },
 });
 
 // =============================================================================
@@ -346,6 +368,7 @@ function PersonalInfoRow({ data }: { data: GeneratedCvData }) {
     data.identity.nationality,
     data.identity.dateOfBirth,
     data.identity.civilStatus,
+    data.identity.workPermit,
   ].filter(Boolean);
 
   if (items.length === 0) return null;
@@ -368,12 +391,18 @@ function ExperienceBlock({
   exp: GeneratedCvData["experiences"][number];
 }) {
   const dateRange = [exp.startDate, exp.endDate].filter(Boolean).join(" - ");
-  const meta = [exp.company, exp.location, dateRange, exp.contractType]
+  const meta = [
+    exp.company,
+    exp.location,
+    dateRange,
+    exp.activityRate,
+    exp.contractType,
+  ]
     .filter(Boolean)
     .join(" | ");
 
   return (
-    <View style={styles.experienceBlock} wrap={false}>
+    <View style={styles.experienceBlock} wrap={false} minPresenceAhead={100}>
       <Text style={styles.experienceTitle}>{exp.title}</Text>
       <Text style={styles.experienceMeta}>{meta}</Text>
       {exp.bullets.map((bullet, idx) => (
@@ -404,6 +433,52 @@ function EducationBlock({
       <Text style={styles.educationMeta}>{meta}</Text>
       {edu.details && (
         <Text style={styles.educationDetails}>{edu.details}</Text>
+      )}
+    </View>
+  );
+}
+
+function CertificationsSection({
+  certifications,
+}: {
+  certifications?: string[];
+}) {
+  if (!certifications || certifications.length === 0) return null;
+
+  return (
+    <View>
+      <Text style={styles.sectionHeader}>Certifications</Text>
+      {certifications.map((cert, idx) => (
+        <Text style={styles.certificationItem} key={idx}>
+          &#8226; {cert}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
+function ReferencesSection({
+  references,
+}: {
+  references?: GeneratedCvData["references"];
+}) {
+  // Always show references section — Swiss convention
+  const hasRefs = references && references.length > 0;
+
+  return (
+    <View>
+      <Text style={styles.sectionHeader}>References</Text>
+      {hasRefs ? (
+        references.map((ref, idx) => (
+          <View style={styles.referenceBlock} key={idx}>
+            <Text style={styles.referenceName}>{ref.name}</Text>
+            {ref.position && (
+              <Text style={styles.referencePosition}>{ref.position}</Text>
+            )}
+          </View>
+        ))
+      ) : (
+        <Text style={styles.referencePosition}>Disponibles sur demande</Text>
       )}
     </View>
   );
@@ -451,6 +526,8 @@ export function CvTemplate({ data, photoBase64 }: CvTemplateProps) {
             <EducationBlock key={idx} edu={edu} />
           ))}
 
+          <CertificationsSection certifications={data.certifications} />
+
           {data.interests && data.interests.length > 0 && (
             <>
               <Text style={styles.sectionHeader}>Centres d&apos;interet</Text>
@@ -461,6 +538,8 @@ export function CvTemplate({ data, photoBase64 }: CvTemplateProps) {
               ))}
             </>
           )}
+
+          <ReferencesSection references={data.references} />
         </View>
       </Page>
     </Document>

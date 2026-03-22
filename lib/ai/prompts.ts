@@ -424,16 +424,18 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
     "email": "<email>",
     "nationality": "<nationalite>",
     "dateOfBirth": "<date de naissance>",
-    "civilStatus": "<etat civil>"
+    "civilStatus": "<etat civil>",
+    "workPermit": "<permis de travail, ex: 'Eligible au permis G (frontalier)', 'Permis B', ou '[A completer]'>"
   },
   "experiences": [
     {
       "title": "<titre du poste>",
       "company": "<entreprise>",
-      "location": "<lieu>",
+      "location": "<ville, pays>",
       "startDate": "<date debut>",
       "endDate": "<date fin ou Present>",
       "contractType": "<type de contrat en terminologie suisse>",
+      "activityRate": "<taux d'activite, ex: '100%', '80%'>",
       "bullets": ["<bullet point XYZ/CAR>", "..."]
     }
   ],
@@ -442,7 +444,7 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
       "degree": "<diplome>",
       "equivalence": "<equivalence suisse>",
       "institution": "<etablissement>",
-      "location": "<lieu>",
+      "location": "<ville, pays>",
       "year": "<annee d'obtention>",
       "details": "<details optionnels>"
     }
@@ -459,7 +461,14 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
       "level": "<niveau CECR ou descripteur>"
     }
   ],
-  "interests": ["<centre d'interet>", "..."]
+  "interests": ["<centre d'interet>", "..."],
+  "references": [
+    {
+      "name": "<nom complet du referent>",
+      "position": "<poste et entreprise, ex: 'Directeur commercial, Nestle Suisse SA'>"
+    }
+  ],
+  "certifications": ["<certification professionnelle, ex: 'Certification AMF (2022)', 'CACES R489'>"]
 }
 
 ## REGLES ABSOLUES
@@ -470,10 +479,14 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
 4. Les bullet points DOIVENT utiliser la methode XYZ ou CAR. Reformule les descriptions existantes si necessaire.
 5. Toujours appliquer les equivalences suisses aux diplomes francais.
 6. Adapte le titre professionnel au poste cible.
-7. **Le CV suisse DOIT faire 2 pages A4.** Pour cela :
-   - Inclure TOUTES les experiences du candidat (meme les moins pertinentes pour le poste)
-   - Chaque experience doit avoir 3 a 5 bullet points detailles en methode XYZ/CAR
-   - Inclure TOUTES les formations avec equivalences suisses
+7. **Le CV suisse DOIT faire 2 pages A4.** Pour remplir 2 pages :
+   - TOUTES les experiences professionnelles avec 3-5 bullets chacune
+   - TOUTES les formations avec equivalences suisses
+   - Section certifications si applicable (certifications professionnelles du candidat)
+   - Section references (2-3 personnes avec nom et poste si disponibles dans le profil, sinon une seule entree "Disponibles sur demande")
+   - Taux d'activite (100%, 80%...) pour chaque experience
+   - Lieu (ville, pays) pour chaque experience et formation
+   - Permis de travail dans l'identite : "Eligible au permis G (frontalier)" si le candidat reside en zone frontaliere, ou le permis reel si mentionne
    - Ajouter des competences supplementaires (techniques, logiciels, soft skills) si necessaire
    - Si le profil n'a que 2-3 experiences courtes, developpe davantage les descriptions
 8. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;

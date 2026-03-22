@@ -19,6 +19,7 @@ export interface GeneratedCvData {
     nationality: string;
     dateOfBirth: string;
     civilStatus: string;
+    workPermit?: string;
   };
   experiences: {
     title: string;
@@ -27,6 +28,7 @@ export interface GeneratedCvData {
     startDate: string;
     endDate: string;
     contractType: string;
+    activityRate?: string;
     bullets: string[];
   }[];
   education: {
@@ -46,6 +48,11 @@ export interface GeneratedCvData {
     level: string;
   }[];
   interests: string[];
+  references?: {
+    name: string;
+    position: string;
+  }[];
+  certifications?: string[];
 }
 
 // =============================================================================
@@ -126,7 +133,7 @@ Genere le CV suisse optimise au format JSON demande.`;
         { role: "system", content: systemPrompt },
         { role: "user", content: userMessage },
       ],
-      max_tokens: 4500,
+      max_tokens: 5500,
       temperature: 0.7,
     });
 
