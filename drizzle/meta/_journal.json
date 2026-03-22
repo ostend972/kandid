@@ -22,6 +22,13 @@
       "when": 1774126327636,
       "tag": "0002_friendly_vermin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774211481012,
+      "tag": "0003_lowly_harpoon",
+      "breakpoints": true
     }
   ]
 }

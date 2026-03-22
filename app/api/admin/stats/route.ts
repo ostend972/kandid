@@ -67,6 +67,21 @@ export async function GET() {
       .where(eq(applications.status, 'completed')),
   ]);
 
+  // ---------------------------------------------------------------------------
+  // API costs & tokens
+  // ---------------------------------------------------------------------------
+  const [
+    [{ value: totalCostValue }],
+    [{ value: totalTokensValue }],
+    [{ value: todayCostValue }],
+    [{ value: todayTokensValue }],
+  ] = await Promise.all([
+    db.select({ value: sql<string>`COALESCE(SUM(CAST(${aiGenerationsLog.costUsd} AS DECIMAL)), 0)` }).from(aiGenerationsLog),
+    db.select({ value: sql<number>`COALESCE(SUM(${aiGenerationsLog.totalTokens}), 0)` }).from(aiGenerationsLog),
+    db.select({ value: sql<string>`COALESCE(SUM(CAST(${aiGenerationsLog.costUsd} AS DECIMAL)), 0)` }).from(aiGenerationsLog).where(gte(aiGenerationsLog.createdAt, today)),
+    db.select({ value: sql<number>`COALESCE(SUM(${aiGenerationsLog.totalTokens}), 0)` }).from(aiGenerationsLog).where(gte(aiGenerationsLog.createdAt, today)),
+  ]);
+
   const completionRate =
     applicationsCount > 0
       ? Math.round((completedApplicationsCount / applicationsCount) * 100)
@@ -119,6 +134,12 @@ export async function GET() {
       avgMatchScore: avgMatchScore ? Math.round(Number(avgMatchScore)) : null,
       completedApplications: completedApplicationsCount,
       completionRate,
+    },
+    api: {
+      totalCost: Number(totalCostValue) || 0,
+      totalTokens: Number(totalTokensValue) || 0,
+      todayCost: Number(todayCostValue) || 0,
+      todayTokens: Number(todayTokensValue) || 0,
     },
     charts: {
       signupsPerDay,

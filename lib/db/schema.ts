@@ -265,6 +265,10 @@ export const aiGenerationsLog = pgTable('ai_generations_log', {
     .notNull()
     .references(() => applications.id, { onDelete: 'cascade' }),
   type: text('type').notNull(), // cv | letter | email
+  promptTokens: integer('prompt_tokens'),
+  completionTokens: integer('completion_tokens'),
+  totalTokens: integer('total_tokens'),
+  costUsd: text('cost_usd'), // store as string to avoid float precision issues, e.g. "0.00234"
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

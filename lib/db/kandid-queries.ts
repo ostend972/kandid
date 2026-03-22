@@ -788,14 +788,23 @@ export async function countApplicationsByUser(userId: string) {
 export async function logAiGeneration(
   userId: string,
   type: string,
-  applicationId: string
+  applicationId: string,
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number }
 ) {
+  const promptCost = (usage?.promptTokens || 0) * 2.50 / 1_000_000;
+  const completionCost = (usage?.completionTokens || 0) * 10.00 / 1_000_000;
+  const totalCost = promptCost + completionCost;
+
   const [entry] = await db
     .insert(aiGenerationsLog)
     .values({
       userId,
       type,
       applicationId,
+      promptTokens: usage?.promptTokens || null,
+      completionTokens: usage?.completionTokens || null,
+      totalTokens: usage?.totalTokens || null,
+      costUsd: totalCost > 0 ? totalCost.toFixed(6) : null,
     })
     .returning();
 

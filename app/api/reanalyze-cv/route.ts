@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
   // Re-run AI analysis with current prompt
   let feedback;
   try {
-    feedback = await analyzeCvWithRetry(allImagesBase64);
+    const result = await analyzeCvWithRetry(allImagesBase64);
+    feedback = result.data;
   } catch (error) {
     console.error("Re-analysis failed:", error);
     return NextResponse.json(

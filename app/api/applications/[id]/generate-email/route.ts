@@ -69,22 +69,22 @@ export async function POST(
   }
 
   try {
-    const result = await generateEmailData(
+    const { data: emailData, usage } = await generateEmailData(
       candidateName,
       application.jobTitle ?? "",
       application.jobCompany ?? ""
     );
 
-    // Log generation
-    await logAiGeneration(user.id, "email", application.id);
+    // Log generation with token usage
+    await logAiGeneration(user.id, "email", application.id, usage);
 
     // Save to application
     await updateApplication(id, user.id, {
-      emailSubject: result.subject,
-      emailBody: result.body,
+      emailSubject: emailData.subject,
+      emailBody: emailData.body,
     });
 
-    return NextResponse.json({ emailData: result });
+    return NextResponse.json({ emailData });
   } catch (error) {
     console.error("Email generation failed:", error);
     return NextResponse.json(

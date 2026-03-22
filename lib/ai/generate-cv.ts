@@ -83,7 +83,7 @@ export async function generateCvData(
   instructions?: string,
   identityContext?: IdentityContext,
   detailedCvContext?: string
-): Promise<GeneratedCvData> {
+): Promise<{ data: GeneratedCvData; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   const systemPrompt = buildCvGenerationPrompt();
 
   let userMessage = `PROFIL DU CANDIDAT:
@@ -165,6 +165,13 @@ Genere le CV suisse optimise au format JSON demande.`;
       throw new Error("Format de reponse IA invalide : aucune experience generee");
     }
 
-    return parsed;
+    return {
+      data: parsed,
+      usage: {
+        promptTokens: response.usage?.prompt_tokens || 0,
+        completionTokens: response.usage?.completion_tokens || 0,
+        totalTokens: response.usage?.total_tokens || 0,
+      },
+    };
   });
 }

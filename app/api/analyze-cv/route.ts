@@ -168,13 +168,16 @@ export async function POST(request: NextRequest) {
 
   // ── 6. AI analysis ──────────────────────────────────────────────────
   let feedback;
+  let aiUsage: { promptTokens: number; completionTokens: number; totalTokens: number } | undefined;
   try {
-    feedback = await analyzeCvWithRetry(
+    const result = await analyzeCvWithRetry(
       allImages,
       typeof jobDescription === "string" && jobDescription.length > 0
         ? jobDescription
         : undefined
     );
+    feedback = result.data;
+    aiUsage = result.usage;
   } catch (error) {
     console.error("CV AI analysis failed after retry:", error);
     return NextResponse.json(

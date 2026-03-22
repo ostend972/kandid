@@ -30,7 +30,7 @@ export async function generateLetterData(
   jobCompany: string,
   jobDescription: string,
   instructions?: string
-): Promise<GeneratedLetterData> {
+): Promise<{ data: GeneratedLetterData; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   const systemPrompt = buildCoverLetterPrompt();
 
   let userMessage = `PROFIL DU CANDIDAT:
@@ -79,6 +79,13 @@ Redige la lettre de motivation au format JSON demande en utilisant la methode VO
       throw new Error("Format de reponse IA invalide : structure VOUS-MOI-NOUS incomplete");
     }
 
-    return parsed;
+    return {
+      data: parsed,
+      usage: {
+        promptTokens: response.usage?.prompt_tokens || 0,
+        completionTokens: response.usage?.completion_tokens || 0,
+        totalTokens: response.usage?.total_tokens || 0,
+      },
+    };
   });
 }

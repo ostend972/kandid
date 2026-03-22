@@ -21,7 +21,7 @@ export async function generateEmailData(
   candidateName: string,
   jobTitle: string,
   jobCompany: string
-): Promise<GeneratedEmailData> {
+): Promise<{ data: GeneratedEmailData; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   const systemPrompt = buildEmailPrompt();
 
   const userMessage = `NOM DU CANDIDAT: ${candidateName}
@@ -52,6 +52,13 @@ Redige l'email d'accompagnement de candidature au format JSON demande.`;
       throw new Error("Format de reponse IA invalide : subject ou body manquant");
     }
 
-    return parsed;
+    return {
+      data: parsed,
+      usage: {
+        promptTokens: response.usage?.prompt_tokens || 0,
+        completionTokens: response.usage?.completion_tokens || 0,
+        totalTokens: response.usage?.total_tokens || 0,
+      },
+    };
   });
 }

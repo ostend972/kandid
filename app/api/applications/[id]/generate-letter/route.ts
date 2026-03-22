@@ -73,7 +73,7 @@ export async function POST(
   }
 
   try {
-    const result = await generateLetterData(
+    const { data: letterData, usage } = await generateLetterData(
       cvAnalysis.profile as Record<string, unknown>,
       application.jobTitle ?? "",
       application.jobCompany ?? "",
@@ -81,21 +81,21 @@ export async function POST(
       instructions
     );
 
-    // Log generation
-    await logAiGeneration(user.id, "letter", application.id);
+    // Log generation with token usage
+    await logAiGeneration(user.id, "letter", application.id, usage);
 
     // Assemble full text from structured data
     const fullText = [
-      result.greeting,
+      letterData.greeting,
       "",
-      result.body.vous,
+      letterData.body.vous,
       "",
-      result.body.moi,
+      letterData.body.moi,
       "",
-      result.body.nous,
+      letterData.body.nous,
       "",
-      result.closing,
-      result.signature,
+      letterData.closing,
+      letterData.signature,
     ].join("\n");
 
     // Save to application
@@ -104,7 +104,7 @@ export async function POST(
       coverLetterInstructions: instructions ?? null,
     });
 
-    return NextResponse.json({ letterData: result });
+    return NextResponse.json({ letterData });
   } catch (error) {
     console.error("Letter generation failed:", error);
     return NextResponse.json(

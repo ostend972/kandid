@@ -78,7 +78,7 @@ export interface CategoryFeedback {
 export async function analyzeCv(
   pageImages: string | string[],
   jobDescription?: string
-): Promise<CVFeedback> {
+): Promise<{ data: CVFeedback; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   const systemPrompt = buildCvAnalysisPrompt(jobDescription);
 
   // Support both single image (backward compat) and array of images
@@ -154,7 +154,14 @@ export async function analyzeCv(
   // Clamp overallScore to 0-100
   parsed.overallScore = Math.max(0, Math.min(100, Math.round(parsed.overallScore)));
 
-  return parsed;
+  return {
+    data: parsed,
+    usage: {
+      promptTokens: response.usage?.prompt_tokens || 0,
+      completionTokens: response.usage?.completion_tokens || 0,
+      totalTokens: response.usage?.total_tokens || 0,
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -164,7 +171,7 @@ export async function analyzeCv(
 export async function analyzeCvWithRetry(
   pageImages: string | string[],
   jobDescription?: string
-): Promise<CVFeedback> {
+): Promise<{ data: CVFeedback; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   try {
     return await analyzeCv(pageImages, jobDescription);
   } catch (error) {

@@ -26,6 +26,8 @@ import {
   Target,
   TrendingUp,
   CheckCircle2,
+  DollarSign,
+  Cpu,
 } from 'lucide-react';
 import { SignupsChart, CantonChart } from './admin-charts';
 
@@ -110,6 +112,23 @@ export default async function AdminDashboardPage() {
     applicationsCount > 0
       ? Math.round((completedApplicationsCount / applicationsCount) * 100)
       : 0;
+
+  // ---------------------------------------------------------------------------
+  // API costs & tokens
+  // ---------------------------------------------------------------------------
+  const [
+    [{ value: totalCostValue }],
+    [{ value: totalTokensValue }],
+    [{ value: todayCostValue }],
+  ] = await Promise.all([
+    db.select({ value: sql<string>`COALESCE(SUM(CAST(${aiGenerationsLog.costUsd} AS DECIMAL)), 0)` }).from(aiGenerationsLog),
+    db.select({ value: sql<number>`COALESCE(SUM(${aiGenerationsLog.totalTokens}), 0)` }).from(aiGenerationsLog),
+    db.select({ value: sql<string>`COALESCE(SUM(CAST(${aiGenerationsLog.costUsd} AS DECIMAL)), 0)` }).from(aiGenerationsLog).where(gte(aiGenerationsLog.createdAt, today)),
+  ]);
+
+  const totalApiCost = Number(totalCostValue) || 0;
+  const totalTokens = Number(totalTokensValue) || 0;
+  const todayApiCost = Number(todayCostValue) || 0;
 
   // ---------------------------------------------------------------------------
   // Charts
@@ -201,6 +220,24 @@ export default async function AdminDashboardPage() {
     },
   ];
 
+  const apiCards = [
+    {
+      label: 'Cout API total',
+      value: `$${totalApiCost.toFixed(4)}`,
+      icon: DollarSign,
+    },
+    {
+      label: "Cout API aujourd'hui",
+      value: `$${todayApiCost.toFixed(4)}`,
+      icon: DollarSign,
+    },
+    {
+      label: 'Tokens totaux',
+      value: totalTokens.toLocaleString('fr-CH'),
+      icon: Cpu,
+    },
+  ];
+
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
@@ -249,6 +286,23 @@ export default async function AdminDashboardPage() {
                       ? stat.value.toLocaleString('fr-CH')
                       : stat.value}
                   </p>
+                </div>
+                <stat.icon className="h-8 w-8 text-muted-foreground/50" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Row 4 — API Costs */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {apiCards.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-3xl font-bold">{stat.value}</p>
                 </div>
                 <stat.icon className="h-8 w-8 text-muted-foreground/50" />
               </div>

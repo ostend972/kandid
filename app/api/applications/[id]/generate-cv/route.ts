@@ -118,7 +118,7 @@ export async function POST(
       certContext = '\n\nCERTIFICATIONS :\n' + (profile.certifications as string[]).join(', ');
     }
 
-    const result = await generateCvData(
+    const { data: cvData, usage } = await generateCvData(
       profile,
       application.jobTitle ?? "",
       application.jobCompany ?? "",
@@ -128,15 +128,15 @@ export async function POST(
       experienceContext + educationContext + certContext
     );
 
-    // Log generation
-    await logAiGeneration(user.id, "cv", application.id);
+    // Log generation with token usage
+    await logAiGeneration(user.id, "cv", application.id, usage);
 
     // Save to application
     await updateApplication(id, user.id, {
-      generatedCvData: result as unknown as Record<string, unknown>,
+      generatedCvData: cvData as unknown as Record<string, unknown>,
     });
 
-    return NextResponse.json({ cvData: result });
+    return NextResponse.json({ cvData });
   } catch (error) {
     console.error("CV generation failed:", error);
     return NextResponse.json(
