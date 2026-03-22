@@ -55,12 +55,12 @@ const FAQ_DATA = [
       "Oui. Pendant la phase beta, toutes les fonctionnalites sont accessibles gratuitement : analyse CV, recherche d’emploi parmi 20 000+ offres, et generation de dossier de candidature complet. Aucune carte de credit requise.",
   },
   {
-    question: "Comment fonctionne le matching IA avec les offres d’emploi ?",
+    question: "Comment fonctionne le matching IA ?",
     answer:
       "L’algorithme de Kandid compare votre profil extrait du CV (competences, langues, experience, secteur) avec les exigences de chaque offre. Il attribue un score de compatibilite sur 100 et identifie les lacunes a combler pour maximiser vos chances.",
   },
   {
-    question: "Quelles sont les differences entre un CV francais et un CV suisse ?",
+    question: "CV francais vs CV suisse : quelles differences ?",
     answer:
       "Un CV suisse doit contenir une photo professionnelle, mentionner la nationalite et la date de naissance, utiliser la terminologie locale (contrat fixe, CFC, HES), indiquer les niveaux de langue en CECR, et faire 2 pages. Les CV creatifs ou d’une seule page a la francaise ne sont pas adaptes au marche suisse.",
   },
