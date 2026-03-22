@@ -37,36 +37,33 @@ export const navData: NavItem[] = [
 const AppSidebar = ({ children }: { children: React.ReactNode }) => {
     return (
         <SidebarProvider>
-            <Sidebar className="py-4 px-0 bg-background">
-                <div className="flex flex-col gap-6 bg-background">
-                    {/* ---------------- Header ---------------- */}
-                    <SidebarHeader className="py-0 px-4">
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <Link href="/" className="w-full h-full">
-                                    <img src="/logo-kandid.png" alt="Kandid" className="h-5" />
-                                </Link>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarHeader>
+            <Sidebar className="py-4 px-0 bg-background flex flex-col h-full">
+                {/* ---------------- Header ---------------- */}
+                <SidebarHeader className="py-0 px-4">
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <Link href="/" className="w-full h-full">
+                                <img src="/logo-kandid.png" alt="Kandid" className="h-5" />
+                            </Link>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
 
-                    {/* ---------------- Content ---------------- */}
-                    <SidebarContent className="overflow-hidden gap-0 px-0">
-                        <SimpleBar autoHide={true} className="h-[calc(100vh-348px)] border-b border-border">
-                            <div className="px-4">
-                                <NavMain items={navData} />
-                            </div>
-                        </SimpleBar>
-                        {/* card */}
-                        <div className="pt-4 px-4">
-                            <Card className="shadow-none ring-0 bg-primary/5 px-4 py-4">
-                                <CardContent className="p-0 flex flex-col gap-2 items-center">
-                                    <p className="text-sm font-medium text-card-foreground text-center">Beta gratuite</p>
-                                    <p className="text-xs text-muted-foreground text-center">Acces complet a toutes les fonctionnalites</p>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </SidebarContent>
+                {/* ---------------- Nav ---------------- */}
+                <SidebarContent className="flex-1 overflow-auto gap-0 px-0 mt-6">
+                    <div className="px-4">
+                        <NavMain items={navData} />
+                    </div>
+                </SidebarContent>
+
+                {/* ---------------- Footer (bottom) ---------------- */}
+                <div className="mt-auto px-4 pb-2 pt-4 border-t border-border">
+                    <Card className="shadow-none ring-0 bg-primary/5 px-4 py-4">
+                        <CardContent className="p-0 flex flex-col gap-2 items-center">
+                            <p className="text-sm font-medium text-card-foreground text-center">Beta gratuite</p>
+                            <p className="text-xs text-muted-foreground text-center">Acces complet a toutes les fonctionnalites</p>
+                        </CardContent>
+                    </Card>
                 </div>
             </Sidebar>
 
