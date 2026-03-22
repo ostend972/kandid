@@ -1,444 +1,402 @@
+'use client';
+
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Instrument_Serif } from 'next/font/google';
+import { motion } from 'motion/react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
-  ArrowRight,
-  Upload,
+  ArrowUpRight,
   BarChart3,
   Briefcase,
+  FileText,
   Check,
-  X,
-  Users,
-  FileSearch,
-  Globe,
+  Asterisk,
 } from 'lucide-react';
 
-export const metadata = {
-  title: 'Kandid — Votre CV adapte au marche suisse',
-  description:
-    'Analysez votre CV pour le marche suisse, trouvez des offres d\'emploi en Suisse romande et boostez vos candidatures de frontalier. Analyse gratuite.',
-};
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['italic'],
+});
 
 export default function LandingPage() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "Kandid",
-    description:
-      "Analysez votre CV pour le marche suisse et trouvez des offres d'emploi adaptees aux frontaliers",
-    url: "https://kandid.ch",
-    applicationCategory: "BusinessApplication",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "CHF",
-    },
-  };
-
   return (
     <>
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'Kandid',
+            description:
+              "Analysez votre CV pour le marche suisse et trouvez des offres d'emploi adaptees aux frontaliers",
+            url: 'https://kandid.ch',
+            applicationCategory: 'BusinessApplication',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'CHF' },
+          }),
+        }}
       />
 
-      {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50/60 to-white py-20 sm:py-28 lg:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge
-              variant="secondary"
-              className="mb-6 px-4 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-100 border-indigo-200"
-            >
-              Gratuit pendant la beta
-            </Badge>
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              Votre CV francais{' '}
-              <span className="text-indigo-600">ne fonctionne pas</span>{' '}
-              en Suisse
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600 sm:text-xl">
-              Decouvrez pourquoi vos candidatures n&apos;aboutissent jamais et obtenez
-              un score ATS adapte au marche suisse. Gratuit.
-            </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link href="/sign-up">
-                <Button
-                  size="lg"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 text-base h-12"
+      {/* ===== HERO (hero-01 style, simplified Apple-minimal) ===== */}
+      <section>
+        <div className="w-full h-full relative">
+          <div className="relative w-full pt-16 md:pt-28 pb-16 md:pb-24 before:absolute before:w-full before:h-full before:bg-linear-to-r before:from-indigo-100/60 before:via-white before:to-violet-100/40 before:rounded-full before:top-24 before:blur-3xl before:-z-10 dark:before:from-indigo-900/20 dark:before:via-black dark:before:to-violet-900/10 dark:before:rounded-full dark:before:blur-3xl dark:before:-z-10">
+            <div className="container mx-auto relative z-10 px-4">
+              <div className="flex flex-col max-w-4xl mx-auto gap-8">
+                <div className="relative flex flex-col text-center items-center gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: 'easeInOut' }}
+                  >
+                    <Badge
+                      variant="outline"
+                      className="px-4 py-1.5 text-sm font-normal"
+                    >
+                      Gratuit pendant la beta
+                    </Badge>
+                  </motion.div>
+                  <motion.h1
+                    initial={{ opacity: 0, y: 32 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, ease: 'easeInOut' }}
+                    className="lg:text-7xl md:text-6xl text-4xl font-medium leading-tight md:leading-tight lg:leading-tight"
+                  >
+                    Votre CV francais{' '}
+                    <span
+                      className={`${instrumentSerif.className} tracking-tight`}
+                    >
+                      ne fonctionne pas
+                    </span>{' '}
+                    en Suisse
+                  </motion.h1>
+                  <motion.p
+                    initial={{ opacity: 0, y: 32 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 1,
+                      delay: 0.1,
+                      ease: 'easeInOut',
+                    }}
+                    className="text-base md:text-lg font-normal max-w-2xl text-muted-foreground"
+                  >
+                    Decouvrez pourquoi vos candidatures echouent et obtenez un
+                    dossier adapte au marche suisse. Analyse IA gratuite.
+                  </motion.p>
+                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 32 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.2, ease: 'easeInOut' }}
+                  className="flex items-center justify-center"
                 >
-                  Analysez votre CV gratuitement
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+                  <Link href="/sign-up">
+                    <Button className="relative text-sm font-medium rounded-full h-12 p-1 ps-6 pe-14 group transition-all duration-500 hover:ps-14 hover:pe-6 w-fit overflow-hidden cursor-pointer">
+                      <span className="relative z-10 transition-all duration-500">
+                        Analysez votre CV gratuitement
+                      </span>
+                      <span className="absolute right-1 w-10 h-10 bg-background text-foreground rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-44px)] group-hover:rotate-45">
+                        <ArrowUpRight size={16} />
+                      </span>
+                    </Button>
+                  </Link>
+                </motion.div>
+              </div>
             </div>
-            <p className="mt-5 text-sm text-gray-500">
-              Rejoint par plus de 1 200 frontaliers
-            </p>
           </div>
         </div>
       </section>
 
-      {/* ===== HOW IT WORKS ===== */}
-      <section id="fonctionnalites" className="py-20 sm:py-24 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Comment ca marche
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Trois etapes simples pour adapter votre candidature au marche suisse.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
-            {[
-              {
-                step: '1',
-                icon: Upload,
-                title: 'Importez votre CV',
-                description:
-                  'Deposez votre CV au format PDF. En 30 secondes, il est pret a etre analyse.',
-              },
-              {
-                step: '2',
-                icon: BarChart3,
-                title: 'Obtenez votre score',
-                description:
-                  'Notre IA analyse votre CV selon les criteres ATS specifiques au marche suisse.',
-              },
-              {
-                step: '3',
-                icon: Briefcase,
-                title: 'Trouvez votre emploi',
-                description:
-                  'Parcourez plus de 20 000 offres d\'emploi en Suisse, adaptees a votre profil.',
-              },
-            ].map((item) => (
-              <Card
-                key={item.step}
-                className="relative border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
+      {/* ===== FEATURES (feature-02 style — 3 cards minimal) ===== */}
+      <section id="fonctionnalites">
+        <div className="lg:py-20 sm:py-16 py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-8">
+            <div className="flex flex-col gap-8 md:gap-16">
+              <motion.div
+                initial={{ y: -10, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.21, 0.47, 0.32, 0.98],
+                }}
+                className="flex flex-col items-center justify-center gap-4 max-w-lg mx-auto"
               >
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white text-sm font-bold">
-                      {item.step}
-                    </div>
-                    <CardTitle className="text-lg">{item.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{item.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== KEY PROBLEMS ===== */}
-      <section className="py-20 sm:py-24 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Pourquoi vos candidatures echouent en Suisse ?
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Le marche suisse a des attentes tres differentes du marche francais.
-              Votre CV doit s&apos;y adapter.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                problem: 'Pas de photo professionnelle',
-                before: 'CV sans photo, ou photo non professionnelle',
-                after: 'Photo professionnelle au format suisse',
-              },
-              {
-                problem: 'Diplomes non reconnus',
-                before: 'Licence, Master — terminologie francaise',
-                after: 'Equivalences suisses mentionnees (CFC, HES, etc.)',
-              },
-              {
-                problem: 'Mauvaise terminologie',
-                before: 'CDI, CDD, SMIC — jargon francais',
-                after: 'Contrat fixe, temporaire — vocabulaire suisse',
-              },
-              {
-                problem: 'Langues sans niveau CECR',
-                before: '"Anglais : courant"',
-                after: '"Anglais : C1 (CECR)" — niveau certifie',
-              },
-              {
-                problem: 'Pas de permis mentionne',
-                before: 'Aucune reference au permis de travail',
-                after: 'Permis G frontalier clairement indique',
-              },
-              {
-                problem: 'Format de CV inadapte',
-                before: 'CV creatif ou 1 page a la francaise',
-                after: 'CV structure de 2-3 pages, norme suisse',
-              },
-            ].map((item) => (
-              <Card
-                key={item.problem}
-                className="border-gray-200 bg-white shadow-sm"
+                <Badge
+                  variant="outline"
+                  className="px-3 py-1 h-auto text-sm"
+                >
+                  Comment ca marche
+                </Badge>
+                <h2 className="text-3xl md:text-4xl font-semibold text-center tracking-[-1px]">
+                  Trois etapes pour decrocher votre emploi en Suisse
+                </h2>
+              </motion.div>
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 },
+                  },
+                }}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
               >
-                <CardHeader>
-                  <CardTitle className="text-base font-semibold text-gray-900">
-                    {item.problem}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <X className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                    <p className="text-sm text-gray-500">{item.before}</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                    <p className="text-sm text-gray-700">{item.after}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== STATS ===== */}
-      <section className="py-20 sm:py-24 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Les chiffres parlent d&apos;eux-memes
-            </h2>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-3">
-            {[
-              {
-                icon: Users,
-                stat: '200 000+',
-                label: 'frontaliers francais travaillent en Suisse',
-              },
-              {
-                icon: FileSearch,
-                stat: '20 000+',
-                label: 'offres d\'emploi analysees',
-              },
-              {
-                icon: Globe,
-                stat: '0',
-                label: 'outil en francais n\'existait pour les aider',
-              },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="text-center rounded-2xl border border-gray-100 bg-gray-50/50 p-8"
-              >
-                <item.icon className="mx-auto h-8 w-8 text-indigo-600 mb-4" />
-                <p className="text-4xl font-extrabold text-gray-900">
-                  {item.stat}
-                </p>
-                <p className="mt-2 text-sm text-gray-600">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PRICING PREVIEW ===== */}
-      <section className="py-20 sm:py-24 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Des tarifs simples et transparents
-            </h2>
-            <p className="mt-4 text-lg text-gray-600">
-              Commencez gratuitement. Passez a Pro quand vous etes pret.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-8 lg:grid-cols-3">
-            {/* Free */}
-            <Card className="border-gray-200 bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl">Gratuit</CardTitle>
-                <CardDescription>Pour decouvrir Kandid</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6">
-                  <span className="text-4xl font-extrabold text-gray-900">
-                    0
-                  </span>
-                  <span className="text-lg text-gray-500 ml-1">CHF/mois</span>
-                </div>
-                <Separator className="mb-6" />
-                <ul className="space-y-3">
-                  {[
-                    'Analyse de votre CV',
-                    '3 offres d\'emploi par jour',
-                    'Chatbot : 3 messages par jour',
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                      <span className="text-gray-700">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter className="flex flex-col gap-2">
-                <Link href="/sign-up" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full"
+                {[
+                  {
+                    icon: BarChart3,
+                    title: 'Analysez votre CV',
+                    content:
+                      'Deposez votre CV. Notre IA evalue votre profil selon les criteres du marche suisse : photo, diplomes, terminologie, langues CECR.',
+                  },
+                  {
+                    icon: Briefcase,
+                    title: 'Trouvez les bonnes offres',
+                    content:
+                      'Plus de 20 000 offres en Suisse romande, filtrees par canton, contrat et secteur. Score de compatibilite IA pour chaque annonce.',
+                  },
+                  {
+                    icon: FileText,
+                    title: 'Postulez avec un dossier complet',
+                    content:
+                      'CV suisse 2 pages, lettre de motivation VOUS-MOI-NOUS, references, diplomes — assembles en un dossier PDF professionnel.',
+                  },
+                ].map((value, index) => (
+                  <motion.div
+                    key={index}
+                    variants={{
+                      hidden: {
+                        opacity: 0,
+                        y: 30,
+                        filter: 'blur(4px)',
+                      },
+                      show: {
+                        opacity: 1,
+                        y: 0,
+                        filter: 'blur(0px)',
+                      },
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      ease: [0.21, 0.47, 0.32, 0.98],
+                    }}
                   >
-                    Commencer gratuitement
-                  </Button>
-                </Link>
-                <Badge
-                  variant="secondary"
-                  className="text-xs text-indigo-700 bg-indigo-50"
-                >
-                  Beta gratuite — Acces complet
-                </Badge>
-              </CardFooter>
-            </Card>
+                    <Card className="py-10 h-full border-t-4 border-t-transparent transition-all duration-300 hover:border-t-primary hover:shadow-lg">
+                      <CardContent className="px-8 flex flex-col gap-6">
+                        <value.icon
+                          className="w-8 h-8 text-primary"
+                          strokeWidth={1.2}
+                        />
+                        <div className="flex flex-col gap-3">
+                          <h6 className="text-xl font-semibold">
+                            {value.title}
+                          </h6>
+                          <p className="text-base font-normal text-muted-foreground">
+                            {value.content}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.21, 0.47, 0.32, 0.98],
+                }}
+                className="flex flex-col items-center justify-center gap-5"
+              >
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Asterisk size={16} />
+                  <p className="font-normal text-sm">
+                    Rejoint par plus de 1 200 frontaliers en Suisse romande
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Pro */}
-            <Card className="relative border-indigo-200 bg-white shadow-lg ring-2 ring-indigo-600">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <Badge className="bg-indigo-600 text-white px-4 py-1">
-                  Populaire
-                </Badge>
+      {/* ===== PRICING (pricing-01 style — 2 plans side by side) ===== */}
+      <section className="bg-background py-10 xl:py-0">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 xl:px-16 lg:py-20 sm:py-16 py-8">
+          <div className="flex flex-col gap-8 md:gap-12 justify-center items-center w-full">
+            <div className="flex flex-col gap-4 justify-center items-center animate-in fade-in slide-in-from-top-8 duration-700 ease-in-out">
+              <Badge
+                variant="outline"
+                className="py-1 px-3 text-sm font-normal leading-5 w-fit h-7"
+              >
+                Tarifs
+              </Badge>
+              <div className="max-w-md mx-auto text-center">
+                <h2 className="text-foreground text-3xl sm:text-5xl font-medium">
+                  Simple et transparent
+                </h2>
               </div>
-              <CardHeader>
-                <CardTitle className="text-xl">Pro</CardTitle>
-                <CardDescription>Pour les candidats serieux</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6">
-                  <span className="text-4xl font-extrabold text-gray-900">
-                    29
-                  </span>
-                  <span className="text-lg text-gray-500 ml-1">CHF/mois</span>
-                </div>
-                <Separator className="mb-6" />
-                <ul className="space-y-3">
-                  {[
-                    'CV et lettres de motivation illimites',
-                    'Toutes les offres d\'emploi',
-                    'Matching IA avance',
-                    'Optimisation profil LinkedIn',
-                    'Chatbot illimite',
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                      <span className="text-gray-700">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter className="flex flex-col gap-2">
-                <Link href="/sign-up" className="w-full">
-                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
-                    Commencer avec Pro
-                  </Button>
-                </Link>
-                <Badge
-                  variant="secondary"
-                  className="text-xs text-indigo-700 bg-indigo-50"
-                >
-                  Beta gratuite — Acces complet
-                </Badge>
-              </CardFooter>
-            </Card>
-
-            {/* Premium */}
-            <Card className="border-gray-200 bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl">Premium</CardTitle>
-                <CardDescription>
-                  Accompagnement complet
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6">
-                  <span className="text-4xl font-extrabold text-gray-900">
-                    49
-                  </span>
-                  <span className="text-lg text-gray-500 ml-1">CHF/mois</span>
-                </div>
-                <Separator className="mb-6" />
-                <ul className="space-y-3">
-                  {[
-                    'Tout le plan Pro',
-                    'Calendrier editorial LinkedIn',
-                    'Preparation aux entretiens',
+            </div>
+            <div className="flex flex-col lg:flex-row items-center justify-center grow gap-6 w-full">
+              {[
+                {
+                  bg: 'bg-indigo-500/10',
+                  name: 'Gratuit',
+                  desc: 'Pour decouvrir Kandid et analyser votre CV',
+                  price: 0,
+                  cta: 'Commencer gratuitement',
+                  features: [
+                    'Analyse CV suisse',
+                    'Score de compatibilite',
+                    'Recherche d\'emploi',
+                    'Offres sauvegardees',
+                  ],
+                },
+                {
+                  bg: 'bg-violet-400/20',
+                  name: 'Pro',
+                  desc: 'Dossier de candidature complet genere par IA',
+                  price: 29,
+                  cta: 'Passer a Pro',
+                  features: [
+                    'Tout le plan Gratuit',
+                    'CV suisse IA (2 pages)',
+                    'Lettre de motivation IA',
+                    'Dossier PDF complet',
+                    'Candidatures illimitees',
                     'Support prioritaire',
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                      <span className="text-gray-700">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter className="flex flex-col gap-2">
-                <Link href="/sign-up" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Commencer avec Premium
-                  </Button>
-                </Link>
-                <Badge
-                  variant="secondary"
-                  className="text-xs text-indigo-700 bg-indigo-50"
+                  ],
+                },
+              ].map((plan, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 80 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    delay: index * 0.2,
+                    duration: 0.6,
+                    ease: 'easeInOut',
+                  }}
+                  className="w-full sm:w-fit"
                 >
-                  Beta gratuite — Acces complet
-                </Badge>
-              </CardFooter>
-            </Card>
+                  <Card
+                    className={`${plan.bg} p-8 sm:p-10 rounded-2xl ring-0 w-full sm:w-fit`}
+                  >
+                    <CardContent className="flex flex-col sm:flex-row gap-6 md:gap-10 items-start self-stretch px-0 h-full w-full">
+                      <div className="flex flex-col items-start justify-between self-stretch gap-6">
+                        <div className="flex flex-col gap-3">
+                          <Badge className="py-1 px-3 text-sm font-normal leading-5 w-fit h-7">
+                            {plan.name}
+                          </Badge>
+                          <p className="text-sm font-normal text-muted-foreground max-w-56">
+                            {plan.desc}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-4">
+                          <p className="text-4xl sm:text-5xl font-semibold text-card-foreground flex items-end">
+                            {plan.price} CHF
+                            <span className="text-base font-normal text-muted-foreground">
+                              /mois
+                            </span>
+                          </p>
+                          <Link href="/sign-up">
+                            <Button className="relative bg-white hover:bg-white hover:text-black dark:hover:text-black text-black text-sm font-medium rounded-full h-12 p-1 ps-6 pe-14 group transition-all duration-500 hover:ps-14 hover:pe-6 w-fit overflow-hidden cursor-pointer">
+                              <span className="relative z-10 transition-all duration-500">
+                                {plan.cta}
+                              </span>
+                              <div className="absolute right-1 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-44px)] group-hover:rotate-45">
+                                <ArrowUpRight size={16} />
+                              </div>
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                      <Separator
+                        orientation="vertical"
+                        className="hidden sm:block"
+                      />
+                      <Separator
+                        orientation="horizontal"
+                        className="sm:hidden block"
+                      />
+                      <div className="flex flex-col items-start gap-3 grow">
+                        <p className="text-card-foreground text-base sm:text-xl font-normal sm:font-medium">
+                          Inclus
+                        </p>
+                        <ul className="flex flex-col items-start self-stretch gap-3">
+                          {plan.features.map((feature, i) => (
+                            <li
+                              key={i}
+                              className="flex items-center gap-3 text-card-foreground text-base font-normal tracking-normal"
+                            >
+                              <Check size={16} aria-hidden="true" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              Beta gratuite — Acces complet a toutes les fonctionnalites
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ===== FINAL CTA ===== */}
-      <section className="py-20 sm:py-24 bg-indigo-600">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Pret a decrocher votre emploi en Suisse ?
-          </h2>
-          <p className="mt-4 text-lg text-indigo-100">
-            Rejoignez les frontaliers qui ont deja optimise leur candidature avec
-            Kandid.
-          </p>
-          <div className="mt-10">
-            <Link href="/sign-up">
-              <Button
-                size="lg"
-                className="bg-white text-indigo-600 hover:bg-indigo-50 px-8 text-base h-12 font-semibold"
+      {/* ===== CTA (cta-01 style — minimal centered) ===== */}
+      <section>
+        <div className="sm:py-20 py-8">
+          <div className="max-w-7xl mx-auto sm:px-16 px-4">
+            <div className="relative overflow-hidden min-h-96 flex items-center justify-center px-6 border border-border rounded-3xl before:absolute before:w-full before:h-4/5 before:bg-linear-to-r before:from-indigo-100 before:from-15% before:via-white before:via-55% before:to-violet-100 before:to-90% before:rounded-full before:top-24 before:blur-3xl before:-z-10 dark:before:from-indigo-400/10 dark:before:from-40% dark:before:via-black dark:before:via-55% dark:before:to-violet-300/10 dark:before:to-60% dark:before:rounded-full dark:before:-z-10">
+              <motion.div
+                initial={{ y: '5%', opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.3 }}
+                className="flex flex-col gap-6 items-center mx-auto"
               >
-                Commencer gratuitement
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+                <div className="flex flex-col gap-3 items-center text-center">
+                  <h2 className="text-3xl md:text-5xl font-medium">
+                    Pret a decrocher votre emploi en Suisse ?
+                  </h2>
+                  <p className="max-w-2xl mx-auto text-muted-foreground">
+                    Rejoignez les frontaliers qui ont deja optimise leur
+                    candidature avec Kandid. Analyse gratuite, resultats
+                    immediats.
+                  </p>
+                </div>
+                <Link href="/sign-up">
+                  <Button className="relative text-sm font-medium rounded-full h-12 p-1 ps-6 pe-14 group transition-all duration-500 hover:ps-14 hover:pe-6 w-fit overflow-hidden hover:bg-primary/80 cursor-pointer">
+                    <span className="relative z-10 transition-all duration-500">
+                      Commencer gratuitement
+                    </span>
+                    <div className="absolute right-1 w-10 h-10 bg-background text-foreground rounded-full flex items-center justify-center transition-all duration-500 group-hover:right-[calc(100%-44px)] group-hover:rotate-45">
+                      <ArrowUpRight size={16} />
+                    </div>
+                  </Button>
+                </Link>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
+
     </>
   );
 }
