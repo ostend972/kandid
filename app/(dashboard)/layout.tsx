@@ -1,5 +1,7 @@
-import { Sidebar } from '@/components/dashboard/sidebar';
-import { DashboardHeader } from '@/components/dashboard/header';
+import AppSidebar from '@/components/shadcn-space/blocks/dashboard-shell-03/app-sidebar';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export default function DashboardLayout({
   children,
@@ -7,20 +9,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Desktop sidebar — always visible on lg+ */}
-      <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0">
-        <Sidebar />
-      </aside>
-
-      {/* Main area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <DashboardHeader />
-
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-8">
+    <div className={inter.className}>
+      <AppSidebar>
+        <div className="p-6 max-w-7xl mx-auto w-full">
           {children}
-        </main>
-      </div>
+        </div>
+      </AppSidebar>
     </div>
   );
 }
