@@ -183,8 +183,10 @@ function UserDetailSheet({
             <SheetTitle>
               <Skeleton className="h-5 w-40" />
             </SheetTitle>
-            <SheetDescription>
-              <Skeleton className="h-4 w-56" />
+            <SheetDescription asChild>
+              <span className="text-sm text-muted-foreground">
+                <span className="animate-pulse rounded-md bg-accent inline-block h-4 w-56" />
+              </span>
             </SheetDescription>
           </SheetHeader>
         ) : (
