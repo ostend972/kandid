@@ -55,7 +55,7 @@ const Feature = () => {
               variants={itemVariants}
               className="text-3xl md:text-4xl font-semibold text-center"
             >
-              Trois etapes pour decrocher votre emploi en Suisse
+              Comment Kandid aide les frontaliers a decrocher un emploi en Suisse
             </motion.h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div className="flex flex-col sm:flex-row lg:flex-col h-full gap-2 sm:gap-6">
@@ -69,9 +69,9 @@ const Feature = () => {
                         height={32}
                       />
                       <div className="flex flex-col gap-2">
-                        <p className="text-xl font-semibold">
+                        <h3 className="text-xl font-semibold">
                           Analysez votre CV
-                        </p>
+                        </h3>
                         <p className="text-sm sm:text-lg font-normal text-muted-foreground">
                           Notre IA evalue votre profil selon les criteres
                           specifiques au marche suisse : photo, diplomes,
@@ -91,9 +91,9 @@ const Feature = () => {
                         height={32}
                       />
                       <div className="flex flex-col gap-2">
-                        <p className="text-xl font-semibold">
+                        <h3 className="text-xl font-semibold">
                           Trouvez les bonnes offres
-                        </p>
+                        </h3>
                         <p className="text-sm sm:text-lg font-normal text-muted-foreground">
                           Plus de 20 000 offres en Suisse romande, filtrees par
                           canton, contrat et secteur. Score de compatibilite IA
@@ -137,9 +137,9 @@ const Feature = () => {
                       height={32}
                     />
                     <div className="flex flex-col gap-2">
-                      <p className="text-xl font-semibold">
+                      <h3 className="text-xl font-semibold">
                         Postulez avec un dossier complet
-                      </p>
+                      </h3>
                       <p className="text-sm sm:text-lg font-normal text-muted-foreground">
                         CV suisse 2 pages, lettre de motivation
                         VOUS-MOI-NOUS, references — assembles en un dossier PDF

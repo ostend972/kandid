@@ -125,13 +125,13 @@ export default function Testimonials({
                 variants={itemVariants}
                 className="text-center font-medium text-3xl sm:text-4xl lg:text-5xl"
               >
-                Ce que disent nos utilisateurs
+                Retours de nos premiers utilisateurs beta
               </motion.h2>
               <motion.p
                 variants={itemVariants}
                 className="text-center text-lg sm:text-xl text-muted-foreground max-w-2xl"
               >
-                Des frontaliers qui ont optimise leur candidature avec Kandid.
+                Temoignages recueillis aupres de nos beta testeurs en Suisse romande.
               </motion.p>
             </div>
           </div>

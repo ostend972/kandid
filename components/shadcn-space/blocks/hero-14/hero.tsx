@@ -18,11 +18,10 @@ const HeroSection = () => {
           <div className="max-w-3xl flex flex-col gap-6 text-left">
             <div className="flex flex-col gap-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-medium text-white">
-                Votre CV francais ne fonctionne pas en Suisse
+                Votre CV francais ne passe pas les filtres ATS en Suisse
               </h1>
               <p className="text-base sm:text-lg font-normal text-white/50 max-w-xl">
-                Decouvrez pourquoi vos candidatures echouent et obtenez un
-                dossier adapte au marche suisse. Analyse IA gratuite.
+                En tant que frontalier, votre candidature est rejetee avant meme d&apos;etre lue. Kandid analyse votre CV avec l&apos;IA, identifie les ecarts avec les normes suisses et genere un dossier de candidature adapte — gratuitement.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center sm:gap-4">
