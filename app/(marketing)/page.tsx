@@ -19,10 +19,17 @@ export default function LandingPage() {
             '@type': 'WebApplication',
             name: 'Kandid',
             description:
-              "Analysez votre CV pour le marche suisse et trouvez des offres d'emploi adaptees aux frontaliers",
+              "Analysez votre CV pour le marche suisse et trouvez des offres d'emploi adaptees aux frontaliers. Dossier de candidature complet avec IA.",
             url: 'https://kandid.ch',
             applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Web',
+            inLanguage: 'fr',
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'CHF' },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Kandid',
+              url: 'https://kandid.ch',
+            },
           }),
         }}
       />

@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useRef } from "react";
@@ -38,10 +37,16 @@ const TestimonialCard = ({ data }: { data: TestimonialType }) => {
       <CardContent className="p-0 flex flex-col justify-between gap-24 sm:gap-0 flex-1 h-full">
         <div className="flex flex-col gap-8">
           <div className="shrink-0 flex items-start">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11 7H7C5.89543 7 5 7.89543 5 9V13C5 14.1046 5.89543 15 7 15H9C9.55228 15 10 15.4477 10 16V16C10 17.1046 9.10457 18 8 18H7.5" stroke={data.theme === "dark" ? "white" : "currentColor"} strokeWidth="1.5" strokeLinecap="round" className="dark:stroke-current"/>
-              <path d="M19 7H15C13.8954 7 13 7.89543 13 9V13C13 14.1046 13.8954 15 15 15H17C17.5523 15 18 15.4477 18 16V16C18 17.1046 17.1046 18 16 18H15.5" stroke={data.theme === "dark" ? "white" : "currentColor"} strokeWidth="1.5" strokeLinecap="round" className="dark:stroke-current"/>
-            </svg>
+            <img
+              src="https://images.shadcnspace.com/assets/svgs/icon-quote-fill.svg"
+              alt="muted quote"
+              className={cn(data.theme === "dark" ? "hidden dark:block" : "block dark:hidden")}
+            />
+            <img
+              src="https://images.shadcnspace.com/assets/svgs/icon-quote-white-fill.svg"
+              alt="muted quote"
+              className={cn(data.theme === "dark" ? "block dark:hidden" : "hidden dark:block")}
+            />
           </div>
           <p className={cn("text-xl font-medium", MainTextClass)}>
             {data.quote}
@@ -126,7 +131,7 @@ export default function Testimonials({
                 variants={itemVariants}
                 className="text-center text-lg sm:text-xl text-muted-foreground max-w-2xl"
               >
-                Des frontaliers qui ont transforme leurs candidatures grace a Kandid.
+                Des frontaliers qui ont optimise leur candidature avec Kandid.
               </motion.p>
             </div>
           </div>

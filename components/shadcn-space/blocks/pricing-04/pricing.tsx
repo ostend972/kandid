@@ -97,8 +97,18 @@ const Pricing = () => {
             custom={0}
             className="h-full"
           >
-            <Card className="relative py-4 rounded-2xl border-none bg-gradient-to-br from-blue-950 via-slate-900 to-blue-900 object-cover bg-center h-full w-full bg-cover bg-no-repeat justify-end min-h-150">
-              <CardContent className="px-4">
+            <Card className="relative py-4 rounded-2xl border-none overflow-hidden h-full w-full justify-end min-h-150">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              >
+                <source src="/pricing-video.webm" type="video/webm" />
+              </video>
+              <div className="absolute inset-0 bg-black/30" />
+              <CardContent className="relative z-10 px-4">
                 <div className="p-8 bg-background rounded-xl flex flex-col gap-10">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-1">
