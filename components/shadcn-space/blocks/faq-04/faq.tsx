@@ -114,7 +114,7 @@ export default function Faq() {
               </div>
             </div>
           </div>
-          <Accordion className="w-full flex flex-col gap-6">
+          <Accordion type="single" collapsible className="w-full flex flex-col gap-6">
             {FAQ_DATA.map((faq, index) => (
               <AccordionItem
                 key={`item-${index}`}
@@ -128,15 +128,15 @@ export default function Faq() {
                   index === 4 && "delay-500",
                 )}
               >
-                <AccordionTrigger className="p-0 md:text-xl text-lg font-semibold hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer flex items-start justify-between w-full gap-4">
+                <AccordionTrigger className="relative p-0 pr-12 md:text-xl text-lg font-semibold hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer">
                   <div className="flex xl:gap-16 gap-6 text-left">
                     {/* Number */}
                     <span className="shrink-0">{String(index + 1).padStart(2, "0")}</span>
                     {faq.question}
                   </div>
 
-                  <PlusIcon className="w-6 h-6 shrink-0 mt-1 transition-transform duration-200 group-aria-expanded/accordion-trigger:hidden" />
-                  <MinusIcon className="w-6 h-6 shrink-0 mt-1 transition-transform duration-200 hidden group-aria-expanded/accordion-trigger:inline" />
+                  <PlusIcon className="absolute right-0 top-4 w-6 h-6 transition-transform duration-200 group-aria-expanded/accordion-trigger:hidden" />
+                  <MinusIcon className="absolute right-0 top-4 w-6 h-6 transition-transform duration-200 hidden group-aria-expanded/accordion-trigger:inline" />
                 </AccordionTrigger>
                 <AccordionContent className="p-0 text-muted-foreground text-lg lg:max-w-2xl mx-auto xl:px-15 md:px-12 px-12">
                   {faq.answer}
