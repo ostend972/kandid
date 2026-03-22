@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/marketing/navbar';
+import NavbarBlock from '@/components/shadcn-space/blocks/navbar-07/index';
 import { Footer } from '@/components/marketing/footer';
 
 export default function MarketingLayout({
@@ -8,7 +8,7 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
+      <NavbarBlock />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>
