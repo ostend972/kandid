@@ -724,12 +724,14 @@ export default function AdminScraperPage() {
                 selectedJob?.title ?? "Detail de l'offre"
               )}
             </SheetTitle>
-            <SheetDescription>
-              {detailLoading ? (
-                <Skeleton className="h-4 w-32" />
-              ) : selectedJob ? (
-                `${selectedJob.company} - ${selectedJob.canton}`
-              ) : null}
+            <SheetDescription asChild>
+              <span className="text-sm text-muted-foreground">
+                {detailLoading ? (
+                  <span className="animate-pulse rounded-md bg-accent inline-block h-4 w-32" />
+                ) : selectedJob ? (
+                  `${selectedJob.company} - ${selectedJob.canton}`
+                ) : null}
+              </span>
             </SheetDescription>
           </SheetHeader>
 
