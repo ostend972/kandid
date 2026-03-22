@@ -7,7 +7,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col" style={{ fontFamily: '"Google Sans", sans-serif' }}>
       <NavbarBlock />
       <main className="flex-1">{children}</main>
       <Footer />

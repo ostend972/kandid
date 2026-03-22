@@ -13,6 +13,7 @@ const Services = () => {
     {
       key: "cv",
       label: "CV suisse",
+      image: "https://images.shadcnspace.com/assets/services/service06-img1.webp",
       caption: "01 - CV adapte",
       title: "CV adapte au marche suisse",
       description:
@@ -31,6 +32,7 @@ const Services = () => {
     {
       key: "matching",
       label: "Matching IA",
+      image: "https://images.shadcnspace.com/assets/services/service06-img2.webp",
       caption: "02 - Matching",
       title: "Matching IA avec les offres",
       description:
@@ -41,6 +43,7 @@ const Services = () => {
     {
       key: "dossier",
       label: "Dossier complet",
+      image: "https://images.shadcnspace.com/assets/services/service06-img3.webp",
       caption: "03 - Dossier",
       title: "Dossier de candidature complet",
       description:
@@ -51,6 +54,7 @@ const Services = () => {
     {
       key: "gratuit",
       label: "Beta gratuite",
+      image: "https://images.shadcnspace.com/assets/services/service06-img1.webp",
       caption: "04 - Beta",
       title: "Gratuit pendant la beta",
       description:
@@ -105,11 +109,13 @@ const Services = () => {
               {services.map((service) => (
                 <TabsContent key={service.key} value={service.key}>
                   <div className="flex md:flex-row flex-col justify-between gap-6 md:gap-12 items-center md:rounded-2xl overflow-hidden bg-muted">
-                    {/* Gradient placeholder instead of external image */}
+                    {/* Image */}
                     <div className="overflow-hidden md:max-w-xl w-full md:rounded-none rounded-2xl">
-                      <div className="w-full h-64 md:h-80 bg-gradient-to-br from-blue-100 via-slate-100 to-blue-50 dark:from-blue-950 dark:via-slate-900 dark:to-blue-900 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-blue-300 dark:text-blue-700 select-none">K</span>
-                      </div>
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-fit object-cover"
+                      />
                     </div>
 
                     {/* Content */}
