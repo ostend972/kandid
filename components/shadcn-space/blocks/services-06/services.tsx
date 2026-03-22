@@ -3,7 +3,6 @@ import { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 const Services = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -13,11 +12,12 @@ const Services = () => {
     {
       key: "cv",
       label: "CV suisse",
-      image: "https://images.shadcnspace.com/assets/services/service06-img1.webp",
-      caption: "01 - CV adapte",
-      title: "CV adapte au marche suisse",
+      image:
+        "https://images.shadcnspace.com/assets/services/service06-img1.webp",
+      caption: "01 - Analyse CV",
+      title: "Votre CV adapte aux standards suisses",
       description:
-        "Photo professionnelle, equivalences de diplomes, terminologie suisse, niveaux CECR.",
+        "Notre IA analyse votre CV selon les criteres specifiques du marche suisse et vous donne un score de compatibilite avec des conseils personnalises.",
       departmentsLeft: [
         "Photo professionnelle",
         "Equivalences de diplomes",
@@ -32,35 +32,38 @@ const Services = () => {
     {
       key: "matching",
       label: "Matching IA",
-      image: "https://images.shadcnspace.com/assets/services/service06-img2.webp",
-      caption: "02 - Matching",
-      title: "Matching IA avec les offres",
+      image:
+        "https://images.shadcnspace.com/assets/services/service06-img2.webp",
+      caption: "02 - Recherche d'emploi",
+      title: "Des offres adaptees a votre profil",
       description:
-        "Score de compatibilite calcule pour chaque annonce selon votre profil.",
-      departmentsLeft: ["Score de compatibilite", "Filtrage par canton"],
-      departmentsRight: ["Filtrage par secteur", "Filtrage par contrat"],
+        "Plus de 20 000 offres en Suisse romande avec un score de compatibilite IA calcule pour chaque annonce.",
+      departmentsLeft: ["Filtres par canton", "Type de contrat"],
+      departmentsRight: ["Score de matching", "Offres sauvegardees"],
     },
     {
       key: "dossier",
       label: "Dossier complet",
-      image: "https://images.shadcnspace.com/assets/services/service06-img3.webp",
-      caption: "03 - Dossier",
-      title: "Dossier de candidature complet",
+      image:
+        "https://images.shadcnspace.com/assets/services/service06-img3.webp",
+      caption: "03 - Candidature",
+      title: "Un dossier professionnel genere par l'IA",
       description:
-        "CV, lettre de motivation, references, diplomes — un seul PDF professionnel.",
-      departmentsLeft: ["CV suisse 2 pages", "Lettre de motivation"],
-      departmentsRight: ["Page de references", "Assemblage PDF"],
+        "CV suisse 2 pages, lettre de motivation VOUS-MOI-NOUS, references — assembles en un dossier PDF complet.",
+      departmentsLeft: ["CV suisse IA", "Lettre de motivation"],
+      departmentsRight: ["Page de references", "Dossier PDF unique"],
     },
     {
-      key: "gratuit",
+      key: "beta",
       label: "Beta gratuite",
-      image: "https://images.shadcnspace.com/assets/services/service06-img1.webp",
-      caption: "04 - Beta",
+      image:
+        "https://images.shadcnspace.com/assets/services/service06-img1.webp",
+      caption: "04 - Acces complet",
       title: "Gratuit pendant la beta",
       description:
-        "Acces complet a toutes les fonctionnalites sans engagement.",
-      departmentsLeft: ["Analyse CV gratuite", "Recherche d'emploi"],
-      departmentsRight: ["Dossier complet", "Sans carte de credit"],
+        "Acces complet a toutes les fonctionnalites sans engagement et sans carte de credit.",
+      departmentsLeft: ["Analyses illimitees", "Toutes les offres"],
+      departmentsRight: ["Dossier complet", "Support inclus"],
     },
   ];
 
@@ -75,7 +78,7 @@ const Services = () => {
             className="flex flex-col justify-center text-center gap-4 max-w-3xl mx-auto"
           >
             <p className="uppercase text-sm font-medium text-foreground">
-              Kandid
+              KANDID
             </p>
             <h2 className="text-3xl md:text-5xl font-medium text-foreground">
               Pourquoi les frontaliers choisissent Kandid
@@ -88,21 +91,21 @@ const Services = () => {
           >
             <Tabs
               defaultValue="cv"
-              className="w-full flex flex-col gap-10 overflow-hidden"
+              className="w-full flex flex-col gap-10 overflow-hidden"  
             >
               {/* Tabs header */}
-
+             
               <TabsList className="bg-transparent p-0 border-b  rounded-none mx-auto shadow-none">
                 {services.map((service) => (
                   <TabsTrigger
                     key={service.key}
                     value={service.key}
-                    className="rounded-none px-4 pb-5 text-base font-medium text-muted-foreground dark:bg-transparent! border-b border-transparent shadow-none! dark:border-x-0! dark:border-t-0! focus-visible:ring-0 dark:data-[state=active]:bg-transparent data-[state=active]:text-foreground group-data-[variant=default]/tabs-list:data-active:border-b group-data-[variant=default]/tabs-list:data-active:border-b-foreground dark:group-data-[variant=default]/tabs-list:data-active:border-b-white! data-[state=active]:shadow-none! hover:cursor-pointer"
-                  >
+                    className="rounded-none px-4 pb-5 text-base font-medium text-muted-foreground dark:bg-transparent! border-b border-transparent shadow-none! dark:border-x-0! dark:border-t-0! focus-visible:ring-0 dark:data-[state=active]:bg-transparent data-[state=active]:text-foreground group-data-[variant=default]/tabs-list:data-active:border-b group-data-[variant=default]/tabs-list:data-active:border-b-foreground dark:group-data-[variant=default]/tabs-list:data-active:border-b-white! data-[state=active]:shadow-none! hover:cursor-pointer">
                     {service.label}
                   </TabsTrigger>
                 ))}
               </TabsList>
+              
 
 
               {/* Tabs content */}
@@ -166,9 +169,7 @@ const Services = () => {
                         </div>
                       </div>
                       <div>
-                        <Link href="/sign-up">
-                          <Button className="p-5 rounded-md hover:cursor-pointer hover:bg-primary/80">Commencer</Button>
-                        </Link>
+                        <Button className="p-5 rounded-md hover:cursor-pointer hover:bg-primary/80">Commencer</Button>
                       </div>
                     </div>
                   </div>
