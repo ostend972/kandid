@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const Services = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -129,9 +130,9 @@ const Services = () => {
                             {service.caption}
                           </p>
 
-                          <h2 className="md:text-3xl text-2xl font-medium">
+                          <h3 className="md:text-3xl text-2xl font-medium">
                             {service.title}
-                          </h2>
+                          </h3>
 
                           <p className="text-muted-foreground text-base">
                             {service.description}
@@ -169,7 +170,9 @@ const Services = () => {
                         </div>
                       </div>
                       <div>
-                        <Button className="p-5 rounded-md hover:cursor-pointer hover:bg-primary/80">Commencer</Button>
+                        <Link href="/sign-up">
+                          <Button className="p-5 rounded-md hover:cursor-pointer hover:bg-primary/80">Commencer</Button>
+                        </Link>
                       </div>
                     </div>
                   </div>

@@ -14,26 +14,27 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const avatars = [
   {
     src: "https://images.shadcnspace.com/assets/profiles/rough.webp",
-    alt: "user",
+    alt: "Membre equipe Kandid",
     fallback: "CN",
   },
   {
     src: "https://images.shadcnspace.com/assets/profiles/jessica.webp",
-    alt: "user",
+    alt: "Membre equipe Kandid",
     fallback: "VC",
   },
   {
     src: "https://images.shadcnspace.com/assets/profiles/jenny.webp",
-    alt: "user",
+    alt: "Membre equipe Kandid",
     fallback: "NX",
   },
   {
     src: "https://images.shadcnspace.com/assets/profiles/albert.webp",
-    alt: "user",
+    alt: "Membre equipe Kandid",
     fallback: "NX",
   },
 ];
@@ -87,9 +88,9 @@ export default function Faq() {
           <div className="max-w-sm w-full">
             <div className="md:px-8 px-6 md:py-10 py-8 rounded-2xl border space-y-8">
               <div className="space-y-6!">
-                <h4 className="text-2xl font-medium text-foreground">
+                <h3 className="text-2xl font-medium text-foreground">
                   Une question ? Notre equipe est la pour vous aider.
-                </h4>
+                </h3>
                 <AvatarGroup>
                   {avatars.map((avatar, index) => (
                     <Avatar key={index} className="h-12 w-12">
@@ -100,17 +101,21 @@ export default function Faq() {
                 </AvatarGroup>
               </div>
               <div className="space-y-3!">
-                <Button className="flex gap-2 items-center w-full rounded-full min-h-12 cursor-pointer">
-                  <Calendar className="size-4.5" />
-                  Contactez-nous
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex gap-2 items-center w-full rounded-full min-h-12 cursor-pointer"
-                >
-                  <Mail className="size-4.5" />
-                  Analysez votre CV
-                </Button>
+                <Link href="mailto:contact@kandid.ch">
+                  <Button className="flex gap-2 items-center w-full rounded-full min-h-12 cursor-pointer">
+                    <Calendar className="size-4.5" />
+                    Contactez-nous
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button
+                    variant="outline"
+                    className="flex gap-2 items-center w-full rounded-full min-h-12 cursor-pointer"
+                  >
+                    <Mail className="size-4.5" />
+                    Analysez votre CV
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

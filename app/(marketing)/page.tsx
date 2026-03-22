@@ -1,5 +1,3 @@
-'use client';
-
 import Feature12 from '@/components/shadcn-space/blocks/feature-12/index';
 import HeroPage from '@/components/shadcn-space/blocks/hero-14/index';
 import Pricing from '@/components/shadcn-space/blocks/pricing-04/pricing';
@@ -22,7 +20,7 @@ export default function LandingPage() {
               name: 'Kandid',
               url: 'https://kandid.ch',
               description:
-                "Outil IA qui adapte votre CV aux normes suisses, recherche d emploi en Suisse romande et generation de dossier de candidature complet pour les frontaliers.",
+                "Outil IA qui adapte votre CV aux normes suisses, recherche d'emploi en Suisse romande et generation de dossier de candidature complet pour les frontaliers.",
               applicationCategory: 'BusinessApplication',
               operatingSystem: 'Web',
               inLanguage: 'fr',
@@ -60,10 +58,10 @@ export default function LandingPage() {
                 },
                 {
                   '@type': 'Question',
-                  name: "Qu est-ce qu un frontalier et ai-je besoin d un permis G ?",
+                  name: "Qu'est-ce qu'un frontalier et ai-je besoin d'un permis G ?",
                   acceptedAnswer: {
                     '@type': 'Answer',
-                    text: "Un frontalier reside dans un pays limitrophe et traverse la frontiere pour travailler en Suisse. Le permis G est delivre apres signature du contrat de travail — vous n avez pas besoin de l obtenir avant de postuler.",
+                    text: "Un frontalier reside dans un pays limitrophe et traverse la frontiere pour travailler en Suisse. Le permis G est delivre apres signature du contrat de travail — vous n'avez pas besoin de l'obtenir avant de postuler.",
                   },
                 },
                 {
@@ -71,7 +69,7 @@ export default function LandingPage() {
                   name: 'Comment fonctionne le matching IA de Kandid ?',
                   acceptedAnswer: {
                     '@type': 'Answer',
-                    text: "L algorithme compare votre profil extrait du CV (competences, langues, experience, secteur) avec les exigences de chaque offre et attribue un score de compatibilite sur 100.",
+                    text: "L'algorithme compare votre profil extrait du CV (competences, langues, experience, secteur) avec les exigences de chaque offre et attribue un score de compatibilite sur 100.",
                   },
                 },
               ],

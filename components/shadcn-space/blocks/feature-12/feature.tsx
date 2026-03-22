@@ -64,7 +64,7 @@ const Feature = () => {
                     <CardContent className="flex flex-col gap-4 sm:gap-8 px-10">
                       <img
                         src="https://images.shadcnspace.com/assets/svgs/feature-11-icon-1.svg"
-                        alt="icon"
+                        alt="Icone analyse CV suisse"
                         width={32}
                         height={32}
                       />
@@ -86,7 +86,7 @@ const Feature = () => {
                     <CardContent className="flex flex-col gap-4 sm:gap-8 px-10">
                       <img
                         src="https://images.shadcnspace.com/assets/svgs/feature-11-icon-2.svg"
-                        alt="icon"
+                        alt="Icone recherche offres emploi Suisse"
                         width={32}
                         height={32}
                       />
@@ -132,7 +132,7 @@ const Feature = () => {
                   <CardContent className="flex flex-col gap-4 sm:gap-8 px-10 py-8 border-t border-border">
                     <img
                       src="https://images.shadcnspace.com/assets/svgs/feature-11-icon-3.svg"
-                      alt="icon"
+                      alt="Icone dossier candidature complet"
                       width={32}
                       height={32}
                     />
