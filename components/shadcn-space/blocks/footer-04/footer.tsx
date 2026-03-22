@@ -1,6 +1,6 @@
-import Logo from "@/assets/logo/logo";
+import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { Twitter, Linkedin, Instagram, Dribbble, ArrowRight } from "lucide-react";
+import { Twitter, Linkedin, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import SubFooter from "@/components/shadcn-space/blocks/footer-04/subfooter";
@@ -15,96 +15,42 @@ type FooterData = {
 
 const footerSections: FooterData[] = [
   {
-    title: "Quick Links",
+    title: "Liens rapides",
     links: [
       {
-        title: "Shadcn UI Blocks & Templates",
-        href: "#",
+        title: "Analyse CV",
+        href: "/sign-up",
       },
       {
-        title: "React Templates",
-        href: "#",
+        title: "Offres d'emploi",
+        href: "/sign-up",
       },
       {
-        title: "Leadership Team",
-        href: "#",
-      },
-      {
-        title: "Our Vision & Mission",
-        href: "#",
-      },
-      {
-        title: "Shadcn Premium Components",
-        href: "#",
+        title: "Tarifs",
+        href: "/pricing",
       },
     ],
   },
   {
-    title: "Media & Resources",
+    title: "Legal",
     links: [
       {
-        title: "News / Press Release",
-        href: "#",
+        title: "Politique de confidentialite",
+        href: "/privacy",
       },
       {
-        title: "Insights & Blogs",
-        href: "#",
+        title: "Conditions d'utilisation",
+        href: "/terms",
       },
       {
-        title: "Media",
-        href: "#",
-      },
-      {
-        title: "Case Studies",
-        href: "#",
-      },
-      {
-        title: "Press Kit",
-        href: "#",
+        title: "Mentions legales",
+        href: "/legal",
       },
     ],
   },
   {
-    title: "Our Services",
-    links: [
-      {
-        title: "Web Design & Development",
-        href: "#",
-      },
-      {
-        title: "Search Engine Optimization & SEM",
-        href: "#",
-      },
-      {
-        title: "Mobile & Web Application",
-        href: "#",
-      },
-      {
-        title: "Branding & Identity",
-        href: "#",
-      },
-      {
-        title: "Digital Marketing",
-        href: "#",
-      },
-    ],
-  },
-  {
-    title: "Other",
-    links: [
-      {
-        title: "Contact us",
-        href: "#",
-      },
-      {
-        title: "Careers",
-        href: "#",
-      },
-      {
-        title: "Events",
-        href: "#",
-      },
-    ],
+    title: "Suivez-nous",
+    links: [],
   },
 ];
 
@@ -117,9 +63,13 @@ const Footer = () => {
             <div className="col-span-full lg:col-span-3">
               <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-100 ease-in-out fill-mode-both">
                 {/* Logo */}
-                <a href="#">
-                  <Logo />
-                </a>
+                <Link href="/" className="flex items-center gap-2 text-sm font-bold">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">K</div>
+                  Kandid
+                </Link>
+                <p className="text-sm text-muted-foreground">
+                  Kandid adapte votre candidature au marche suisse. Analyse CV, recherche d&apos;emploi et dossier de candidature complet.
+                </p>
               </div>
             </div>
             <div className="lg:col-span-6 col-span-12 grid sm:grid-cols-2 grid-cols-1 gap-6 gap-y-10">
@@ -129,18 +79,39 @@ const Footer = () => {
                     <p className="text-base font-medium text-foreground">
                       {title}
                     </p>
-                    <ul className="flex flex-col gap-3">
-                      {links.map(({ title, href }) => (
-                        <li key={title}>
-                          <a
-                            href={href}
-                            className="text-sm font-normal text-muted-foreground hover:text-foreground duration-200"
-                          >
-                            {title}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                    {links.length > 0 ? (
+                      <ul className="flex flex-col gap-3">
+                        {links.map(({ title, href }) => (
+                          <li key={title}>
+                            <Link
+                              href={href}
+                              className="text-sm font-normal text-muted-foreground hover:text-foreground duration-200"
+                            >
+                              {title}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="flex items-center gap-4">
+                        <a
+                          href="https://twitter.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-foreground duration-200"
+                        >
+                          <Twitter size={20} />
+                        </a>
+                        <a
+                          href="https://linkedin.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-foreground duration-200"
+                        >
+                          <Linkedin size={20} />
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -148,13 +119,13 @@ const Footer = () => {
             <div className="lg:col-span-3 col-span-12">
               <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-100 ease-in-out fill-mode-both">
                 <p className="text-sm text-muted-foreground">
-                  Stay Connected
+                  Restez informe
                 </p>
                 <h3 className="text-lg font-medium text-foreground">
-                  Subscribe to our Newsletter for the latest news
+                  Inscrivez-vous pour recevoir nos dernieres actualites
                 </h3>
                 <form className="flex items-center gap-2">
-                  <Input type="email" placeholder="Enter your email" className="py-2 px-4 h-9 shadow-xs rounded-full text-sm" />
+                  <Input type="email" placeholder="Votre email" className="py-2 px-4 h-9 shadow-xs rounded-full text-sm" />
                   <Button type="submit" className="rounded-full p-2.5 h-auto">
                     <ArrowRight width={16} height={16} />
                   </Button>
@@ -165,45 +136,37 @@ const Footer = () => {
           <Separator orientation="horizontal" />
           <div className="flex items-center justify-between md:flex-nowrap flex-wrap gap-6">
             <div className="flex items-center flex-wrap gap-y-2 gap-x-3 text-sm font-normal text-muted-foreground animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-100 ease-in-out fill-mode-both">
-              <p>©2026 Shadcn Space. All Rights Reserved.</p>
+              <p>&copy;2026 Kandid. Tous droits reserves.</p>
               <span className="size-1 rounded-full bg-muted-foreground/50" />
-              <a href="#" className="hover:text-foreground duration-200">
-                Terms & Conditions
-              </a>
+              <Link href="/terms" className="hover:text-foreground duration-200">
+                Conditions d&apos;utilisation
+              </Link>
               <span className="size-1 rounded-full bg-muted-foreground/50" />
-              <a href="#" className="hover:text-foreground duration-200">
-                Privacy policy
-              </a>
+              <Link href="/privacy" className="hover:text-foreground duration-200">
+                Politique de confidentialite
+              </Link>
               <span className="size-1 rounded-full bg-muted-foreground/50" />
-              <a href="#" className="hover:text-foreground duration-200">
-                Sitemap
-              </a>
+              <Link href="/legal" className="hover:text-foreground duration-200">
+                Mentions legales
+              </Link>
             </div>
             {/* social links */}
             <div className="flex items-center gap-4">
               <a
-                href="#"
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-foreground"
               >
                 <Twitter size={20} />
               </a>
               <a
-                href="#"
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-foreground"
               >
                 <Linkedin size={20} />
-              </a>
-              <a
-                href="#"
-                className="text-foreground"
-              >
-                <Dribbble size={20} />
-              </a>
-              <a
-                href="#"
-                className="text-foreground"
-              >
-                <Instagram size={20} />
               </a>
             </div>
           </div>
