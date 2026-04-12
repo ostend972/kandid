@@ -1,11 +1,209 @@
 import OpenAI from "openai";
-import { buildJobMatchPrompt } from "./prompts";
+import { buildJobMatchPrompt, buildStructuredMatchPrompt } from "./prompts";
 import type { ExtractedProfile } from "./analyze-cv";
 
 const openai = new OpenAI();
 
 // =============================================================================
-// Types
+// Structured Match Types (v2 — 6-block analysis)
+// =============================================================================
+
+export interface BlockA {
+  archetype: string;
+  domain: string;
+  function: string;
+  seniority: string;
+  remotePolicy: string;
+  teamSize: string;
+  tldr: string;
+}
+
+export interface BlockB {
+  requirements: {
+    requirement: string;
+    status: "met" | "partial" | "not_met";
+    explanation: string;
+    suggestion: string;
+    gapAnalysis: string;
+    mitigationStrategy: string;
+  }[];
+}
+
+export interface BlockC {
+  detectedLevel: string;
+  candidateLevel: string;
+  alignment: "match" | "above" | "below";
+  strategy: string;
+}
+
+export interface BlockD {
+  salaryRange: {
+    min: number;
+    max: number;
+    currency: string;
+    canton: string;
+  };
+  thirteenthMonth: string;
+  lppNote: string;
+  cctReference: string;
+  marketContext: string;
+}
+
+export interface BlockE {
+  changes: {
+    target: "cv" | "linkedin";
+    section: string;
+    currentState: string;
+    recommendedChange: string;
+    priority: "high" | "medium" | "low";
+  }[];
+}
+
+export interface BlockF {
+  stories: {
+    requirement: string;
+    situation: string;
+    task: string;
+    action: string;
+    result: string;
+    reflection: string;
+  }[];
+}
+
+export interface StructuredMatchResult {
+  overallScore: number;
+  verdict: "excellent" | "partial" | "low";
+  matchVersion: 2;
+  blocks: {
+    a: BlockA | null;
+    b: BlockB | null;
+    c: BlockC | null;
+    d: BlockD | null;
+    e: BlockE | null;
+    f: BlockF | null;
+  };
+}
+
+// =============================================================================
+// Structured result validation
+// =============================================================================
+
+const BLOCK_KEYS = ["a", "b", "c", "d", "e", "f"] as const;
+
+export function validateStructuredResult(parsed: unknown): StructuredMatchResult {
+  const obj = parsed as Record<string, unknown>;
+
+  const overallScore =
+    typeof obj.overallScore === "number"
+      ? Math.max(0, Math.min(100, Math.round(obj.overallScore)))
+      : 50;
+
+  const validVerdicts = ["excellent", "partial", "low"] as const;
+  const verdict = validVerdicts.includes(obj.verdict as typeof validVerdicts[number])
+    ? (obj.verdict as "excellent" | "partial" | "low")
+    : overallScore >= 75
+      ? "excellent"
+      : overallScore >= 40
+        ? "partial"
+        : "low";
+
+  const rawBlocks = (typeof obj.blocks === "object" && obj.blocks !== null ? obj.blocks : {}) as Record<string, unknown>;
+
+  const missingBlocks: string[] = [];
+  const blocks: Record<string, unknown> = {};
+  for (const key of BLOCK_KEYS) {
+    if (rawBlocks[key] && typeof rawBlocks[key] === "object") {
+      blocks[key] = rawBlocks[key];
+    } else {
+      blocks[key] = null;
+      missingBlocks.push(key.toUpperCase());
+    }
+  }
+
+  if (missingBlocks.length > 0) {
+    console.error(`[matchJobStructured] Missing/malformed blocks: ${missingBlocks.join(", ")}`);
+  }
+
+  return {
+    overallScore,
+    verdict,
+    matchVersion: 2,
+    blocks: blocks as StructuredMatchResult["blocks"],
+  };
+}
+
+// =============================================================================
+// Structured matching function (v2)
+// =============================================================================
+
+export async function matchJobStructured(
+  profile: ExtractedProfile,
+  job: {
+    title: string;
+    description: string;
+    canton?: string;
+    salary?: string;
+    contractType?: string;
+    company?: string;
+    activityRate?: string;
+    categories?: unknown;
+    languageSkills?: unknown;
+  }
+): Promise<StructuredMatchResult> {
+  const systemPrompt = buildStructuredMatchPrompt();
+
+  const userMessage = `
+PROFIL DU CANDIDAT:
+${JSON.stringify(profile, null, 2)}
+
+OFFRE D'EMPLOI:
+${JSON.stringify(job, null, 2)}
+
+Analyse le matching et retourne le JSON structuré en 6 blocs (A-F).
+`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage },
+    ],
+    max_tokens: 5000,
+    temperature: 0.3,
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) throw new Error("Réponse IA vide");
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    throw new Error("Réponse IA non-JSON");
+  }
+
+  return validateStructuredResult(parsed);
+}
+
+// =============================================================================
+// Structured matching with retry
+// =============================================================================
+
+export async function matchJobStructuredWithRetry(
+  profile: ExtractedProfile,
+  job: Parameters<typeof matchJobStructured>[1]
+): Promise<StructuredMatchResult> {
+  try {
+    return await matchJobStructured(profile, job);
+  } catch (error) {
+    console.error("Structured match first attempt failed:", error);
+    return await matchJobStructured(profile, job);
+  }
+}
+
+// =============================================================================
+// Types (v1 — flat match)
 // =============================================================================
 
 export interface JobMatchResult {
