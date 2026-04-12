@@ -90,6 +90,8 @@ export async function GET(
       description: job.description,
       salary: job.salary,
       matchScore,
+      legitimacyTier: job.legitimacyTier ?? null,
+      legitimacyScore: job.legitimacyScore ?? null,
     },
     hasCvAnalysis,
     cvAnalysisId,

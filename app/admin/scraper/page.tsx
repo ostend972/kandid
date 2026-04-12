@@ -39,6 +39,7 @@ import {
   Search,
   ExternalLink,
 } from "lucide-react";
+import { LegitimacyBadge } from "@/components/jobs/legitimacy-badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ type JobRow = {
   source: string | null;
   status: string | null;
   publishedAt: string | null;
+  legitimacyTier: string | null;
 };
 
 type JobDetail = {
@@ -608,6 +610,7 @@ export default function AdminScraperPage() {
                 <TableHead>Canton</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Légitimité</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
@@ -616,7 +619,7 @@ export default function AdminScraperPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 7 }).map((__, j) => (
+                    {Array.from({ length: 8 }).map((__, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-24" />
                       </TableCell>
@@ -626,7 +629,7 @@ export default function AdminScraperPage() {
               ) : jobRows.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="text-center text-muted-foreground py-8"
                   >
                     Aucune offre trouvee
@@ -659,6 +662,9 @@ export default function AdminScraperPage() {
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={job.status} />
+                    </TableCell>
+                    <TableCell>
+                      <LegitimacyBadge tier={job.legitimacyTier} />
                     </TableCell>
                     <TableCell>{formatDate(job.publishedAt)}</TableCell>
                     <TableCell>

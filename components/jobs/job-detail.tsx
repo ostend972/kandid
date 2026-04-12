@@ -21,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { MatchBadge } from './match-badge';
 import { MatchBreakdown } from './match-breakdown';
+import { LegitimacyBadge } from './legitimacy-badge';
 import { cn } from '@/lib/utils';
 
 export interface JobDetailData {
@@ -35,6 +36,8 @@ export interface JobDetailData {
   matchScore: number | null;
   description?: string;
   salary?: string | null;
+  legitimacyTier?: string | null;
+  legitimacyScore?: number | null;
 }
 
 interface JobDetailProps {
@@ -190,6 +193,7 @@ export function JobDetail({
           {job.salary && (
             <span className="text-gray-700 font-medium">{job.salary}</span>
           )}
+          <LegitimacyBadge tier={job.legitimacyTier ?? null} score={job.legitimacyScore} />
         </div>
       </div>
 

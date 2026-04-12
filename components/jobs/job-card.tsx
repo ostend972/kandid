@@ -4,6 +4,7 @@ import { MapPin, Bookmark, BookmarkCheck, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MatchBadge } from './match-badge';
+import { LegitimacyBadge } from './legitimacy-badge';
 import { cn } from '@/lib/utils';
 
 export interface JobCardData {
@@ -16,6 +17,7 @@ export interface JobCardData {
   publishedAt: string | null;
   sourceUrl: string;
   matchScore: number | null;
+  legitimacyTier: string | null;
 }
 
 interface JobCardProps {
@@ -122,6 +124,7 @@ export function JobCard({
               {job.contractType}
             </Badge>
           )}
+          <LegitimacyBadge tier={job.legitimacyTier} />
         </div>
 
         <Button
