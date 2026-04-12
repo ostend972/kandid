@@ -115,6 +115,9 @@ export const jobs = pgTable(
     lastCheckedAt: timestamp('last_checked_at'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
+    legitimacyTier: text('legitimacy_tier'), // 'high' | 'caution' | 'suspicious'
+    legitimacyScore: integer('legitimacy_score'), // 0-100
+    legitimacySignals: jsonb('legitimacy_signals'), // Array<{ signal, finding, weight }>
   },
   (table) => [
     index('idx_jobs_status').on(table.status),
@@ -123,6 +126,7 @@ export const jobs = pgTable(
     index('idx_jobs_published_at').on(table.publishedAt),
     // GIN index for skills array
     index('idx_jobs_skills').using('gin', table.skills),
+    index('idx_jobs_legitimacy_tier').on(table.legitimacyTier),
   ]
 );
 
@@ -545,6 +549,11 @@ export type NewApplication = typeof applications.$inferInsert;
 export type ApplicationTransition = typeof applicationTransitions.$inferSelect;
 export type NewApplicationTransition = typeof applicationTransitions.$inferInsert;
 export type ApplicationStatus = (typeof applicationStatusEnum.enumValues)[number];
+
+// Legitimacy scoring types
+export type LegitimacyTier = 'high' | 'caution' | 'suspicious';
+export type LegitimacySignal = { signal: string; finding: string; weight: number };
+export type LegitimacyResult = { tier: LegitimacyTier; score: number; signals: LegitimacySignal[] };
 
 // Legacy types (kept for backward compatibility)
 /** @deprecated Use KandidUser instead — will be removed after Clerk migration */
