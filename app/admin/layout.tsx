@@ -21,6 +21,7 @@ import {
   LayoutDashboard,
   Users,
   Database,
+  HeartPulse,
   ArrowLeft,
   LucideIcon,
 } from "lucide-react";
@@ -42,6 +43,7 @@ const navItems: AdminNavItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/admin" },
   { title: "Utilisateurs", icon: Users, href: "/admin/users" },
   { title: "Scraper", icon: Database, href: "/admin/scraper" },
+  { title: "Pipeline", icon: HeartPulse, href: "/admin/pipeline-health" },
 ];
 
 const backItem: AdminNavItem = {
