@@ -207,8 +207,7 @@ Génère le dossier de préparation d'entretien au format JSON.`;
     ],
     max_tokens: 6000,
     temperature: 0.3,
-    timeout: 60000,
-  });
+  }, { timeout: 60000 });
 
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error("Réponse IA vide");
