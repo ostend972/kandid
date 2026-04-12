@@ -1,6 +1,6 @@
-import type { LegitimacyTier, LegitimacySignal, LegitimacyResult } from '@/lib/db/schema';
-
-export type { LegitimacyTier, LegitimacySignal, LegitimacyResult };
+export type LegitimacyTier = 'high' | 'caution' | 'suspicious';
+export type LegitimacySignal = { signal: string; finding: string; weight: number };
+export type LegitimacyResult = { tier: LegitimacyTier; score: number; signals: LegitimacySignal[] };
 
 export interface LegitimacyInput {
   publishedAt: Date | string | null | undefined;

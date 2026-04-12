@@ -2,6 +2,7 @@ import { chromium, type Page } from "playwright";
 import postgres from "postgres";
 import dotenv from "dotenv";
 import { classifyLiveness } from "./liveness-check";
+import { computeLegitimacyScore, type LegitimacyInput } from "./legitimacy-score";
 
 dotenv.config({ path: "../.env" });
 dotenv.config({ path: "../.env.local" });
@@ -26,6 +27,17 @@ interface CandidateJob {
   id: string;
   source_url: string;
   legitimacy_signals: unknown;
+  published_at: string | null;
+  expires_at: string | null;
+  description: string | null;
+  skills: string[] | null;
+  salary: string | null;
+  contract_type: string | null;
+  activity_rate: string | null;
+  status: string | null;
+  email: string | null;
+  language_skills: unknown[] | null;
+  categories: unknown[] | null;
 }
 
 async function checkUrl(
@@ -115,7 +127,10 @@ async function main() {
   let jobs: CandidateJob[];
   try {
     jobs = await sql<CandidateJob[]>`
-      SELECT id, source_url, legitimacy_signals
+      SELECT id, source_url, legitimacy_signals,
+             published_at, expires_at, description, skills, salary,
+             contract_type, activity_rate, status, email,
+             language_skills, categories
       FROM jobs
       WHERE status IN ('active', 'reposted')
         AND (
@@ -175,11 +190,28 @@ async function main() {
       : [];
     const updatedSignals = [...existingSignals, livenessSignal];
 
+    const scoringInput: LegitimacyInput = {
+      publishedAt: job.published_at,
+      expiresAt: job.expires_at,
+      description: job.description,
+      skills: job.skills,
+      salary: job.salary,
+      contractType: job.contract_type,
+      activityRate: job.activity_rate,
+      status: job.status,
+      email: job.email,
+      languageSkills: job.language_skills,
+      categories: job.categories,
+    };
+    const scored = computeLegitimacyScore(scoringInput, undefined, result);
+
     try {
       await sql`
         UPDATE jobs
         SET legitimacy_signals = ${JSON.stringify(updatedSignals)}::jsonb,
-            last_checked_at = NOW()
+            last_checked_at = NOW(),
+            legitimacy_tier = ${scored.tier},
+            legitimacy_score = ${scored.score}
         WHERE id = ${job.id}
       `;
     } catch (err) {
