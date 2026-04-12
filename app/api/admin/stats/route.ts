@@ -10,7 +10,7 @@ import {
   savedJobs,
   candidateDocuments,
 } from '@/lib/db/schema';
-import { count, avg, eq, gte, sql, desc } from 'drizzle-orm';
+import { count, avg, eq, gte, sql, desc, inArray } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function GET() {
@@ -64,7 +64,7 @@ export async function GET() {
     db
       .select({ value: count() })
       .from(applications)
-      .where(eq(applications.status, 'completed')),
+      .where(inArray(applications.status, ['accepted', 'rejected', 'withdrawn'])),
   ]);
 
   // ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ import {
   savedJobs,
   candidateDocuments,
 } from '@/lib/db/schema';
-import { count, avg, eq, gte, desc, sql } from 'drizzle-orm';
+import { count, avg, eq, gte, desc, sql, inArray } from 'drizzle-orm';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Users,
@@ -105,7 +105,7 @@ export default async function AdminDashboardPage() {
     db
       .select({ value: count() })
       .from(applications)
-      .where(eq(applications.status, 'completed')),
+      .where(inArray(applications.status, ['accepted', 'rejected', 'withdrawn'])),
   ]);
 
   const completionRate =
@@ -204,7 +204,7 @@ export default async function AdminDashboardPage() {
       icon: TrendingUp,
     },
     {
-      label: 'Taux de completion',
+      label: 'Taux de finalisation',
       value: `${completionRate}%`,
       icon: CheckCircle2,
     },
