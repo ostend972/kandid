@@ -8,6 +8,7 @@ import {
   updateApplication,
 } from "@/lib/db/kandid-queries";
 import { generateCvData, IdentityContext } from "@/lib/ai/generate-cv";
+import { extractATSKeywords } from "@/lib/ai/normalize-ats";
 
 // ---------------------------------------------------------------------------
 // POST /api/applications/[id]/generate-cv — AI CV generation
@@ -118,6 +119,8 @@ export async function POST(
       certContext = '\n\nCERTIFICATIONS :\n' + (profile.certifications as string[]).join(', ');
     }
 
+    const atsKeywords = extractATSKeywords(application.jobDescription ?? "");
+
     const { data: cvData, usage } = await generateCvData(
       profile,
       application.jobTitle ?? "",
@@ -125,7 +128,8 @@ export async function POST(
       application.jobDescription ?? "",
       instructions,
       identityContext,
-      experienceContext + educationContext + certContext
+      experienceContext + educationContext + certContext,
+      atsKeywords
     );
 
     // Log generation with token usage

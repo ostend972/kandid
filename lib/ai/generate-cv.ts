@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { buildCvGenerationPrompt } from "./prompts";
 import { withRetry } from "./with-retry";
+import { normalizeGeneratedCv } from "./normalize-ats";
 
 const openai = new OpenAI();
 
@@ -82,7 +83,8 @@ export async function generateCvData(
   jobDescription: string,
   instructions?: string,
   identityContext?: IdentityContext,
-  detailedCvContext?: string
+  detailedCvContext?: string,
+  atsKeywords?: string[]
 ): Promise<{ data: GeneratedCvData; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   const systemPrompt = buildCvGenerationPrompt();
 
@@ -124,6 +126,13 @@ ENTREPRISE: ${jobCompany}
 DESCRIPTION DU POSTE:
 ${jobDescription}`;
 
+  if (atsKeywords && atsKeywords.length > 0) {
+    userMessage += `
+
+KEYWORDS ATS A INTEGRER NATURELLEMENT (seulement si pertinents au profil du candidat):
+${atsKeywords.join(', ')}`;
+  }
+
   if (instructions) {
     userMessage += `
 
@@ -151,22 +160,23 @@ Genere le CV suisse optimise au format JSON demande.`;
     if (!content) throw new Error("Reponse IA vide");
 
     const parsed = JSON.parse(content) as GeneratedCvData;
+    const normalized = normalizeGeneratedCv(parsed);
 
     // Validate required fields
-    if (!parsed.identity || !parsed.experiences || !parsed.education) {
+    if (!normalized.identity || !normalized.experiences || !normalized.education) {
       throw new Error("Format de reponse IA invalide : champs obligatoires manquants");
     }
 
-    if (!parsed.identity.firstName || !parsed.identity.lastName) {
+    if (!normalized.identity.firstName || !normalized.identity.lastName) {
       throw new Error("Format de reponse IA invalide : identite incomplete");
     }
 
-    if (!Array.isArray(parsed.experiences) || parsed.experiences.length === 0) {
+    if (!Array.isArray(normalized.experiences) || normalized.experiences.length === 0) {
       throw new Error("Format de reponse IA invalide : aucune experience generee");
     }
 
     return {
-      data: parsed,
+      data: normalized,
       usage: {
         promptTokens: response.usage?.prompt_tokens || 0,
         completionTokens: response.usage?.completion_tokens || 0,
