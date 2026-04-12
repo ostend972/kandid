@@ -19,6 +19,7 @@ import {
   type NewApplication,
   type ApplicationStatus,
 } from './schema';
+import type { InterviewPrepData } from '../ai/interview-prep';
 import { isValidTransition, computeNextFollowUpDate } from '../cadence';
 
 // =============================================================================
@@ -965,6 +966,46 @@ export async function getApplicationsByUserWithUrgency(userId: string) {
     .leftJoin(jobs, eq(applications.jobId, jobs.id))
     .where(eq(applications.userId, userId))
     .orderBy(asc(applications.nextFollowUpAt), desc(applications.updatedAt));
+}
+
+// =============================================================================
+// Interview Prep Queries
+// =============================================================================
+
+export async function getApplicationWithContext(id: string, userId: string) {
+  const app = await getApplicationById(id, userId);
+  if (!app) return null;
+
+  const cvAnalysis = app.cvAnalysisId
+    ? await getCvAnalysisById(app.cvAnalysisId)
+    : null;
+
+  const job = app.jobId ? await getJobById(app.jobId) : null;
+
+  let cachedMatch = null;
+  if (app.cvAnalysisId && app.jobId) {
+    cachedMatch = await getJobMatch(app.cvAnalysisId, app.jobId);
+  }
+
+  return { application: app, cvAnalysis, job, cachedMatch };
+}
+
+export async function saveInterviewPrep(
+  id: string,
+  userId: string,
+  prep: InterviewPrepData
+) {
+  const result = await db
+    .update(applications)
+    .set({
+      interviewPrep: prep as unknown as Record<string, unknown>,
+      interviewPrepGeneratedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+    .returning();
+
+  return result[0] ?? null;
 }
 
 // =============================================================================
