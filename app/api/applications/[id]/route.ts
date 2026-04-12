@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getApplicationById,
   updateApplication,
+  transitionApplicationStatus,
 } from "@/lib/db/kandid-queries";
 
 // ---------------------------------------------------------------------------
@@ -89,12 +90,40 @@ export async function PATCH(
     );
   }
 
-  const application = await updateApplication(id, user.id, update);
-  if (!application) {
-    return NextResponse.json(
-      { error: "Candidature non trouvee." },
-      { status: 404 }
-    );
+  // Handle status transitions separately via the state machine
+  const statusValue = update.status as string | undefined;
+  delete update.status;
+
+  let application;
+
+  if (statusValue) {
+    try {
+      application = await transitionApplicationStatus(
+        id,
+        user.id,
+        statusValue as Parameters<typeof transitionApplicationStatus>[2],
+        'user'
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur de transition";
+      if (message.includes("non trouvée")) {
+        return NextResponse.json({ error: message }, { status: 404 });
+      }
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+
+    // Apply remaining non-status updates if any
+    if (Object.keys(update).length > 0) {
+      application = await updateApplication(id, user.id, update);
+    }
+  } else {
+    application = await updateApplication(id, user.id, update);
+    if (!application) {
+      return NextResponse.json(
+        { error: "Candidature non trouvee." },
+        { status: 404 }
+      );
+    }
   }
 
   return NextResponse.json({ application });

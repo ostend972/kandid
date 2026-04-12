@@ -1,4 +1,4 @@
-import { eq, and, or, desc, asc, sql, inArray, count, gte } from 'drizzle-orm';
+import { eq, and, or, desc, asc, sql, inArray, count, gte, lte } from 'drizzle-orm';
 import { db } from './drizzle';
 import {
   users,
@@ -9,6 +9,7 @@ import {
   candidateDocuments,
   candidateReferences,
   applications,
+  applicationTransitions,
   aiGenerationsLog,
   type NewKandidUser,
   type NewCvAnalysis,
@@ -16,7 +17,9 @@ import {
   type NewCandidateDocument,
   type NewCandidateReference,
   type NewApplication,
+  type ApplicationStatus,
 } from './schema';
+import { isValidTransition, computeNextFollowUpDate } from '../cadence';
 
 // =============================================================================
 // User Queries
@@ -843,4 +846,114 @@ export async function updateUserPhoto(userId: string, photoUrl: string | null) {
     .returning();
 
   return user;
+}
+
+// =============================================================================
+// Application Status Transition Queries
+// =============================================================================
+
+export async function transitionApplicationStatus(
+  id: string,
+  userId: string,
+  toStatus: ApplicationStatus,
+  triggeredBy: 'user' | 'system',
+  note?: string
+) {
+  return db.transaction(async (tx) => {
+    const [app] = await tx.execute(
+      sql`SELECT * FROM applications WHERE id = ${id} AND user_id = ${userId} FOR UPDATE`
+    );
+
+    if (!app) {
+      throw new Error('Application non trouvée');
+    }
+
+    const fromStatus = app.status as ApplicationStatus;
+
+    if (fromStatus === toStatus) {
+      throw new Error(`Transition invalide: le statut est déjà ${toStatus}`);
+    }
+
+    if (!isValidTransition(fromStatus, toStatus)) {
+      throw new Error(`Transition invalide: ${fromStatus} → ${toStatus}`);
+    }
+
+    await tx.insert(applicationTransitions).values({
+      applicationId: id,
+      fromStatus,
+      toStatus,
+      triggeredBy,
+      note: note ?? null,
+    });
+
+    const now = new Date();
+    const nextFollowUp = computeNextFollowUpDate(
+      toStatus,
+      now,
+      null,
+      0
+    );
+
+    const [updated] = await tx
+      .update(applications)
+      .set({
+        status: toStatus,
+        lastStatusChangedAt: now,
+        nextFollowUpAt: nextFollowUp,
+        followUpCount: 0,
+        updatedAt: now,
+      })
+      .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+      .returning();
+
+    return updated;
+  });
+}
+
+export async function getApplicationTransitions(applicationId: string, userId: string) {
+  const app = await getApplicationById(applicationId, userId);
+  if (!app) return null;
+
+  return db
+    .select()
+    .from(applicationTransitions)
+    .where(eq(applicationTransitions.applicationId, applicationId))
+    .orderBy(desc(applicationTransitions.createdAt));
+}
+
+export async function getApplicationsNeedingFollowUp(userId?: string) {
+  const now = new Date();
+  const actionableStatuses: ApplicationStatus[] = ['applied', 'screening', 'interview', 'offer'];
+
+  const conditions = [
+    lte(applications.nextFollowUpAt, now),
+    inArray(applications.status, actionableStatuses),
+  ];
+
+  if (userId) {
+    conditions.push(eq(applications.userId, userId));
+  }
+
+  return db
+    .select({
+      application: applications,
+      userEmail: users.email,
+      userId: users.id,
+    })
+    .from(applications)
+    .innerJoin(users, eq(applications.userId, users.id))
+    .where(and(...conditions))
+    .orderBy(asc(applications.nextFollowUpAt));
+}
+
+export async function getApplicationsByUserWithUrgency(userId: string) {
+  return db
+    .select({
+      application: applications,
+      job: jobs,
+    })
+    .from(applications)
+    .leftJoin(jobs, eq(applications.jobId, jobs.id))
+    .where(eq(applications.userId, userId))
+    .orderBy(asc(applications.nextFollowUpAt), desc(applications.updatedAt));
 }
