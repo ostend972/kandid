@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-12T15:00:00.000Z",
+  "stories": [
+    {
+      "requirement": "Gestion de projet agile",
+      "situation": "Équipe de 8 développeurs avec des deadlines serrées sur un projet e-commerce",
+      "task": "Mettre en place une méthodologie Scrum adaptée à l'équipe",
+      "action": "Défini les sprints de 2 semaines, mis en place les daily standups, créé le backlog avec le PO",
+      "result": "Réduction de 30% du time-to-market, satisfaction équipe à 4.5/5",
+      "reflection": "L'adaptation du framework à la taille de l'équipe est plus importante que le suivi strict",
+      "likelyQuestion": "Décrivez une situation où vous avez dû adapter une méthodologie de travail [inferred from JD]"
+    },
+    {
+      "requirement": "Communication avec les stakeholders",
+      "situation": "Projet de migration cloud avec résistance du management",
+      "task": "Convaincre la direction de la nécessité de migrer vers le cloud",
+      "action": "Préparé une analyse coût-bénéfice détaillée, organisé un POC sur 2 semaines",
+      "result": "Approbation du budget de migration, économies de 40% sur l'infrastructure",
+      "reflection": "Les décideurs ont besoin de données concrètes, pas d'arguments techniques",
+      "likelyQuestion": "Comment gérez-vous la résistance au changement dans une organisation ?"
+    },
+    {
+      "requirement": "Développement full-stack",
+      "situation": "Application legacy PHP à moderniser en React/Node.js",
+      "task": "Architecturer la migration progressive sans interruption de service",
+      "action": "Mis en place une architecture micro-frontend, migration module par module",
+      "result": "Migration complète en 6 mois, zero downtime, performance améliorée de 60%",
+      "reflection": "La migration progressive réduit les risques mais nécessite une discipline stricte sur les interfaces",
+      "likelyQuestion": "Parlez-nous d'un projet de modernisation technique que vous avez mené"
+    }
+  ],
+  "likelyQuestions": [
+    {
+      "question": "Quelles sont vos prétentions salariales ?",
+      "category": "behavioral",
+      "why": "Question standard en Suisse, souvent posée dès le premier entretien",
+      "suggestedAngle": "Retourner la question : quelle fourchette est prévue pour ce poste ? Puis négocier en brut annuel avec 13e mois"
+    },
+    {
+      "question": "Pourquoi quittez-vous votre poste actuel ?",
+      "category": "behavioral",
+      "why": "Évaluer la motivation et les red flags potentiels",
+      "suggestedAngle": "Rester positif, parler d'évolution de carrière et de nouveaux défis"
+    },
+    {
+      "question": "Comment gérez-vous les conflits au sein d'une équipe ?",
+      "category": "behavioral",
+      "why": "Évaluer les soft skills et la maturité professionnelle",
+      "suggestedAngle": "Donner un exemple concret avec résolution positive",
+      "mappedStory": "Communication avec les stakeholders"
+    },
+    {
+      "question": "Décrivez votre expérience avec React et TypeScript [inferred from JD]",
+      "category": "technical",
+      "why": "Compétences techniques clés mentionnées dans l'offre",
+      "suggestedAngle": "Quantifier : nombre de projets, taille des codebases, patterns utilisés"
+    },
+    {
+      "question": "Comment assurez-vous la qualité du code dans vos projets ?",
+      "category": "technical",
+      "why": "Évaluer les pratiques de développement et la rigueur",
+      "suggestedAngle": "Mentionner CI/CD, tests automatisés, code review, linting"
+    },
+    {
+      "question": "Quel est votre style de management ? [inferred from JD]",
+      "category": "role_specific",
+      "why": "Le poste implique du leadership technique",
+      "suggestedAngle": "Leadership par l'exemple, servant leadership, mentorat"
+    },
+    {
+      "question": "Comment priorisez-vous quand tout est urgent ?",
+      "category": "role_specific",
+      "why": "Évaluer la capacité de gestion des priorités",
+      "suggestedAngle": "Matrice impact/effort, communication avec les stakeholders pour re-prioriser"
+    },
+    {
+      "question": "Vous n'avez pas d'expérience dans notre secteur — comment comptez-vous combler ce manque ?",
+      "category": "red_flag",
+      "why": "Faiblesse potentielle identifiée dans le profil vs l'offre",
+      "suggestedAngle": "Mettre en avant la transférabilité des compétences et la capacité d'apprentissage rapide"
+    },
+    {
+      "question": "Votre dernier poste était de courte durée — pourquoi ?",
+      "category": "red_flag",
+      "why": "Les recruteurs suisses valorisent la stabilité",
+      "suggestedAngle": "Expliquer le contexte factuel, montrer que c'était un choix réfléchi"
+    },
+    {
+      "question": "Avez-vous un permis de travail valide ?",
+      "category": "behavioral",
+      "why": "Question systématique pour les candidats étrangers en Suisse",
+      "suggestedAngle": "Répondre clairement avec le type de permis et sa validité"
+    }
+  ],
+  "companySignals": {
+    "values": ["Innovation", "Collaboration", "Excellence technique"],
+    "vocabularyToUse": ["agilité", "scalabilité", "ownership", "delivery"],
+    "thingsToAvoid": ["critiquer l'employeur précédent", "parler de salaire trop tôt", "montrer de l'arrogance"],
+    "questionsToAsk": [
+      "Comment est structurée l'équipe technique actuellement ?",
+      "Quels sont les principaux défis techniques à court terme ?",
+      "Comment se passe l'onboarding des nouveaux collaborateurs ?",
+      "Quelle est la politique de formation continue ?"
+    ]
+  },
+  "technicalChecklist": [
+    {
+      "topic": "React 18 + Server Components",
+      "why": "Mentionné explicitement dans l'offre comme stack principal",
+      "priority": "high"
+    },
+    {
+      "topic": "TypeScript avancé (generics, utility types)",
+      "why": "Base de code TypeScript strict mentionnée",
+      "priority": "high"
+    },
+    {
+      "topic": "CI/CD avec GitHub Actions",
+      "why": "Pipeline de déploiement mentionné dans la description",
+      "priority": "medium"
+    },
+    {
+      "topic": "PostgreSQL et optimisation de requêtes",
+      "why": "Base de données principale du projet",
+      "priority": "medium"
+    }
+  ],
+  "swissContext": {
+    "salaryNegotiation": "Pour un profil senior full-stack à Genève, la fourchette se situe entre 110k-130k CHF brut annuel (13e mois inclus). Demander la fourchette prévue avant de donner un chiffre.",
+    "culturalNotes": [
+      "Arriver 5 minutes en avance — la ponctualité est non négociable en Suisse",
+      "Vouvoyer systématiquement, même si l'interlocuteur tutoie",
+      "Préparer 2-3 références vérifiables — les recruteurs suisses les appellent systématiquement",
+      "Mentionner le permis de travail proactivement si vous êtes frontalier (permis G)"
+    ],
+    "marketPosition": "Profil bien positionné sur le marché genevois : l'expérience full-stack React/Node.js est très demandée, et la séniorité correspond aux attentes du poste."
+  }
+}

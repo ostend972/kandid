@@ -262,6 +262,8 @@ export const applications = pgTable(
     referencesPageUrl: text('references_page_url'),
     dossierUrl: text('dossier_url'),
     dossierMode: text('dossier_mode'),
+    interviewPrep: jsonb('interview_prep'),
+    interviewPrepGeneratedAt: timestamp('interview_prep_generated_at'),
     status: applicationStatusEnum('status').notNull().default('draft'),
     lastStatusChangedAt: timestamp('last_status_changed_at'),
     nextFollowUpAt: timestamp('next_follow_up_at'),

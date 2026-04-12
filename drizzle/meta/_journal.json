@@ -43,6 +43,13 @@
       "when": 1776003046031,
       "tag": "0005_large_white_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776008190456,
+      "tag": "0006_glossy_madelyne_pryor",
+      "breakpoints": true
     }
   ]
 }
