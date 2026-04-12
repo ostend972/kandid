@@ -42,6 +42,33 @@ export async function sendAnalysisCompleteEmail(
   }
 }
 
+export interface FollowUpApplication {
+  jobTitle: string;
+  jobCompany: string;
+  urgency: 'urgent' | 'overdue' | 'waiting' | 'cold';
+  daysSinceLastAction: number;
+  nextFollowUpDate: string;
+}
+
+export async function sendFollowUpReminderEmail(
+  to: string,
+  firstName: string,
+  applications: FollowUpApplication[]
+) {
+  try {
+    const count = applications.length;
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: `Kandid — ${count} candidature${count > 1 ? "s" : ""} nécessitent votre attention`,
+      html: buildFollowUpReminderHtml(firstName, applications),
+    });
+  } catch (error) {
+    console.error("Failed to send follow-up reminder email:", error);
+    throw error;
+  }
+}
+
 // =============================================================================
 // HTML Template Builders
 // =============================================================================
@@ -179,6 +206,66 @@ function buildAnalysisCompleteHtml(
       Consultez vos resultats detailles pour decouvrir comment ameliorer votre CV
       et augmenter vos chances aupres des recruteurs suisses.
     </p>`;
+
+  return emailWrapper(content);
+}
+
+function buildFollowUpReminderHtml(
+  firstName: string,
+  apps: FollowUpApplication[]
+): string {
+  const greeting = firstName ? `Bonjour ${firstName},` : "Bonjour,";
+
+  const urgentApps = apps.filter((a) => a.urgency === 'urgent');
+  const overdueApps = apps.filter((a) => a.urgency === 'overdue');
+  const otherApps = apps.filter((a) => a.urgency !== 'urgent' && a.urgency !== 'overdue');
+
+  function renderSection(title: string, color: string, items: FollowUpApplication[]): string {
+    if (items.length === 0) return '';
+    const rows = items
+      .map(
+        (a) => `
+      <tr>
+        <td style="padding:8px 12px;font-size:14px;color:#18181b;border-bottom:1px solid #e4e4e7;">
+          <strong>${a.jobTitle}</strong> — ${a.jobCompany}<br />
+          <span style="font-size:12px;color:#71717a;">${a.daysSinceLastAction}j depuis la dernière action</span>
+        </td>
+      </tr>`
+      )
+      .join('');
+    return `
+      <h2 style="margin:24px 0 8px;font-size:16px;font-weight:600;color:${color};">
+        ${title} (${items.length})
+      </h2>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e4e4e7;border-radius:8px;overflow:hidden;">
+        ${rows}
+      </table>`;
+  }
+
+  const sections = [
+    renderSection('🔴 Urgent', '#ef4444', urgentApps),
+    renderSection('🟠 En retard', '#f97316', overdueApps),
+    renderSection('📋 Autres rappels', '#3b82f6', otherApps),
+  ].join('');
+
+  const content = `
+    <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#18181b;">
+      ${greeting}
+    </h1>
+    <p style="margin:0 0 8px;font-size:15px;color:#3f3f46;line-height:1.6;">
+      Vous avez <strong>${apps.length} candidature${apps.length > 1 ? "s" : ""}</strong> qui nécessitent votre attention.
+    </p>
+    ${sections}
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:24px auto;">
+      <tr>
+        <td style="background-color:#18181b;border-radius:8px;">
+          <a href="${APP_URL}/dashboard/applications"
+             style="display:inline-block;padding:12px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
+            Voir mes candidatures
+          </a>
+        </td>
+      </tr>
+    </table>`;
 
   return emailWrapper(content);
 }

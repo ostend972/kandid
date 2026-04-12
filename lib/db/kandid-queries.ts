@@ -939,11 +939,20 @@ export async function getApplicationsNeedingFollowUp(userId?: string) {
       application: applications,
       userEmail: users.email,
       userId: users.id,
+      userFullName: users.fullName,
     })
     .from(applications)
     .innerJoin(users, eq(applications.userId, users.id))
     .where(and(...conditions))
     .orderBy(asc(applications.nextFollowUpAt));
+}
+
+export async function updateLastReminderSentAt(applicationIds: string[]) {
+  if (applicationIds.length === 0) return;
+  await db
+    .update(applications)
+    .set({ lastReminderSentAt: new Date() })
+    .where(inArray(applications.id, applicationIds));
 }
 
 export async function getApplicationsByUserWithUrgency(userId: string) {
