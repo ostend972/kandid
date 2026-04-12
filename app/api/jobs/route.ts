@@ -124,6 +124,8 @@ export async function GET(request: NextRequest) {
       publishedAt: job.publishedAt?.toISOString().split('T')[0] ?? null,
       sourceUrl: job.sourceUrl,
       matchScore,
+      legitimacyTier: job.legitimacyTier ?? null,
+      legitimacyScore: job.legitimacyScore ?? null,
     };
   });
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { jobs } from '@/lib/db/schema';
-import { eq, desc, count, max, ilike, or, and, SQL } from 'drizzle-orm';
+import { eq, desc, count, max, ilike, or, and, sql, SQL } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function GET(request: NextRequest) {
@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
       source: jobs.source,
       status: jobs.status,
       publishedAt: jobs.publishedAt,
+      legitimacyTier: jobs.legitimacyTier,
     })
     .from(jobs)
     .where(whereClause)
@@ -79,12 +80,22 @@ export async function GET(request: NextRequest) {
     .limit(limit)
     .offset(offset);
 
+  // Legitimacy tier distribution
+  const legitimacyDistribution = await db
+    .select({ tier: jobs.legitimacyTier, count: count() })
+    .from(jobs)
+    .where(sql`${jobs.legitimacyTier} IS NOT NULL`)
+    .groupBy(jobs.legitimacyTier);
+
   return NextResponse.json({
     activeCount: activeResult.value,
     expiredCount: expiredResult.value,
     lastScrape: lastScrapeResult.value,
     sourceDistribution: Object.fromEntries(
       sourceDistribution.map((r) => [r.source, r.count])
+    ),
+    legitimacyDistribution: Object.fromEntries(
+      legitimacyDistribution.map((r) => [r.tier ?? 'unknown', r.count])
     ),
     jobs: {
       data: jobRows,
