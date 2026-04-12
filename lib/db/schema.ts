@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgEnum,
   serial,
   varchar,
   text,
@@ -13,6 +14,21 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
+
+// =============================================================================
+// Enums
+// =============================================================================
+
+export const applicationStatusEnum = pgEnum('application_status', [
+  'draft',
+  'applied',
+  'screening',
+  'interview',
+  'offer',
+  'accepted',
+  'rejected',
+  'withdrawn',
+]);
 
 // =============================================================================
 // Kandid Application Tables
@@ -242,12 +258,39 @@ export const applications = pgTable(
     referencesPageUrl: text('references_page_url'),
     dossierUrl: text('dossier_url'),
     dossierMode: text('dossier_mode'),
-    status: text('status').notNull().default('draft'),
+    status: applicationStatusEnum('status').notNull().default('draft'),
+    lastStatusChangedAt: timestamp('last_status_changed_at'),
+    nextFollowUpAt: timestamp('next_follow_up_at'),
+    followUpCount: integer('follow_up_count').notNull().default(0),
+    lastReminderSentAt: timestamp('last_reminder_sent_at'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
   (table) => [
     uniqueIndex('idx_applications_user_job').on(table.userId, table.jobId),
+  ]
+);
+
+/**
+ * Application Transitions — timestamped state change history.
+ */
+export const applicationTransitions = pgTable(
+  'application_transitions',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    applicationId: uuid('application_id')
+      .notNull()
+      .references(() => applications.id, { onDelete: 'cascade' }),
+    fromStatus: text('from_status').notNull(),
+    toStatus: text('to_status').notNull(),
+    triggeredBy: text('triggered_by').notNull(), // 'user' | 'system'
+    note: text('note'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_application_transitions_app').on(table.applicationId),
   ]
 );
 
@@ -360,6 +403,14 @@ export const applicationsRelations = relations(applications, ({ one, many }) => 
     references: [cvAnalyses.id],
   }),
   aiGenerationsLog: many(aiGenerationsLog),
+  transitions: many(applicationTransitions),
+}));
+
+export const applicationTransitionsRelations = relations(applicationTransitions, ({ one }) => ({
+  application: one(applications, {
+    fields: [applicationTransitions.applicationId],
+    references: [applications.id],
+  }),
 }));
 
 export const aiGenerationsLogRelations = relations(aiGenerationsLog, ({ one }) => ({
@@ -491,6 +542,9 @@ export type CandidateReference = typeof candidateReferences.$inferSelect;
 export type NewCandidateReference = typeof candidateReferences.$inferInsert;
 export type Application = typeof applications.$inferSelect;
 export type NewApplication = typeof applications.$inferInsert;
+export type ApplicationTransition = typeof applicationTransitions.$inferSelect;
+export type NewApplicationTransition = typeof applicationTransitions.$inferInsert;
+export type ApplicationStatus = (typeof applicationStatusEnum.enumValues)[number];
 
 // Legacy types (kept for backward compatibility)
 /** @deprecated Use KandidUser instead — will be removed after Clerk migration */
