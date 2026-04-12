@@ -6,9 +6,9 @@ import {
   getJobById,
   createJobMatch,
 } from "@/lib/db/kandid-queries";
-import { matchJobWithRetry } from "@/lib/ai/match-job";
+import { matchJobWithRetry, matchJobStructured } from "@/lib/ai/match-job";
 import type { ExtractedProfile } from "@/lib/ai/analyze-cv";
-import type { JobMatchResult } from "@/lib/ai/match-job";
+import type { JobMatchResult, StructuredMatchResult } from "@/lib/ai/match-job";
 
 // ---------------------------------------------------------------------------
 // POST /api/match
@@ -51,6 +51,20 @@ export async function POST(request: NextRequest) {
   try {
     const cachedMatch = await getJobMatch(cvAnalysisId, jobId);
     if (cachedMatch) {
+      const reqs = cachedMatch.requirements as Record<string, unknown> | null;
+      const isV2 = reqs && typeof reqs === "object" && reqs.matchVersion === 2;
+
+      if (isV2) {
+        return NextResponse.json({
+          id: cachedMatch.id,
+          overallScore: cachedMatch.overallScore,
+          verdict: cachedMatch.verdict,
+          blocks: reqs.blocks,
+          matchVersion: 2,
+          cached: true,
+        });
+      }
+
       return NextResponse.json({
         id: cachedMatch.id,
         overallScore: cachedMatch.overallScore,
@@ -90,55 +104,111 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // ── 6. Call AI matching ───────────────────────────────────────────────
-  let matchResult: JobMatchResult;
+  // ── 6. Call AI matching (v2 structured, with v1 fallback) ─────────────
+  const profile = cvAnalysis.profile as unknown as ExtractedProfile;
+  const jobContext = {
+    title: job.title,
+    description: job.description,
+    canton: job.canton,
+    salary: job.salary ?? undefined,
+    contractType: job.contractType ?? undefined,
+    company: job.company,
+    activityRate: job.activityRate ?? undefined,
+    categories: job.categories ?? undefined,
+    languageSkills: job.languageSkills ?? undefined,
+  };
+
+  let structuredResult: StructuredMatchResult | null = null;
+  let legacyResult: JobMatchResult | null = null;
+
   try {
-    const profile = cvAnalysis.profile as unknown as ExtractedProfile;
-    matchResult = await matchJobWithRetry(
-      profile,
-      job.description,
-      job.title
-    );
-  } catch (error) {
-    console.error("AI job matching failed after retry:", error);
-    return NextResponse.json(
-      {
-        error:
-          "L'analyse IA a echoue. Veuillez reessayer dans quelques instants.",
-      },
-      { status: 500 }
-    );
+    structuredResult = await matchJobStructured(profile, jobContext);
+  } catch (firstError) {
+    console.error("Structured match first attempt failed:", firstError);
+    try {
+      structuredResult = await matchJobStructured(profile, jobContext);
+    } catch (secondError) {
+      console.error("Structured match second attempt failed, falling back to v1:", secondError);
+      try {
+        legacyResult = await matchJobWithRetry(profile, job.description, job.title);
+      } catch (legacyError) {
+        console.error("AI job matching failed after all retries:", legacyError);
+        return NextResponse.json(
+          { error: "L'analyse IA a echoue. Veuillez reessayer dans quelques instants." },
+          { status: 500 }
+        );
+      }
+    }
   }
 
   // ── 7. Save to database ───────────────────────────────────────────────
+  if (structuredResult) {
+    const dbPayload = {
+      matchVersion: 2 as const,
+      blocks: structuredResult.blocks,
+      overallScore: structuredResult.overallScore,
+      verdict: structuredResult.verdict,
+    };
+
+    let savedMatch;
+    try {
+      savedMatch = await createJobMatch({
+        userId,
+        cvAnalysisId,
+        jobId,
+        overallScore: structuredResult.overallScore,
+        verdict: structuredResult.verdict,
+        requirements: dbPayload as unknown as Record<string, unknown>,
+      });
+    } catch (error) {
+      console.error("Job match DB save failed:", error);
+      return NextResponse.json({
+        id: null,
+        overallScore: structuredResult.overallScore,
+        verdict: structuredResult.verdict,
+        blocks: structuredResult.blocks,
+        matchVersion: 2,
+        cached: false,
+      });
+    }
+
+    return NextResponse.json({
+      id: savedMatch.id,
+      overallScore: structuredResult.overallScore,
+      verdict: structuredResult.verdict,
+      blocks: structuredResult.blocks,
+      matchVersion: 2,
+      cached: false,
+    });
+  }
+
+  // ── 8. Legacy v1 fallback result ──────────────────────────────────────
   let savedMatch;
   try {
     savedMatch = await createJobMatch({
       userId,
       cvAnalysisId,
       jobId,
-      overallScore: matchResult.overallScore,
-      verdict: matchResult.verdict,
-      requirements: matchResult.requirements as unknown as Record<string, unknown>,
+      overallScore: legacyResult!.overallScore,
+      verdict: legacyResult!.verdict,
+      requirements: legacyResult!.requirements as unknown as Record<string, unknown>,
     });
   } catch (error) {
     console.error("Job match DB save failed:", error);
-    // Return the result anyway even if saving fails
     return NextResponse.json({
       id: null,
-      overallScore: matchResult.overallScore,
-      verdict: matchResult.verdict,
-      requirements: matchResult.requirements,
+      overallScore: legacyResult!.overallScore,
+      verdict: legacyResult!.verdict,
+      requirements: legacyResult!.requirements,
       cached: false,
     });
   }
 
-  // ── 8. Return result ──────────────────────────────────────────────────
   return NextResponse.json({
     id: savedMatch.id,
-    overallScore: matchResult.overallScore,
-    verdict: matchResult.verdict,
-    requirements: matchResult.requirements,
+    overallScore: legacyResult!.overallScore,
+    verdict: legacyResult!.verdict,
+    requirements: legacyResult!.requirements,
     cached: false,
   });
 }
