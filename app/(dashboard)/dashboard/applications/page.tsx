@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ClipboardList, Building2, Calendar, Clock } from 'lucide-react';
+import { ClipboardList, Building2, Calendar, Clock, BookOpen } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getApplicationsByUserWithUrgency } from '@/lib/db/kandid-queries';
@@ -112,6 +112,18 @@ export default async function ApplicationsPage() {
                           )}
                         </div>
                       </div>
+                      {(app.status as ApplicationStatus) === 'interview' && (
+                        <Link
+                          href={`/dashboard/applications/${app.id}/interview-prep`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="shrink-0"
+                        >
+                          <Button variant="outline" size="sm" className="gap-1.5">
+                            <BookOpen className="h-3.5 w-3.5" />
+                            Préparation interview
+                          </Button>
+                        </Link>
+                      )}
                     </CardContent>
                   </Card>
                 </Link>
