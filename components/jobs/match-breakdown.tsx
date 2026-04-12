@@ -1,10 +1,39 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, CheckCircle2, AlertTriangle, XCircle, Lightbulb, Sparkles } from 'lucide-react';
+import {
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Lightbulb,
+  Sparkles,
+  Info,
+  ArrowUpDown,
+  Briefcase,
+  FileText,
+  DollarSign,
+  Pencil,
+  MessageSquare,
+} from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+import type {
+  StructuredMatchResult,
+  BlockA,
+  BlockB,
+  BlockC,
+  BlockD,
+  BlockE,
+  BlockF,
+} from '@/lib/ai/match-job';
 
 // =============================================================================
 // Types
@@ -17,13 +46,25 @@ interface Requirement {
   suggestion?: string;
 }
 
-interface MatchResult {
+interface MatchResultV1 {
   id: string | null;
   overallScore: number;
   verdict: 'excellent' | 'partial' | 'low';
   requirements: Requirement[];
   cached: boolean;
+  matchVersion?: undefined;
 }
+
+interface MatchResultV2 {
+  id: string | null;
+  overallScore: number;
+  verdict: 'excellent' | 'partial' | 'low';
+  blocks: StructuredMatchResult['blocks'];
+  cached: boolean;
+  matchVersion: 2;
+}
+
+type MatchResult = MatchResultV1 | MatchResultV2;
 
 interface MatchBreakdownProps {
   jobId: string;
@@ -93,8 +134,343 @@ function getStatusBgColor(status: string) {
   }
 }
 
+function NullBlockFallback() {
+  return (
+    <div className="flex items-center gap-2 py-3 px-4 bg-gray-50 rounded-md border border-gray-100">
+      <Info className="h-4 w-4 text-gray-400 shrink-0" />
+      <p className="text-sm text-gray-500 italic">
+        Analyse incomplete pour cette section
+      </p>
+    </div>
+  );
+}
+
+function PriorityBadge({ priority }: { priority: 'high' | 'medium' | 'low' }) {
+  const config = {
+    high: 'bg-red-100 text-red-700 border-red-200',
+    medium: 'bg-amber-100 text-amber-700 border-amber-200',
+    low: 'bg-gray-100 text-gray-600 border-gray-200',
+  };
+  return (
+    <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full border', config[priority])}>
+      {priority === 'high' ? 'Haute' : priority === 'medium' ? 'Moyenne' : 'Basse'}
+    </span>
+  );
+}
+
 // =============================================================================
-// Component
+// Block Renderers
+// =============================================================================
+
+function BlockARender({ data }: { data: BlockA }) {
+  const fields = [
+    { label: 'Archetype', value: data.archetype },
+    { label: 'Domaine', value: data.domain },
+    { label: 'Fonction', value: data.function },
+    { label: 'Seniorite', value: data.seniority },
+    { label: 'Remote', value: data.remotePolicy },
+    { label: 'Taille equipe', value: data.teamSize },
+  ];
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        {fields.map((f) => (
+          <div key={f.label} className="bg-gray-50 rounded-md px-3 py-2 border border-gray-100">
+            <p className="text-xs text-gray-500">{f.label}</p>
+            <p className="text-sm font-medium text-gray-900">{f.value}</p>
+          </div>
+        ))}
+      </div>
+      <div className="bg-indigo-50 border border-indigo-100 rounded-md px-4 py-3">
+        <p className="text-sm font-medium text-indigo-700">TL;DR</p>
+        <p className="text-sm text-indigo-600 mt-1">{data.tldr}</p>
+      </div>
+    </div>
+  );
+}
+
+function BlockBRender({ data }: { data: BlockB }) {
+  const sorted = [...data.requirements].sort((a, b) => {
+    const order = { met: 0, partial: 1, not_met: 2 };
+    return (order[a.status] ?? 3) - (order[b.status] ?? 3);
+  });
+  return (
+    <div className="space-y-2.5">
+      {sorted.map((req, i) => (
+        <div
+          key={i}
+          className={cn('rounded-lg border p-3 space-y-2', getStatusBgColor(req.status))}
+        >
+          <div className="flex items-start gap-2.5">
+            {getStatusIcon(req.status)}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900">{req.requirement}</p>
+              <p className="text-sm text-gray-600 mt-1 leading-relaxed">{req.explanation}</p>
+            </div>
+          </div>
+          {req.gapAnalysis && (
+            <div className="ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
+              <p className="text-xs font-medium text-gray-500 mb-1">Analyse des ecarts</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{req.gapAnalysis}</p>
+            </div>
+          )}
+          {req.mitigationStrategy && (
+            <div className="flex items-start gap-2 ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
+              <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-medium text-gray-500 mb-1">Strategie</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{req.mitigationStrategy}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BlockCRender({ data }: { data: BlockC }) {
+  const alignmentConfig = {
+    match: { label: 'Alignement', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+    above: { label: 'Au-dessus', color: 'text-amber-700 bg-amber-50 border-amber-200' },
+    below: { label: 'En-dessous', color: 'text-red-700 bg-red-50 border-red-200' },
+  };
+  const align = alignmentConfig[data.alignment] ?? alignmentConfig.match;
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-gray-50 rounded-md px-3 py-2 border border-gray-100">
+          <p className="text-xs text-gray-500">Niveau demande</p>
+          <p className="text-sm font-medium text-gray-900">{data.detectedLevel}</p>
+        </div>
+        <div className="bg-gray-50 rounded-md px-3 py-2 border border-gray-100">
+          <p className="text-xs text-gray-500">Votre niveau</p>
+          <p className="text-sm font-medium text-gray-900">{data.candidateLevel}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full border', align.color)}>
+          {align.label}
+        </span>
+      </div>
+      <p className="text-sm text-gray-700 leading-relaxed">{data.strategy}</p>
+    </div>
+  );
+}
+
+function BlockDRender({ data }: { data: BlockD }) {
+  return (
+    <div className="space-y-3">
+      <div className="bg-gray-50 rounded-md px-4 py-3 border border-gray-100">
+        <p className="text-xs text-gray-500 mb-1">Fourchette salariale ({data.salaryRange.canton})</p>
+        <p className="text-lg font-semibold text-gray-900">
+          {data.salaryRange.currency} {data.salaryRange.min.toLocaleString('fr-CH')} – {data.salaryRange.max.toLocaleString('fr-CH')}
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-2 text-sm">
+        {data.thirteenthMonth && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">13e mois:</span>
+            <span className="text-gray-700">{data.thirteenthMonth}</span>
+          </div>
+        )}
+        {data.lppNote && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">LPP:</span>
+            <span className="text-gray-700">{data.lppNote}</span>
+          </div>
+        )}
+        {data.cctReference && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">CCT:</span>
+            <span className="text-gray-700">{data.cctReference}</span>
+          </div>
+        )}
+        {data.marketContext && (
+          <p className="text-gray-600 leading-relaxed">{data.marketContext}</p>
+        )}
+      </div>
+      <p className="text-xs text-gray-400 italic border-t border-gray-100 pt-2">
+        Base sur les donnees disponibles — a titre indicatif uniquement
+      </p>
+    </div>
+  );
+}
+
+function BlockERender({ data }: { data: BlockE }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-gray-200">
+            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Cible</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Section</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Etat actuel</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Recommandation</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Priorite</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.changes.map((change, i) => (
+            <tr key={i} className="border-b border-gray-100 last:border-0">
+              <td className="py-2 px-2 text-gray-600 capitalize">{change.target}</td>
+              <td className="py-2 px-2 text-gray-900 font-medium">{change.section}</td>
+              <td className="py-2 px-2 text-gray-600">{change.currentState}</td>
+              <td className="py-2 px-2 text-gray-700">{change.recommendedChange}</td>
+              <td className="py-2 px-2">
+                <PriorityBadge priority={change.priority} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BlockFRender({ data }: { data: BlockF }) {
+  return (
+    <div className="space-y-3">
+      {data.stories.map((story, i) => (
+        <div key={i} className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+          <div className="bg-gray-50 px-4 py-2 border-b border-gray-100">
+            <p className="text-sm font-medium text-gray-900">{story.requirement}</p>
+          </div>
+          <div className="px-4 py-3 space-y-2 text-sm">
+            <div>
+              <span className="font-medium text-indigo-600">S — </span>
+              <span className="text-gray-700">{story.situation}</span>
+            </div>
+            <div>
+              <span className="font-medium text-indigo-600">T — </span>
+              <span className="text-gray-700">{story.task}</span>
+            </div>
+            <div>
+              <span className="font-medium text-indigo-600">A — </span>
+              <span className="text-gray-700">{story.action}</span>
+            </div>
+            <div>
+              <span className="font-medium text-indigo-600">R — </span>
+              <span className="text-gray-700">{story.result}</span>
+            </div>
+            <div>
+              <span className="font-medium text-indigo-600">R — </span>
+              <span className="text-gray-700">{story.reflection}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// =============================================================================
+// V1 Requirements Renderer (backward compat)
+// =============================================================================
+
+function V1RequirementsList({ requirements }: { requirements: Requirement[] }) {
+  const sorted = [...requirements].sort((a, b) => {
+    const order = { met: 0, partial: 1, not_met: 2 };
+    return (order[a.status] ?? 3) - (order[b.status] ?? 3);
+  });
+
+  return (
+    <div className="p-4 space-y-3">
+      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        Connaissances et competences requises
+      </h4>
+      <div className="space-y-2.5">
+        {sorted.map((req, index) => (
+          <div
+            key={index}
+            className={cn('rounded-lg border p-3 space-y-2', getStatusBgColor(req.status))}
+          >
+            <div className="flex items-start gap-2.5">
+              {getStatusIcon(req.status)}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900">{req.requirement}</p>
+                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{req.explanation}</p>
+              </div>
+            </div>
+            {req.suggestion && (
+              <div className="flex items-start gap-2 ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
+                <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-gray-700 leading-relaxed">{req.suggestion}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// V2 Accordion Renderer
+// =============================================================================
+
+function getBlockBSummary(data: BlockB | null): string {
+  if (!data) return '';
+  const met = data.requirements.filter((r) => r.status === 'met').length;
+  const partial = data.requirements.filter((r) => r.status === 'partial').length;
+  const notMet = data.requirements.filter((r) => r.status === 'not_met').length;
+  return `${met} OK · ${partial} partiel · ${notMet} manquant`;
+}
+
+const BLOCK_CONFIG = [
+  { key: 'a' as const, label: 'Synthese du poste', icon: Briefcase },
+  { key: 'b' as const, label: 'Matching CV', icon: FileText },
+  { key: 'c' as const, label: 'Niveau & Strategie', icon: ArrowUpDown },
+  { key: 'd' as const, label: 'Recherche salariale', icon: DollarSign },
+  { key: 'e' as const, label: 'Plan de personnalisation', icon: Pencil },
+  { key: 'f' as const, label: 'Preparation entretien', icon: MessageSquare },
+] as const;
+
+function V2AccordionView({ blocks }: { blocks: StructuredMatchResult['blocks'] }) {
+  return (
+    <div className="p-4">
+      <Accordion type="single" collapsible defaultValue="block-b">
+        {BLOCK_CONFIG.map(({ key, label, icon: Icon }) => {
+          const blockData = blocks[key];
+          const summary = key === 'b' ? getBlockBSummary(blocks.b) : null;
+          return (
+            <AccordionItem key={key} value={`block-${key}`}>
+              <AccordionTrigger className="px-1">
+                <div className="flex items-center gap-2">
+                  <Icon className="h-4 w-4 text-gray-500" />
+                  <span>{label}</span>
+                  {summary && (
+                    <span className="text-xs text-gray-400 font-normal ml-2">{summary}</span>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-1">
+                {blockData === null ? (
+                  <NullBlockFallback />
+                ) : key === 'a' ? (
+                  <BlockARender data={blockData as BlockA} />
+                ) : key === 'b' ? (
+                  <BlockBRender data={blockData as BlockB} />
+                ) : key === 'c' ? (
+                  <BlockCRender data={blockData as BlockC} />
+                ) : key === 'd' ? (
+                  <BlockDRender data={blockData as BlockD} />
+                ) : key === 'e' ? (
+                  <BlockERender data={blockData as BlockE} />
+                ) : (
+                  <BlockFRender data={blockData as BlockF} />
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
+    </div>
+  );
+}
+
+// =============================================================================
+// Main Component
 // =============================================================================
 
 export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded }: MatchBreakdownProps) {
@@ -132,13 +508,11 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
     }
   }, [jobId, cvAnalysisId]);
 
-  // Auto-fetch on mount
   useEffect(() => {
     fetchMatch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Loading state ───────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-6">
@@ -148,9 +522,7 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
             <Sparkles className="h-4 w-4 text-indigo-400 absolute -top-1 -right-1 animate-pulse" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-indigo-700">
-              Analyse en cours...
-            </p>
+            <p className="text-sm font-medium text-indigo-700">Analyse en cours...</p>
             <p className="text-xs text-indigo-500 mt-1">
               L'IA compare votre profil avec les exigences du poste
             </p>
@@ -160,7 +532,6 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
     );
   }
 
-  // ── Error state ─────────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
@@ -177,23 +548,14 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
     );
   }
 
-  // ── Result ──────────────────────────────────────────────────────────────
   if (!result) return null;
 
   const verdictConfig = getVerdictConfig(result.verdict, result.overallScore);
-
-  // Sort requirements: met first, then partial, then not_met
-  const sortedRequirements = [...result.requirements].sort((a, b) => {
-    const order = { met: 0, partial: 1, not_met: 2 };
-    return (order[a.status] ?? 3) - (order[b.status] ?? 3);
-  });
+  const isV2 = result.matchVersion === 2;
 
   return (
-    <div className={cn(
-      'rounded-lg border overflow-hidden',
-      verdictConfig.borderColor
-    )}>
-      {/* Header — Score summary */}
+    <div className={cn('rounded-lg border overflow-hidden', verdictConfig.borderColor)}>
+      {/* Header — Score summary (works for both v1 and v2) */}
       <div className={cn('p-4 space-y-3', verdictConfig.bgColor)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -202,20 +564,13 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
               {verdictConfig.label}
             </span>
           </div>
-          <span className="text-lg font-bold text-gray-900">
-            {result.overallScore}%
-          </span>
+          <span className="text-lg font-bold text-gray-900">{result.overallScore}%</span>
         </div>
-
         <Progress
           value={result.overallScore}
           className={cn('h-2.5', verdictConfig.progressColor)}
         />
-
-        <p className="text-sm text-gray-600">
-          {verdictConfig.description}
-        </p>
-
+        <p className="text-sm text-gray-600">{verdictConfig.description}</p>
         {result.cached && (
           <p className="text-xs text-gray-400 italic">
             Resultat en cache — analyse effectuee precedemment
@@ -223,47 +578,12 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
         )}
       </div>
 
-      {/* Requirements list */}
-      <div className="p-4 space-y-3">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Connaissances et competences requises
-        </h4>
-
-        <div className="space-y-2.5">
-          {sortedRequirements.map((req, index) => (
-            <div
-              key={index}
-              className={cn(
-                'rounded-lg border p-3 space-y-2',
-                getStatusBgColor(req.status)
-              )}
-            >
-              {/* Requirement title + status icon */}
-              <div className="flex items-start gap-2.5">
-                {getStatusIcon(req.status)}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">
-                    {req.requirement}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                    {req.explanation}
-                  </p>
-                </div>
-              </div>
-
-              {/* Suggestion box */}
-              {req.suggestion && (
-                <div className="flex items-start gap-2 ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
-                  <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {req.suggestion}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Content: v2 accordion or v1 flat list */}
+      {isV2 && 'blocks' in result ? (
+        <V2AccordionView blocks={result.blocks} />
+      ) : (
+        'requirements' in result && <V1RequirementsList requirements={result.requirements} />
+      )}
 
       {/* Footer */}
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
