@@ -1,0 +1,84 @@
+{
+  "overallScore": 78,
+  "verdict": "excellent",
+  "matchVersion": 2,
+  "blocks": {
+    "a": {
+      "archetype": "IC Senior",
+      "domain": "Fintech",
+      "function": "Engineering",
+      "seniority": "senior",
+      "remotePolicy": "hybride",
+      "teamSize": "8-12",
+      "tldr": "Poste de développeur senior fullstack dans une fintech genevoise. Le candidat présente un profil solide avec une bonne adéquation technique."
+    },
+    "b": {
+      "requirements": [
+        {
+          "requirement": "5 ans d'expérience en React/TypeScript",
+          "status": "met",
+          "explanation": "Le candidat a 7 ans d'expérience en React et TypeScript confirmés.",
+          "suggestion": "Mettre en avant les projets React récents dans le CV.",
+          "gapAnalysis": "Aucun écart identifié.",
+          "mitigationStrategy": "N/A"
+        },
+        {
+          "requirement": "Expérience en fintech ou banque",
+          "status": "partial",
+          "explanation": "Le candidat a travaillé dans l'assurance mais pas directement en fintech.",
+          "suggestion": "Souligner les parallèles réglementaires entre assurance et fintech.",
+          "gapAnalysis": "Expérience sectorielle adjacente mais pas directe.",
+          "mitigationStrategy": "Préparer des exemples de conformité réglementaire transférables."
+        }
+      ]
+    },
+    "c": {
+      "detectedLevel": "Senior (5-8 ans)",
+      "candidateLevel": "Senior (7 ans)",
+      "alignment": "match",
+      "strategy": "Positionnement direct — l'expérience correspond au niveau demandé."
+    },
+    "d": {
+      "salaryRange": {
+        "min": 110000,
+        "max": 135000,
+        "currency": "CHF",
+        "canton": "Genève"
+      },
+      "thirteenthMonth": "Très probable dans ce secteur — 90% des entreprises genevoises le versent.",
+      "lppNote": "Cotisation LPP standard pour la tranche d'âge 35-44 ans (~10% du salaire coordonné).",
+      "cctReference": "Aucune CCT identifiée pour le secteur fintech.",
+      "marketContext": "Marché tendu pour les profils senior fullstack à Genève — forte demande, offre limitée."
+    },
+    "e": {
+      "changes": [
+        {
+          "target": "cv",
+          "section": "Expérience professionnelle",
+          "currentState": "Description générique des responsabilités.",
+          "recommendedChange": "Quantifier les résultats : nombre d'utilisateurs, performance améliorée, etc.",
+          "priority": "high"
+        },
+        {
+          "target": "linkedin",
+          "section": "Titre",
+          "currentState": "Développeur Full Stack",
+          "recommendedChange": "Senior Full Stack Engineer | React & TypeScript | Fintech",
+          "priority": "medium"
+        }
+      ]
+    },
+    "f": {
+      "stories": [
+        {
+          "requirement": "Gestion de projets complexes",
+          "situation": "Migration d'une application monolithique vers des microservices.",
+          "task": "Piloter la migration technique tout en maintenant le service en production.",
+          "action": "Mise en place d'un plan de migration progressif avec feature flags.",
+          "result": "Migration complétée en 6 mois avec zéro downtime.",
+          "reflection": "L'approche progressive a permis de réduire les risques et de maintenir la confiance de l'équipe."
+        }
+      ]
+    }
+  }
+}

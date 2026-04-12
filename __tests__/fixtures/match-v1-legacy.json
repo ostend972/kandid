@@ -1,0 +1,20 @@
+[
+  {
+    "requirement": "3 ans d'expérience en gestion de projet",
+    "status": "met",
+    "explanation": "Le candidat a 5 ans d'expérience en gestion de projet IT.",
+    "suggestion": "Mettre en avant les certifications PMP ou Prince2 si disponibles."
+  },
+  {
+    "requirement": "Maîtrise de SAP",
+    "status": "not_met",
+    "explanation": "Aucune mention de SAP dans le profil du candidat.",
+    "suggestion": "Envisager une formation SAP accélérée ou mentionner des ERP similaires."
+  },
+  {
+    "requirement": "Français et anglais courants",
+    "status": "partial",
+    "explanation": "Français natif confirmé, anglais niveau B2 mentionné.",
+    "suggestion": "Préciser le niveau d'anglais avec une certification (TOEFL, Cambridge)."
+  }
+]
