@@ -966,3 +966,115 @@ export async function getApplicationsByUserWithUrgency(userId: string) {
     .where(eq(applications.userId, userId))
     .orderBy(asc(applications.nextFollowUpAt), desc(applications.updatedAt));
 }
+
+// =============================================================================
+// Analytics Queries
+// =============================================================================
+
+export async function getApplicationStatusFunnel(userId: string) {
+  const result = await db.execute(sql`
+    SELECT status, COUNT(*)::int AS count
+    FROM applications
+    WHERE user_id = ${userId}
+    GROUP BY status
+    ORDER BY CASE status
+      WHEN 'draft' THEN 1
+      WHEN 'applied' THEN 2
+      WHEN 'screening' THEN 3
+      WHEN 'interview' THEN 4
+      WHEN 'offer' THEN 5
+      WHEN 'accepted' THEN 6
+      WHEN 'rejected' THEN 7
+      WHEN 'withdrawn' THEN 8
+    END
+  `);
+  return result as unknown as { status: string; count: number }[];
+}
+
+export async function getApplicationsByCanton(userId: string) {
+  const result = await db.execute(sql`
+    SELECT
+      j.canton,
+      COUNT(*)::int AS count,
+      AVG(jm.overall_score)::int AS "avgScore"
+    FROM applications a
+    INNER JOIN jobs j ON a.job_id = j.id
+    LEFT JOIN job_matches jm ON jm.job_id = j.id AND jm.user_id = a.user_id
+    WHERE a.user_id = ${userId}
+      AND a.job_id IS NOT NULL
+    GROUP BY j.canton
+    ORDER BY count DESC
+  `);
+  return result as unknown as { canton: string; count: number; avgScore: number | null }[];
+}
+
+export async function getApplicationsByContractType(userId: string) {
+  const result = await db.execute(sql`
+    SELECT
+      COALESCE(j.contract_type, 'Non spécifié') AS "contractType",
+      COUNT(*)::int AS count
+    FROM applications a
+    INNER JOIN jobs j ON a.job_id = j.id
+    WHERE a.user_id = ${userId}
+      AND a.job_id IS NOT NULL
+    GROUP BY j.contract_type
+    ORDER BY count DESC
+  `);
+  return result as unknown as { contractType: string; count: number }[];
+}
+
+export async function getApplicationWeeklyTrend(userId: string, weeks = 12) {
+  const result = await db.execute(sql`
+    SELECT
+      date_trunc('week', a.created_at)::text AS week,
+      COUNT(*)::int AS count
+    FROM applications a
+    WHERE a.user_id = ${userId}
+      AND a.created_at >= NOW() - make_interval(weeks => ${weeks})
+    GROUP BY date_trunc('week', a.created_at)
+    ORDER BY week ASC
+  `);
+  return result as unknown as { week: string; count: number }[];
+}
+
+export async function getTopSkillGaps(userId: string, limit = 10) {
+  const result = await db.execute(sql`
+    SELECT
+      req->>'requirement' AS skill,
+      COUNT(*)::int AS frequency
+    FROM job_matches jm,
+      jsonb_array_elements(jm.requirements->'blocks'->'b'->'requirements') AS req
+    WHERE jm.user_id = ${userId}
+      AND jm.requirements->>'matchVersion' = '2'
+      AND req->>'status' = 'not_met'
+    GROUP BY req->>'requirement'
+    ORDER BY frequency DESC
+    LIMIT ${limit}
+  `);
+  return result as unknown as { skill: string; frequency: number }[];
+}
+
+export async function getConversionStats(userId: string) {
+  const result = await db.execute(sql`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status = 'applied')::int AS applied,
+      COUNT(*) FILTER (WHERE status = 'screening')::int AS screening,
+      COUNT(*) FILTER (WHERE status = 'interview')::int AS interviews,
+      COUNT(*) FILTER (WHERE status = 'offer')::int AS offers,
+      COUNT(*) FILTER (WHERE status = 'accepted')::int AS accepted,
+      COUNT(*) FILTER (WHERE status = 'rejected')::int AS rejected
+    FROM applications
+    WHERE user_id = ${userId}
+  `);
+  const row = (result as unknown as Record<string, number>[])[0];
+  return {
+    total: row?.total ?? 0,
+    applied: row?.applied ?? 0,
+    screening: row?.screening ?? 0,
+    interviews: row?.interviews ?? 0,
+    offers: row?.offers ?? 0,
+    accepted: row?.accepted ?? 0,
+    rejected: row?.rejected ?? 0,
+  };
+}
