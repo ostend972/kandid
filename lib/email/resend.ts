@@ -69,6 +69,29 @@ export async function sendFollowUpReminderEmail(
   }
 }
 
+export async function sendDossierEmail(params: {
+  to: string;
+  candidateName: string;
+  jobTitle: string;
+  company: string;
+  subject?: string;
+  body?: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+}) {
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: params.to,
+    subject:
+      params.subject ||
+      `Candidature ${params.candidateName} — ${params.jobTitle}`,
+    html: buildDossierEmailHtml(params),
+    attachments: [
+      { filename: params.pdfFilename, content: params.pdfBuffer },
+    ],
+  });
+}
+
 // =============================================================================
 // HTML Template Builders
 // =============================================================================
@@ -205,6 +228,45 @@ function buildAnalysisCompleteHtml(
     <p style="margin:0;font-size:13px;color:#a1a1aa;line-height:1.6;">
       Consultez vos resultats detailles pour decouvrir comment ameliorer votre CV
       et augmenter vos chances aupres des recruteurs suisses.
+    </p>`;
+
+  return emailWrapper(content);
+}
+
+function buildDossierEmailHtml(params: {
+  candidateName: string;
+  jobTitle: string;
+  company: string;
+  body?: string;
+}): string {
+  const bodyText =
+    params.body ||
+    `Veuillez trouver ci-joint le dossier de candidature de ${params.candidateName} pour le poste de ${params.jobTitle} chez ${params.company}.`;
+
+  const content = `
+    <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#18181b;">
+      Candidature — ${params.jobTitle}
+    </h1>
+    <p style="margin:0 0 16px;font-size:15px;color:#3f3f46;line-height:1.6;">
+      ${bodyText}
+    </p>
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;width:100%;">
+      <tr>
+        <td style="padding:12px 16px;background-color:#f4f4f5;border-radius:8px;">
+          <p style="margin:0 0 4px;font-size:13px;color:#71717a;">Candidat</p>
+          <p style="margin:0;font-size:15px;font-weight:600;color:#18181b;">${params.candidateName}</p>
+        </td>
+      </tr>
+      <tr><td style="height:8px;"></td></tr>
+      <tr>
+        <td style="padding:12px 16px;background-color:#f4f4f5;border-radius:8px;">
+          <p style="margin:0 0 4px;font-size:13px;color:#71717a;">Poste</p>
+          <p style="margin:0;font-size:15px;font-weight:600;color:#18181b;">${params.jobTitle} — ${params.company}</p>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0;font-size:13px;color:#a1a1aa;line-height:1.6;">
+      Le dossier complet est joint en pièce jointe (PDF).
     </p>`;
 
   return emailWrapper(content);

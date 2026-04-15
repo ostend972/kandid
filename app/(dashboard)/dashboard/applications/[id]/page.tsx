@@ -22,6 +22,7 @@ import { computeUrgency } from '@/lib/cadence';
 import { getApplicationWithContext, getApplicationTransitions } from '@/lib/db/kandid-queries';
 import { Timeline } from '@/components/applications/timeline';
 import { NotesEditor } from '@/components/applications/notes-editor';
+import { SendEmailButton } from '@/components/applications/send-email-button';
 import type { ApplicationStatus } from '@/lib/db/schema';
 
 function formatDate(date: Date | string | null): string {
@@ -179,13 +180,19 @@ export default async function ApplicationDetailPage({
                 Dossier complet
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
                 <a href={`/api/applications/${app.id}/download?mode=pdf`}>
                   <Download className="h-4 w-4 mr-2" />
                   Télécharger le dossier
                 </a>
               </Button>
+              <SendEmailButton
+                applicationId={app.id}
+                hasDossier={!!app.dossierUrl}
+                currentStatus={app.emailSendStatus}
+                lastSentTo={app.emailSentTo}
+              />
             </CardContent>
           </Card>
         )}

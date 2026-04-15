@@ -1101,6 +1101,33 @@ export async function saveInterviewPrep(
 }
 
 // =============================================================================
+// Email Status
+// =============================================================================
+
+export async function updateApplicationEmailStatus(
+  id: string,
+  userId: string,
+  status: 'pending' | 'sent' | 'failed',
+  to?: string,
+  attempts?: number
+) {
+  const set: Record<string, unknown> = {
+    emailSendStatus: status,
+    updatedAt: new Date(),
+  };
+  if (status === 'sent') set.emailSentAt = new Date();
+  if (to) set.emailSentTo = to;
+  if (attempts !== undefined) set.emailSendAttempts = attempts;
+
+  const [updated] = await db
+    .update(applications)
+    .set(set)
+    .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+    .returning();
+  return updated;
+}
+
+// =============================================================================
 // Analytics Queries
 // =============================================================================
 
