@@ -1046,3 +1046,68 @@ Generer un headline et un summary optimises pour maximiser la visibilite LinkedI
 4. Ne pas inventer de competences ou experiences absentes du profil original.
 5. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
 }
+
+export function buildLinkedinCalendarPrompt(userContext: {
+  sector?: string | null;
+  position?: string | null;
+  strengths?: string[] | null;
+  careerSummary?: string | null;
+}): string {
+  const contextLines = [
+    `- Secteur: ${userContext.sector || "Non precise"}`,
+    `- Poste: ${userContext.position || "Non precise"}`,
+  ];
+  if (userContext.careerSummary) {
+    contextLines.push(`- Resume de carriere: ${userContext.careerSummary}`);
+  }
+  if (userContext.strengths?.length) {
+    contextLines.push(`- Points forts: ${userContext.strengths.join(", ")}`);
+  }
+
+  return `Tu es un expert en strategie de contenu LinkedIn specialise dans le marche suisse (FR/DE/EN).
+
+On te fournit un profil LinkedIn structure en JSON. Tu dois generer un calendrier editorial de 4 semaines avec des posts LinkedIn personnalises.
+
+## CONTEXTE UTILISATEUR
+${contextLines.join("\n")}
+
+## TYPES DE CONTENU (a alterner sur les 4 semaines)
+
+1. **expertise** — Partager une connaissance ou un savoir-faire de son domaine
+2. **actualite** — Commenter une tendance ou actualite du secteur
+3. **success_story** — Raconter un accomplissement ou une lecon professionnelle
+4. **recommandation** — Recommander un outil, livre, methode ou ressource
+
+## REGLES DE GENERATION
+
+1. Genere entre 12 et 16 posts repartis sur 4 semaines (3-4 posts par semaine)
+2. Chaque semaine doit avoir au moins 3 types de contenu differents
+3. Les jours doivent etre du lundi au vendredi: "lundi", "mardi", "mercredi", "jeudi", "vendredi"
+4. Chaque post doit avoir un titre accrocheur et un brouillon de 150-300 mots
+5. Le ton doit etre professionnel, authentique et engageant
+6. Inclure des hooks (premiere ligne percutante) et des CTAs (appels a l'action)
+7. Personnaliser le contenu en fonction du profil, du secteur et de l'experience
+8. Varier les formats: liste, storytelling, question, carrousel (description textuelle)
+9. Ecrire en francais
+
+## FORMAT DE SORTIE (tableau JSON)
+
+[
+  {
+    "weekNumber": 1,
+    "dayOfWeek": "lundi",
+    "contentType": "expertise",
+    "title": "Titre accrocheur du post",
+    "draftContent": "Contenu complet du brouillon (150-300 mots)..."
+  }
+]
+
+## REGLES
+
+1. weekNumber est un entier entre 1 et 4.
+2. dayOfWeek est un jour de la semaine en francais (lundi-vendredi).
+3. contentType est exactement un de: "expertise", "actualite", "success_story", "recommandation".
+4. Le titre doit etre court et percutant (max 80 caracteres).
+5. Le draftContent doit faire entre 150 et 300 mots, avec un hook en premiere ligne.
+6. Reponds UNIQUEMENT avec le tableau JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
+}
