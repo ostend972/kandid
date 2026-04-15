@@ -289,6 +289,11 @@ export const applications = pgTable(
     nextFollowUpAt: timestamp('next_follow_up_at'),
     followUpCount: integer('follow_up_count').notNull().default(0),
     lastReminderSentAt: timestamp('last_reminder_sent_at'),
+    notes: text('notes'),
+    emailSentAt: timestamp('email_sent_at'),
+    emailSentTo: text('email_sent_to'),
+    emailSendStatus: text('email_send_status'),
+    emailSendAttempts: integer('email_send_attempts').default(0),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
@@ -359,6 +364,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   applications: many(applications),
   linkedinProfiles: many(linkedinProfiles),
   linkedinPosts: many(linkedinPosts),
+  savedSearches: many(savedSearches),
 }));
 
 export const cvAnalysesRelations = relations(cvAnalyses, ({ one, many }) => ({
@@ -536,6 +542,35 @@ export const linkedinPostsRelations = relations(linkedinPosts, ({ one }) => ({
   }),
 }));
 
+/**
+ * Saved Searches — user-saved job search filters with optional email alerts.
+ */
+export const savedSearches = pgTable(
+  'saved_searches',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    filters: jsonb('filters').notNull(),
+    emailAlertEnabled: boolean('email_alert_enabled').default(false).notNull(),
+    lastAlertAt: timestamp('last_alert_at'),
+    lastAlertJobCount: integer('last_alert_job_count'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_saved_searches_user').on(table.userId),
+  ]
+);
+
+export const savedSearchesRelations = relations(savedSearches, ({ one }) => ({
+  user: one(users, { fields: [savedSearches.userId], references: [users.id] }),
+}));
+
 // =============================================================================
 // Legacy Boilerplate Tables (from next-saas-starter)
 // Kept for reference — will be cleaned up or migrated later.
@@ -661,6 +696,8 @@ export type LinkedinProfile = typeof linkedinProfiles.$inferSelect;
 export type NewLinkedinProfile = typeof linkedinProfiles.$inferInsert;
 export type LinkedinPost = typeof linkedinPosts.$inferSelect;
 export type NewLinkedinPost = typeof linkedinPosts.$inferInsert;
+export type SavedSearch = typeof savedSearches.$inferSelect;
+export type NewSavedSearch = typeof savedSearches.$inferInsert;
 
 // Legitimacy scoring types
 export type LegitimacyTier = 'high' | 'caution' | 'suspicious';
