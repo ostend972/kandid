@@ -74,6 +74,7 @@ export async function PATCH(
     "dossierUrl",
     "dossierMode",
     "status",
+    "notes",
   ] as const;
 
   const update: Record<string, unknown> = {};

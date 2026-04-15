@@ -994,6 +994,15 @@ export async function transitionApplicationStatus(
   });
 }
 
+export async function updateApplicationNotes(id: string, userId: string, notes: string) {
+  const [updated] = await db
+    .update(applications)
+    .set({ notes, updatedAt: new Date() })
+    .where(and(eq(applications.id, id), eq(applications.userId, userId)))
+    .returning();
+  return updated;
+}
+
 export async function getApplicationTransitions(applicationId: string, userId: string) {
   const app = await getApplicationById(applicationId, userId);
   if (!app) return null;

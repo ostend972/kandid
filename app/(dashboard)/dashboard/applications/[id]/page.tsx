@@ -19,7 +19,9 @@ import { CopyableTextCard } from '@/components/applications/copyable-text-card';
 import { StatusBadge } from '@/components/applications/status-badge';
 import { UrgencyBadge } from '@/components/applications/urgency-badge';
 import { computeUrgency } from '@/lib/cadence';
-import { getApplicationWithContext } from '@/lib/db/kandid-queries';
+import { getApplicationWithContext, getApplicationTransitions } from '@/lib/db/kandid-queries';
+import { Timeline } from '@/components/applications/timeline';
+import { NotesEditor } from '@/components/applications/notes-editor';
 import type { ApplicationStatus } from '@/lib/db/schema';
 
 function formatDate(date: Date | string | null): string {
@@ -47,7 +49,10 @@ export default async function ApplicationDetailPage({
   if (!userId) redirect('/sign-in');
 
   const { id } = await params;
-  const data = await getApplicationWithContext(id, userId);
+  const [data, transitions] = await Promise.all([
+    getApplicationWithContext(id, userId),
+    getApplicationTransitions(id, userId),
+  ]);
   if (!data) notFound();
 
   const { application: app, job, cachedMatch } = data;
@@ -202,6 +207,29 @@ export default async function ApplicationDetailPage({
           </CardContent>
         </Card>
       )}
+
+      {/* Notes */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Notes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NotesEditor
+            applicationId={app.id}
+            initialNotes={app.notes ?? ''}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Historique */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Historique</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Timeline transitions={transitions ?? []} />
+        </CardContent>
+      </Card>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-3">
