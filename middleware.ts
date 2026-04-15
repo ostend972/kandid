@@ -15,6 +15,16 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
+  // Onboarding gate — redirect non-onboarded users (D001: uses sessionClaims, not DB)
+  const isOnboardingRoute = req.nextUrl.pathname.startsWith("/onboarding");
+  if (isProtectedRoute(req) && !isOnboardingRoute) {
+    const { sessionClaims } = await auth();
+    const metadata = sessionClaims?.metadata as Record<string, unknown> | undefined;
+    if (!metadata?.onboardingComplete) {
+      return NextResponse.redirect(new URL("/onboarding", req.url));
+    }
+  }
+
   if (req.nextUrl.pathname.startsWith("/admin")) {
     const { userId } = await auth();
     if (!userId) {

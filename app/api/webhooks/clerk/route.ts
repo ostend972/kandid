@@ -1,6 +1,6 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { WebhookEvent } from "@clerk/nextjs/server";
+import { WebhookEvent, clerkClient } from "@clerk/nextjs/server";
 import { upsertUser } from "@/lib/db/kandid-queries";
 import { sendWelcomeEmail } from "@/lib/email/resend";
 
@@ -46,9 +46,18 @@ export async function POST(req: Request) {
       avatarUrl: image_url || null,
     });
 
-    // Send welcome email for new users (fire-and-forget)
+    // Send welcome email and set initial onboarding metadata for new users
     if (evt.type === "user.created") {
       sendWelcomeEmail(email, first_name || "");
+
+      try {
+        const client = await clerkClient();
+        await client.users.updateUserMetadata(id, {
+          publicMetadata: { onboardingComplete: false },
+        });
+      } catch (err) {
+        console.error("[WEBHOOK] Failed to set onboarding metadata:", err);
+      }
     }
   }
 
