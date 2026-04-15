@@ -921,3 +921,128 @@ Extraire et structurer les informations du profil LinkedIn dans un JSON strict.
 7. Gere les trois langues (FR/EN/DE) sans les traduire — garde la langue originale.
 8. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
 }
+
+// =============================================================================
+// LinkedIn SEO Audit Prompt
+// =============================================================================
+
+export function buildLinkedinAuditPrompt(userContext?: {
+  sector?: string | null;
+  position?: string | null;
+  experienceLevel?: string | null;
+}): string {
+  const contextBlock = userContext?.sector || userContext?.position
+    ? `\n## CONTEXTE UTILISATEUR\n- Secteur vise: ${userContext.sector || "Non precise"}\n- Poste vise: ${userContext.position || "Non precise"}\n- Niveau d'experience: ${userContext.experienceLevel || "Non precise"}\nAdapte tes recommandations a ce contexte professionnel.\n`
+    : "";
+
+  return `Tu es un expert en optimisation de profils LinkedIn pour le marche suisse (FR/DE/EN).
+
+On te fournit un profil LinkedIn structure en JSON. Tu dois evaluer sa qualite SEO et sa visibilite professionnelle.
+${contextBlock}
+## DIMENSIONS D'EVALUATION (score sur 100)
+
+1. **Force du headline** (15 pts): Mots-cles pertinents, clarte du positionnement, attractivite
+2. **Qualite du resume** (15 pts): Proposition de valeur, mots-cles sectoriels, lisibilite
+3. **Descriptions d'experience** (20 pts): Resultats quantifies, verbes d'action, mots-cles
+4. **Completude des competences** (15 pts): Nombre, pertinence sectorielle, alignement avec les experiences
+5. **Densite de mots-cles** (10 pts): Presence de termes recherches par les recruteurs du secteur
+6. **Completude du profil** (15 pts): Toutes sections remplies, certifications, langues
+7. **Coherence linguistique** (10 pts): Uniformite de la langue, absence de melanges involontaires
+
+## FORMAT DE SORTIE
+
+{
+  "score": 72,
+  "weaknesses": [
+    {
+      "category": "Headline",
+      "description": "Le titre ne contient pas de mots-cles recherches par les recruteurs",
+      "impact": "haute"
+    }
+  ],
+  "recommendations": [
+    {
+      "category": "Headline",
+      "action": "Ajouter le titre de poste vise et 2-3 competences cles",
+      "priority": "haute",
+      "example": "Senior Data Engineer | Python, Spark, AWS | ETL & Data Pipeline Expert"
+    }
+  ]
+}
+
+## REGLES
+
+1. Le score doit etre un entier entre 0 et 100, calcule comme la somme ponderee des 7 dimensions.
+2. Chaque weakness doit avoir un impact: "haute", "moyenne", ou "basse".
+3. Chaque recommendation doit avoir une priority: "haute", "moyenne", ou "basse".
+4. Les exemples dans les recommendations doivent etre concrets et adaptes au profil.
+5. Fournis au minimum 2 weaknesses et 3 recommendations si le score est < 80.
+6. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
+}
+
+// =============================================================================
+// LinkedIn Headline/Summary Optimization Prompt
+// =============================================================================
+
+export function buildLinkedinOptimizePrompt(userContext: {
+  sector?: string | null;
+  position?: string | null;
+  experienceLevel?: string | null;
+  careerSummary?: string | null;
+  strengths?: string[] | null;
+}): string {
+  const contextLines = [
+    `- Secteur vise: ${userContext.sector || "Non precise"}`,
+    `- Poste vise: ${userContext.position || "Non precise"}`,
+    `- Niveau d'experience: ${userContext.experienceLevel || "Non precise"}`,
+  ];
+  if (userContext.careerSummary) {
+    contextLines.push(`- Resume de carriere: ${userContext.careerSummary}`);
+  }
+  if (userContext.strengths?.length) {
+    contextLines.push(`- Points forts: ${userContext.strengths.join(", ")}`);
+  }
+
+  return `Tu es un expert en personal branding LinkedIn specialise dans le marche suisse.
+
+On te fournit un profil LinkedIn structure en JSON et le contexte professionnel de l'utilisateur.
+
+## CONTEXTE UTILISATEUR
+${contextLines.join("\n")}
+
+## OBJECTIF
+
+Generer un headline et un summary optimises pour maximiser la visibilite LinkedIn dans le secteur et le marche cibles.
+
+## REGLES POUR LE HEADLINE (max 120 caracteres)
+
+1. Inclure le titre de poste vise ou actuel
+2. Ajouter 2-3 competences cles ou specialisations
+3. Utiliser des mots-cles recherches par les recruteurs du secteur
+4. Garder un ton professionnel mais distinctif
+5. Ecrire dans la langue principale du profil
+
+## REGLES POUR LE SUMMARY (max 2000 caracteres)
+
+1. Commencer par une accroche forte (proposition de valeur unique)
+2. Mentionner les annees d'experience et le domaine d'expertise
+3. Inclure 3-5 realisations cles ou competences differenciantes
+4. Integrer des mots-cles sectoriels naturellement
+5. Terminer par un appel a l'action ou une ouverture au networking
+6. Ecrire dans la langue principale du profil
+
+## FORMAT DE SORTIE
+
+{
+  "headline": "Le nouveau headline optimise",
+  "summary": "Le nouveau summary optimise"
+}
+
+## REGLES
+
+1. Le headline ne doit pas depasser 120 caracteres.
+2. Le summary ne doit pas depasser 2000 caracteres.
+3. Adapte le ton et le vocabulaire au secteur cible.
+4. Ne pas inventer de competences ou experiences absentes du profil original.
+5. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
+}
