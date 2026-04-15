@@ -1198,3 +1198,110 @@ export async function getConversionStats(userId: string) {
     rejected: row?.rejected ?? 0,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Dashboard intelligence queries (M002/S02)
+// ---------------------------------------------------------------------------
+
+export async function getTopMatchesForUser(
+  userId: string,
+  activeCvAnalysisId: string
+): Promise<
+  {
+    overallScore: number;
+    verdict: string;
+    title: string;
+    company: string;
+    canton: string;
+    sourceUrl: string;
+    jobId: string;
+  }[]
+> {
+  const result = await db.execute(sql`
+    SELECT
+      jm.overall_score AS "overallScore",
+      jm.verdict,
+      j.title,
+      j.company,
+      j.canton,
+      j.source_url AS "sourceUrl",
+      j.id AS "jobId"
+    FROM job_matches jm
+    JOIN jobs j ON j.id = jm.job_id
+    WHERE jm.user_id = ${userId}
+      AND jm.cv_analysis_id = ${activeCvAnalysisId}
+      AND j.status = 'active'
+    ORDER BY jm.overall_score DESC
+    LIMIT 5
+  `);
+  return result as unknown as {
+    overallScore: number;
+    verdict: string;
+    title: string;
+    company: string;
+    canton: string;
+    sourceUrl: string;
+    jobId: string;
+  }[];
+}
+
+export async function getDailyApplicationStats(
+  userId: string
+): Promise<{ todayCount: number; streak: number }> {
+  const result = await db.execute(sql`
+    WITH daily_counts AS (
+      SELECT
+        (a.created_at AT TIME ZONE 'Europe/Zurich')::date AS app_date,
+        COUNT(*)::int AS cnt
+      FROM applications a
+      WHERE a.user_id = ${userId}
+      GROUP BY (a.created_at AT TIME ZONE 'Europe/Zurich')::date
+    ),
+    today_count AS (
+      SELECT COALESCE(
+        (SELECT cnt FROM daily_counts WHERE app_date = (NOW() AT TIME ZONE 'Europe/Zurich')::date),
+        0
+      ) AS today
+    ),
+    streak_calc AS (
+      SELECT
+        app_date,
+        app_date - (ROW_NUMBER() OVER (ORDER BY app_date DESC))::int AS grp
+      FROM daily_counts
+      WHERE cnt >= 5
+        AND app_date <= (NOW() AT TIME ZONE 'Europe/Zurich')::date
+    ),
+    streak_result AS (
+      SELECT COUNT(*)::int AS streak
+      FROM streak_calc
+      WHERE grp = (
+        SELECT grp FROM streak_calc
+        WHERE app_date = (NOW() AT TIME ZONE 'Europe/Zurich')::date
+        LIMIT 1
+      )
+    )
+    SELECT
+      (SELECT today FROM today_count) AS "todayCount",
+      COALESCE((SELECT streak FROM streak_result), 0)::int AS streak
+  `);
+  const row = (result as unknown as { todayCount: number; streak: number }[])[0];
+  return {
+    todayCount: row?.todayCount ?? 0,
+    streak: row?.streak ?? 0,
+  };
+}
+
+export async function getEmployabilityScoreData(
+  userId: string
+): Promise<{ recentApplicationsCount: number }> {
+  const result = await db.execute(sql`
+    SELECT COUNT(*)::int AS "recentApplicationsCount"
+    FROM applications
+    WHERE user_id = ${userId}
+      AND created_at >= NOW() - INTERVAL '30 days'
+  `);
+  const row = (result as unknown as { recentApplicationsCount: number }[])[0];
+  return {
+    recentApplicationsCount: row?.recentApplicationsCount ?? 0,
+  };
+}
