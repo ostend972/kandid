@@ -9,8 +9,10 @@ import {
   getCvAnalysesByUserId,
   getUserById,
   upsertUser,
+  updateUserPhoto,
 } from "@/lib/db/kandid-queries";
 import { sendAnalysisCompleteEmail } from "@/lib/email/resend";
+import { uploadProfilePhoto } from "@/lib/storage/cv-upload";
 
 // ---------------------------------------------------------------------------
 // POST /api/analyze-cv
@@ -210,6 +212,25 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  }
+
+  // ── 7b. Auto-save detected face as profile photo ─────────────────────
+  const faceImage = formData.get("faceImage");
+  if (faceImage instanceof File && faceImage.size > 0) {
+    try {
+      const dbUser = await getUserById(userId);
+      if (!dbUser?.photoUrl) {
+        const faceBuffer = Buffer.from(await faceImage.arrayBuffer());
+        const photoPath = await uploadProfilePhoto(
+          faceBuffer,
+          userId,
+          "image/jpeg"
+        );
+        await updateUserPhoto(userId, photoPath);
+      }
+    } catch (error) {
+      console.error("Auto face photo save failed (non-blocking):", error);
+    }
   }
 
   // ── 8. Update user's active CV analysis ──────────────────────────────

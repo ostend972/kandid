@@ -91,6 +91,25 @@ export async function GET(
     return NextResponse.redirect(signedUrl);
   }
 
+  if (mode === "cv") {
+    if (!application.generatedCvUrl) {
+      return NextResponse.json(
+        { error: "Le CV adapte n'a pas encore ete genere." },
+        { status: 400 }
+      );
+    }
+
+    const signedUrl = await getApplicationSignedUrl(application.generatedCvUrl);
+    if (!signedUrl) {
+      return NextResponse.json(
+        { error: "Impossible de generer le lien de telechargement." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.redirect(signedUrl);
+  }
+
   // =========================================================================
   // ZIP mode — stream a ZIP archive with all individual files
   // =========================================================================
@@ -208,7 +227,7 @@ export async function GET(
   }
 
   return NextResponse.json(
-    { error: "Mode invalide. Valeurs acceptees : pdf, zip." },
+    { error: "Mode invalide. Valeurs acceptees : pdf, cv, zip." },
     { status: 400 }
   );
 }

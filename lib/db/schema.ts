@@ -53,6 +53,26 @@ export const users = pgTable('users', {
     .default(sql`'{}'::text[]`),
   preferredActivityRate: integer('preferred_activity_rate'),
   weeklyDigestEnabled: boolean('weekly_digest_enabled').default(false),
+  onboardingStep: integer('onboarding_step'),
+  onboardingCompletedAt: timestamp('onboarding_completed_at'),
+  sector: text('sector'),
+  position: text('position'),
+  experienceLevel: text('experience_level'),
+  targetCantons: text('target_cantons')
+    .array()
+    .default(sql`'{}'::text[]`),
+  languages: jsonb('languages').default(sql`'[]'::jsonb`),
+  salaryExpectation: text('salary_expectation'),
+  availability: text('availability'),
+  contractTypes: text('contract_types')
+    .array()
+    .default(sql`'{}'::text[]`),
+  careerSummary: text('career_summary'),
+  strengths: text('strengths')
+    .array()
+    .default(sql`'{}'::text[]`),
+  motivation: text('motivation'),
+  differentiator: text('differentiator'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

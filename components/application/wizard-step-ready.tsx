@@ -142,7 +142,7 @@ export function WizardStepReady({
       const res = await fetch(`/api/applications/${applicationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'completed' }),
+        body: JSON.stringify({ status: 'applied' }),
       });
 
       if (!res.ok) {

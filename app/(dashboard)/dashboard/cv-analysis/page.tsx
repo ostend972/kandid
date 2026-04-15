@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FileUploader } from "@/components/cv/file-uploader";
 import { pdfToImages } from "@/lib/pdf-to-image";
+import { extractFaceFromPdf } from "@/lib/face-detect";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -188,16 +189,22 @@ export default function CvAnalysisPage() {
     setError(null);
 
     try {
-      // 1. Convert ALL PDF pages to images
-      const allImages = await pdfToImages(file);
+      // 1. Convert PDF pages to images + detect face in parallel
+      const [allImages, faceBlob] = await Promise.all([
+        pdfToImages(file),
+        extractFaceFromPdf(file).catch(() => null),
+      ]);
 
       // 2. Build FormData
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("imageBase64", allImages[0] || ""); // First page for preview
-      formData.append("allImagesBase64", JSON.stringify(allImages)); // All pages for AI analysis
+      formData.append("imageBase64", allImages[0] || "");
+      formData.append("allImagesBase64", JSON.stringify(allImages));
       if (jobDescription.trim()) {
         formData.append("jobDescription", jobDescription.trim());
+      }
+      if (faceBlob) {
+        formData.append("faceImage", faceBlob, "face.jpg");
       }
 
       // 3. Send to API

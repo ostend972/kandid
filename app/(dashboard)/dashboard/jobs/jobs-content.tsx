@@ -37,6 +37,10 @@ interface SavedIdsResponse {
   ids: string[];
 }
 
+interface AppliedIdsResponse {
+  ids: string[];
+}
+
 // ─── Fetcher ─────────────────────────────────────────────────────────────────
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -65,6 +69,12 @@ export function JobsPageContent() {
     fetcher
   );
 
+  // Fetch applied job IDs
+  const { data: appliedIdsData } = useSWR<AppliedIdsResponse>(
+    '/api/jobs/applied-ids',
+    fetcher
+  );
+
   // Fetch selected job detail
   const { data: detailData } = useSWR<JobDetailApiResponse>(
     selectedJobId ? `/api/jobs/${selectedJobId}` : null,
@@ -72,6 +82,7 @@ export function JobsPageContent() {
   );
 
   const savedJobIds = new Set(savedIdsData?.ids ?? []);
+  const appliedJobIds = new Set(appliedIdsData?.ids ?? []);
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const totalPages = jobsData?.totalPages ?? 1;
   const total = jobsData?.total ?? 0;
@@ -180,6 +191,7 @@ export function JobsPageContent() {
                         job={job}
                         isActive={selectedJobId === job.id}
                         isSaved={savedJobIds.has(job.id)}
+                        isApplied={appliedJobIds.has(job.id)}
                         onSelect={() => handleSelectJob(job.id)}
                         onToggleSave={() => handleToggleSave(job.id)}
                       />
@@ -190,6 +202,7 @@ export function JobsPageContent() {
                         job={job}
                         isActive={false}
                         isSaved={savedJobIds.has(job.id)}
+                        isApplied={appliedJobIds.has(job.id)}
                         onSelect={() => handleSelectJobMobile(job.id)}
                         onToggleSave={() => handleToggleSave(job.id)}
                       />

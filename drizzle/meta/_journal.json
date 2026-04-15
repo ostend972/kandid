@@ -50,6 +50,13 @@
       "when": 1776008190456,
       "tag": "0006_glossy_madelyne_pryor",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776076800000,
+      "tag": "0007_onboarding_columns",
+      "breakpoints": true
     }
   ]
 }

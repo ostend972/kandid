@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Bookmark, BookmarkCheck, Clock } from 'lucide-react';
+import { MapPin, Bookmark, BookmarkCheck, Clock, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MatchBadge } from './match-badge';
@@ -24,6 +24,7 @@ interface JobCardProps {
   job: JobCardData;
   isActive: boolean;
   isSaved: boolean;
+  isApplied?: boolean;
   onSelect: () => void;
   onToggleSave: () => void;
 }
@@ -57,6 +58,7 @@ export function JobCard({
   job,
   isActive,
   isSaved,
+  isApplied = false,
   onSelect,
   onToggleSave,
 }: JobCardProps) {
@@ -86,7 +88,18 @@ export function JobCard({
           </h3>
           <p className="text-sm text-gray-600 mt-0.5 line-clamp-1">{job.company}</p>
         </div>
-        <MatchBadge score={job.matchScore} className="shrink-0" />
+        <div className="flex items-center gap-1.5 shrink-0">
+          {isApplied && (
+            <Badge
+              variant="secondary"
+              className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-0 gap-1"
+            >
+              <CheckCircle2 className="h-3 w-3" />
+              Postulé
+            </Badge>
+          )}
+          <MatchBadge score={job.matchScore} />
+        </div>
       </div>
 
       {/* Meta row */}

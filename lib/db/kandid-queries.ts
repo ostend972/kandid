@@ -1,4 +1,4 @@
-import { eq, and, or, desc, asc, sql, inArray, count, gte, lte } from 'drizzle-orm';
+import { eq, and, or, desc, asc, sql, inArray, count, gte, lte, isNotNull } from 'drizzle-orm';
 import { db } from './drizzle';
 import {
   users,
@@ -72,6 +72,69 @@ export async function updateUserActiveCv(
     .update(users)
     .set({
       activeCvAnalysisId: cvAnalysisId,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return user;
+}
+
+// =============================================================================
+// Onboarding Queries
+// =============================================================================
+
+export async function updateUserOnboardingStep1(
+  userId: string,
+  data: {
+    sector: string;
+    position: string;
+    experienceLevel: string;
+    targetCantons: string[];
+    languages: { lang: string; level: string }[];
+    salaryExpectation: string;
+    availability: string;
+    contractTypes: string[];
+  }
+) {
+  const [user] = await db
+    .update(users)
+    .set({
+      sector: data.sector,
+      position: data.position,
+      experienceLevel: data.experienceLevel,
+      targetCantons: data.targetCantons,
+      languages: data.languages,
+      salaryExpectation: data.salaryExpectation,
+      availability: data.availability,
+      contractTypes: data.contractTypes,
+      onboardingStep: 1,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return user;
+}
+
+export async function updateUserOnboardingStep2(
+  userId: string,
+  data: {
+    careerSummary: string;
+    strengths: string[];
+    motivation: string;
+    differentiator: string;
+  }
+) {
+  const [user] = await db
+    .update(users)
+    .set({
+      careerSummary: data.careerSummary,
+      strengths: data.strengths,
+      motivation: data.motivation,
+      differentiator: data.differentiator,
+      onboardingStep: 2,
+      onboardingCompletedAt: new Date(),
       updatedAt: new Date(),
     })
     .where(eq(users.id, userId))
@@ -386,6 +449,22 @@ export async function getSavedJobIds(userId: string): Promise<string[]> {
     .where(eq(savedJobs.userId, userId));
 
   return rows.map((r) => r.jobId);
+}
+
+export async function getAppliedJobIds(userId: string): Promise<string[]> {
+  const rows = await db
+    .select({ jobId: applications.jobId })
+    .from(applications)
+    .where(
+      and(
+        eq(applications.userId, userId),
+        isNotNull(applications.jobId),
+      )
+    );
+
+  return rows
+    .filter((r): r is { jobId: string } => r.jobId !== null)
+    .map((r) => r.jobId);
 }
 
 // =============================================================================
