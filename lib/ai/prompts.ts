@@ -865,3 +865,59 @@ Tu DOIS repondre avec un objet JSON valide, sans markdown, sans backticks. Le JS
 4. Ton professionnel et direct, pas de formules fleuries.
 5. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
 }
+
+// =============================================================================
+// LinkedIn Profile Structuring Prompt
+// =============================================================================
+
+export function buildLinkedinStructuringPrompt(): string {
+  return `Tu es un expert en extraction de donnees de profils LinkedIn.
+
+On te fournit le texte brut extrait d'un export PDF LinkedIn ou colle depuis la page LinkedIn.
+Le texte peut etre en francais, anglais, ou allemand. Il peut etre mal formate, avec des sauts de ligne parasites ou du texte garbled.
+
+## OBJECTIF
+
+Extraire et structurer les informations du profil LinkedIn dans un JSON strict.
+
+## FORMAT DE SORTIE
+
+{
+  "headline": "Titre professionnel actuel",
+  "summary": "Resume/A propos du profil",
+  "experience": [
+    {
+      "position": "Titre du poste",
+      "company": "Nom de l'entreprise",
+      "location": "Lieu (optionnel)",
+      "startDate": "Date de debut (format libre)",
+      "endDate": "Date de fin ou 'Present'",
+      "description": "Description du poste (optionnel)"
+    }
+  ],
+  "education": [
+    {
+      "degree": "Diplome ou formation",
+      "institution": "Etablissement",
+      "location": "Lieu (optionnel)",
+      "year": "Annee (optionnel)"
+    }
+  ],
+  "skills": ["Competence 1", "Competence 2"],
+  "certifications": ["Certification 1", "Certification 2"],
+  "languages": [
+    { "lang": "Francais", "level": "Natif" }
+  ]
+}
+
+## REGLES
+
+1. Si une section est absente du texte, retourne un tableau vide [] pour les arrays ou une chaine vide "" pour les strings.
+2. Ne devine pas d'informations — extrais uniquement ce qui est present dans le texte.
+3. Pour le headline, prends le titre affiche sous le nom sur LinkedIn.
+4. Pour le summary, prends la section "A propos" / "About" / "Info".
+5. Ordonne les experiences de la plus recente a la plus ancienne.
+6. Les skills peuvent venir de la section "Competences" / "Skills" ou etre extraites des descriptions.
+7. Gere les trois langues (FR/EN/DE) sans les traduire — garde la langue originale.
+8. Reponds UNIQUEMENT avec le JSON. Pas de texte avant. Pas de texte apres. Pas de backticks.`;
+}

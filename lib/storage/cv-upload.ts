@@ -96,6 +96,32 @@ export async function deleteProfilePhoto(userId: string): Promise<void> {
     .remove([`${userId}/photo.jpg`, `${userId}/photo.png`]);
 }
 
+export async function uploadLinkedinPdf(
+  buffer: Buffer,
+  fileName: string,
+  userId: string
+): Promise<string> {
+  const supabase = getSupabaseAdmin();
+  const safeName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const path = `${userId}/linkedin/${Date.now()}-${safeName}`;
+
+  const { data, error } = await supabase.storage
+    .from(PROFILE_BUCKET)
+    .upload(path, buffer, {
+      contentType: "application/pdf",
+      upsert: false,
+    });
+
+  if (error) throw new Error(`LinkedIn PDF upload failed: ${error.message}`);
+  return data.path;
+}
+
+export async function deleteLinkedinPdf(path: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.storage.from(PROFILE_BUCKET).remove([path]);
+  if (error) throw new Error(`LinkedIn PDF delete failed: ${error.message}`);
+}
+
 export async function uploadProfileDocument(
   file: Buffer,
   fileName: string,
