@@ -11,6 +11,8 @@ import {
   applications,
   applicationTransitions,
   aiGenerationsLog,
+  linkedinProfiles,
+  linkedinPosts,
   type NewKandidUser,
   type NewCvAnalysis,
   type NewJobMatch,
@@ -18,6 +20,8 @@ import {
   type NewCandidateReference,
   type NewApplication,
   type ApplicationStatus,
+  type NewLinkedinProfile,
+  type NewLinkedinPost,
 } from './schema';
 import type { InterviewPrepData } from '../ai/interview-prep';
 import { isValidTransition, computeNextFollowUpDate } from '../cadence';
@@ -1304,4 +1308,168 @@ export async function getEmployabilityScoreData(
   return {
     recentApplicationsCount: row?.recentApplicationsCount ?? 0,
   };
+}
+
+// =============================================================================
+// LinkedIn Queries
+// =============================================================================
+
+export async function getLinkedinProfile(userId: string) {
+  const result = await db
+    .select()
+    .from(linkedinProfiles)
+    .where(eq(linkedinProfiles.userId, userId))
+    .limit(1);
+
+  return result[0] ?? null;
+}
+
+export async function upsertLinkedinProfile(data: {
+  userId: string;
+  source: string;
+  rawText?: string | null;
+  fileUrl?: string | null;
+  fileName?: string | null;
+  structured: Record<string, unknown>;
+  headline?: string | null;
+  summary?: string | null;
+}) {
+  const [profile] = await db
+    .insert(linkedinProfiles)
+    .values({
+      userId: data.userId,
+      source: data.source,
+      rawText: data.rawText ?? null,
+      fileUrl: data.fileUrl ?? null,
+      fileName: data.fileName ?? null,
+      structured: data.structured,
+      headline: data.headline ?? null,
+      summary: data.summary ?? null,
+    })
+    .onConflictDoUpdate({
+      target: linkedinProfiles.userId,
+      set: {
+        source: data.source,
+        rawText: data.rawText ?? null,
+        fileUrl: data.fileUrl ?? null,
+        fileName: data.fileName ?? null,
+        structured: data.structured,
+        headline: data.headline ?? null,
+        summary: data.summary ?? null,
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
+
+  return profile;
+}
+
+export async function updateLinkedinAudit(
+  userId: string,
+  auditScore: number,
+  auditResult: Record<string, unknown>
+) {
+  const result = await db
+    .update(linkedinProfiles)
+    .set({
+      auditScore,
+      auditResult,
+      updatedAt: new Date(),
+    })
+    .where(eq(linkedinProfiles.userId, userId))
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function updateLinkedinOptimized(
+  userId: string,
+  headline: string,
+  summary: string
+) {
+  const result = await db
+    .update(linkedinProfiles)
+    .set({
+      optimizedHeadline: headline,
+      optimizedSummary: summary,
+      updatedAt: new Date(),
+    })
+    .where(eq(linkedinProfiles.userId, userId))
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function getLinkedinPosts(userId: string, batch?: string) {
+  const conditions = [eq(linkedinPosts.userId, userId)];
+  if (batch) {
+    conditions.push(eq(linkedinPosts.generationBatch, batch));
+  }
+
+  return db
+    .select()
+    .from(linkedinPosts)
+    .where(and(...conditions))
+    .orderBy(asc(linkedinPosts.weekNumber), asc(linkedinPosts.sortOrder));
+}
+
+export async function createLinkedinPosts(
+  posts: {
+    userId: string;
+    profileId: string;
+    weekNumber: number;
+    dayOfWeek: string;
+    contentType: string;
+    title: string;
+    draftContent: string;
+    generationBatch: string;
+    sortOrder?: number;
+  }[]
+) {
+  if (posts.length === 0) return [];
+
+  return db
+    .insert(linkedinPosts)
+    .values(
+      posts.map((p, i) => ({
+        userId: p.userId,
+        profileId: p.profileId,
+        weekNumber: p.weekNumber,
+        dayOfWeek: p.dayOfWeek,
+        contentType: p.contentType,
+        title: p.title,
+        draftContent: p.draftContent,
+        generationBatch: p.generationBatch,
+        sortOrder: p.sortOrder ?? i,
+      }))
+    )
+    .returning();
+}
+
+export async function updateLinkedinPostContent(
+  postId: string,
+  userId: string,
+  userContent: string
+) {
+  const result = await db
+    .update(linkedinPosts)
+    .set({
+      userContent,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(linkedinPosts.id, postId), eq(linkedinPosts.userId, userId)))
+    .returning();
+
+  return result[0] ?? null;
+}
+
+export async function getLatestPostBatch(userId: string) {
+  const result = await db
+    .select({ generationBatch: linkedinPosts.generationBatch })
+    .from(linkedinPosts)
+    .where(eq(linkedinPosts.userId, userId))
+    .orderBy(desc(linkedinPosts.createdAt))
+    .limit(1);
+
+  return result[0]?.generationBatch ?? null;
 }

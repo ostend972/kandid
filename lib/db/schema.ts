@@ -357,6 +357,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   candidateDocuments: many(candidateDocuments),
   candidateReferences: many(candidateReferences),
   applications: many(applications),
+  linkedinProfiles: many(linkedinProfiles),
+  linkedinPosts: many(linkedinPosts),
 }));
 
 export const cvAnalysesRelations = relations(cvAnalyses, ({ one, many }) => ({
@@ -447,6 +449,90 @@ export const aiGenerationsLogRelations = relations(aiGenerationsLog, ({ one }) =
   application: one(applications, {
     fields: [aiGenerationsLog.applicationId],
     references: [applications.id],
+  }),
+}));
+
+/**
+ * LinkedIn Profiles — stores uploaded/pasted LinkedIn profile data and AI analysis.
+ */
+export const linkedinProfiles = pgTable(
+  'linkedin_profiles',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    source: text('source').notNull(), // 'pdf' | 'paste'
+    rawText: text('raw_text'),
+    fileUrl: text('file_url'),
+    fileName: text('file_name'),
+    structured: jsonb('structured').notNull(),
+    headline: text('headline'),
+    summary: text('summary'),
+    auditScore: integer('audit_score'),
+    auditResult: jsonb('audit_result'),
+    optimizedHeadline: text('optimized_headline'),
+    optimizedSummary: text('optimized_summary'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('idx_linkedin_profiles_user').on(table.userId),
+    index('idx_linkedin_profiles_user_id').on(table.userId),
+  ]
+);
+
+/**
+ * LinkedIn Posts — AI-generated editorial calendar posts.
+ */
+export const linkedinPosts = pgTable(
+  'linkedin_posts',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    profileId: uuid('profile_id')
+      .notNull()
+      .references(() => linkedinProfiles.id, { onDelete: 'cascade' }),
+    weekNumber: integer('week_number').notNull(),
+    dayOfWeek: text('day_of_week').notNull(),
+    contentType: text('content_type').notNull(),
+    title: text('title').notNull(),
+    draftContent: text('draft_content').notNull(),
+    userContent: text('user_content'),
+    generationBatch: uuid('generation_batch').notNull(),
+    sortOrder: integer('sort_order').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    index('idx_linkedin_posts_user').on(table.userId),
+    index('idx_linkedin_posts_profile').on(table.profileId),
+    index('idx_linkedin_posts_batch').on(table.generationBatch),
+  ]
+);
+
+export const linkedinProfilesRelations = relations(linkedinProfiles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [linkedinProfiles.userId],
+    references: [users.id],
+  }),
+  posts: many(linkedinPosts),
+}));
+
+export const linkedinPostsRelations = relations(linkedinPosts, ({ one }) => ({
+  user: one(users, {
+    fields: [linkedinPosts.userId],
+    references: [users.id],
+  }),
+  profile: one(linkedinProfiles, {
+    fields: [linkedinPosts.profileId],
+    references: [linkedinProfiles.id],
   }),
 }));
 
@@ -571,6 +657,10 @@ export type NewApplication = typeof applications.$inferInsert;
 export type ApplicationTransition = typeof applicationTransitions.$inferSelect;
 export type NewApplicationTransition = typeof applicationTransitions.$inferInsert;
 export type ApplicationStatus = (typeof applicationStatusEnum.enumValues)[number];
+export type LinkedinProfile = typeof linkedinProfiles.$inferSelect;
+export type NewLinkedinProfile = typeof linkedinProfiles.$inferInsert;
+export type LinkedinPost = typeof linkedinPosts.$inferSelect;
+export type NewLinkedinPost = typeof linkedinPosts.$inferInsert;
 
 // Legitimacy scoring types
 export type LegitimacyTier = 'high' | 'caution' | 'suspicious';
