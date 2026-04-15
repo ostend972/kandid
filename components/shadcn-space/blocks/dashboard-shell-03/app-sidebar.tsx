@@ -7,7 +7,7 @@ import { NavMain } from "@/components/shadcn-space/blocks/dashboard-shell-03/nav
 import { SiteHeader } from "@/components/shadcn-space/blocks/dashboard-shell-03/site-header";
 import SimpleBar from "simplebar-react";
 import 'simplebar-react/dist/simplebar.min.css'
-import { BarChart3, Bookmark, Briefcase, ClipboardList, FileSearch, LayoutDashboard, LucideIcon, Settings, } from "lucide-react";
+import { BarChart3, Bookmark, Briefcase, ClipboardList, FileSearch, LayoutDashboard, LucideIcon, Search, Settings, } from "lucide-react";
 
 
 export type NavItem = {
@@ -27,6 +27,7 @@ export const navData: NavItem[] = [
     { title: "Analyser un CV", icon: FileSearch, href: "/dashboard/cv-analysis" },
     { title: "Offres d'emploi", icon: Briefcase, href: "/dashboard/jobs" },
     { title: "Offres sauvegardees", icon: Bookmark, href: "/dashboard/saved-jobs" },
+    { title: "Recherches sauvegardees", icon: Search, href: "/dashboard/saved-searches" },
     { title: "Mes candidatures", icon: ClipboardList, href: "/dashboard/applications" },
     { title: "Statistiques", icon: BarChart3, href: "/dashboard/analytics" },
     { title: "Parametres", icon: Settings, href: "/dashboard/settings" },

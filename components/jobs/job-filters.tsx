@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { SaveSearchButton } from '@/components/jobs/save-search-button';
 
 const CANTONS = [
   'Geneve',
@@ -361,6 +362,21 @@ export function JobFilters() {
             <SelectItem value="relevance">Pertinence</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* Save search */}
+        <SaveSearchButton
+          currentFilters={{
+            q: keyword || null,
+            canton: selectedCantons.length > 0 ? selectedCantons : null,
+            contractType: contractType || null,
+            publishedSince: publishedSince || null,
+            remoteOnly: remoteOnly ? 'true' : null,
+            positionId: selectedPositions.length > 0 ? selectedPositions.map(String) : null,
+            industryId: industryId || null,
+            company: companySearch || null,
+            language: language && language !== 'fr' ? language : null,
+          }}
+        />
 
         {/* Reset */}
         {hasActiveFilters && (

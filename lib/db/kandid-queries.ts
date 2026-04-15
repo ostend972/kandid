@@ -13,6 +13,7 @@ import {
   aiGenerationsLog,
   linkedinProfiles,
   linkedinPosts,
+  savedSearches,
   type NewKandidUser,
   type NewCvAnalysis,
   type NewJobMatch,
@@ -1508,4 +1509,60 @@ export async function getLatestPostBatch(userId: string) {
     .limit(1);
 
   return result[0]?.generationBatch ?? null;
+}
+
+// =============================================================================
+// Saved Searches Queries
+// =============================================================================
+
+export async function getSavedSearches(userId: string) {
+  return db
+    .select()
+    .from(savedSearches)
+    .where(eq(savedSearches.userId, userId))
+    .orderBy(desc(savedSearches.createdAt));
+}
+
+export async function createSavedSearch(
+  userId: string,
+  name: string,
+  filters: Record<string, unknown>
+) {
+  const [search] = await db
+    .insert(savedSearches)
+    .values({ userId, name, filters })
+    .returning();
+  return search;
+}
+
+export async function updateSavedSearch(
+  id: string,
+  userId: string,
+  data: {
+    name?: string;
+    filters?: Record<string, unknown>;
+    emailAlertEnabled?: boolean;
+  }
+) {
+  const [updated] = await db
+    .update(savedSearches)
+    .set({ ...data, updatedAt: new Date() })
+    .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)))
+    .returning();
+  return updated;
+}
+
+export async function deleteSavedSearch(id: string, userId: string) {
+  const [deleted] = await db
+    .delete(savedSearches)
+    .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)))
+    .returning();
+  return deleted;
+}
+
+export async function getSavedSearchesWithAlerts() {
+  return db
+    .select()
+    .from(savedSearches)
+    .where(eq(savedSearches.emailAlertEnabled, true));
 }
