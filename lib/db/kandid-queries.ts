@@ -1562,7 +1562,29 @@ export async function deleteSavedSearch(id: string, userId: string) {
 
 export async function getSavedSearchesWithAlerts() {
   return db
-    .select()
+    .select({
+      id: savedSearches.id,
+      userId: savedSearches.userId,
+      name: savedSearches.name,
+      filters: savedSearches.filters,
+      emailAlertEnabled: savedSearches.emailAlertEnabled,
+      lastAlertAt: savedSearches.lastAlertAt,
+      lastAlertJobCount: savedSearches.lastAlertJobCount,
+      createdAt: savedSearches.createdAt,
+      updatedAt: savedSearches.updatedAt,
+      userEmail: users.email,
+      userFullName: users.fullName,
+    })
     .from(savedSearches)
+    .innerJoin(users, eq(savedSearches.userId, users.id))
     .where(eq(savedSearches.emailAlertEnabled, true));
+}
+
+export async function updateSavedSearchAlertState(id: string, jobCount: number) {
+  const [updated] = await db
+    .update(savedSearches)
+    .set({ lastAlertAt: new Date(), lastAlertJobCount: jobCount, updatedAt: new Date() })
+    .where(eq(savedSearches.id, id))
+    .returning();
+  return updated;
 }

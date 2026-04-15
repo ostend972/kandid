@@ -92,6 +92,26 @@ export async function sendDossierEmail(params: {
   });
 }
 
+export async function sendSearchAlertEmail(params: {
+  to: string;
+  firstName: string;
+  searchName: string;
+  newJobs: Array<{ title: string; company: string; canton: string; url?: string }>;
+}) {
+  try {
+    const count = params.newJobs.length;
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject: `${count} nouvelle${count > 1 ? "s" : ""} offre${count > 1 ? "s" : ""} pour "${params.searchName}"`,
+      html: buildSearchAlertHtml(params),
+    });
+  } catch (error) {
+    console.error("Failed to send search alert email:", error);
+    throw error;
+  }
+}
+
 // =============================================================================
 // HTML Template Builders
 // =============================================================================
@@ -328,6 +348,63 @@ function buildFollowUpReminderHtml(
         </td>
       </tr>
     </table>`;
+
+  return emailWrapper(content);
+}
+
+function buildSearchAlertHtml(params: {
+  firstName: string;
+  searchName: string;
+  newJobs: Array<{ title: string; company: string; canton: string; url?: string }>;
+}): string {
+  const greeting = params.firstName ? `Bonjour ${params.firstName},` : "Bonjour,";
+  const count = params.newJobs.length;
+
+  const jobRows = params.newJobs
+    .slice(0, 10)
+    .map(
+      (job) => `
+      <tr>
+        <td style="padding:10px 12px;border-bottom:1px solid #e4e4e7;">
+          <p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#18181b;">
+            ${job.url ? `<a href="${APP_URL}${job.url}" style="color:#18181b;text-decoration:none;">${job.title}</a>` : job.title}
+          </p>
+          <p style="margin:0;font-size:13px;color:#71717a;">${job.company} — ${job.canton}</p>
+        </td>
+      </tr>`
+    )
+    .join("");
+
+  const moreText =
+    count > 10
+      ? `<p style="margin:8px 0 0;font-size:13px;color:#71717a;text-align:center;">…et ${count - 10} autre${count - 10 > 1 ? "s" : ""} offre${count - 10 > 1 ? "s" : ""}</p>`
+      : "";
+
+  const content = `
+    <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#18181b;">
+      ${greeting}
+    </h1>
+    <p style="margin:0 0 16px;font-size:15px;color:#3f3f46;line-height:1.6;">
+      <strong>${count} nouvelle${count > 1 ? "s" : ""} offre${count > 1 ? "s" : ""}</strong> correspondent à votre recherche sauvegardée <strong>"${params.searchName}"</strong>.
+    </p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e4e4e7;border-radius:8px;overflow:hidden;margin:0 0 16px;">
+      ${jobRows}
+    </table>
+    ${moreText}
+    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:24px auto;">
+      <tr>
+        <td style="background-color:#18181b;border-radius:8px;">
+          <a href="${APP_URL}/dashboard/jobs"
+             style="display:inline-block;padding:12px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">
+            Voir les offres
+          </a>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.6;text-align:center;">
+      Vous recevez cette alerte car vous avez activé les notifications pour cette recherche.<br />
+      <a href="${APP_URL}/dashboard/saved-searches" style="color:#71717a;text-decoration:underline;">Gérer mes alertes</a>
+    </p>`;
 
   return emailWrapper(content);
 }
