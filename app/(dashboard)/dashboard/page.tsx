@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -22,6 +23,14 @@ import {
   getCvAnalysesByUserId,
 } from '@/lib/db/kandid-queries';
 import { ActiveCvSelector } from '@/components/dashboard/active-cv-selector';
+import { TopMatchesWidget } from '@/components/dashboard/top-matches-widget';
+import { DailyApplicationsWidget } from '@/components/dashboard/daily-applications-widget';
+import { EmployabilityScoreWidget } from '@/components/dashboard/employability-score-widget';
+import {
+  TopMatchesSkeleton,
+  DailyApplicationsSkeleton,
+  EmployabilityScoreSkeleton,
+} from '@/components/dashboard/widget-skeletons';
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -143,6 +152,22 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </Link>
+      </div>
+
+      {/* Intelligence widgets */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Suspense fallback={<TopMatchesSkeleton />}>
+          <TopMatchesWidget
+            userId={userId}
+            activeCvId={user?.activeCvAnalysisId ?? null}
+          />
+        </Suspense>
+        <Suspense fallback={<DailyApplicationsSkeleton />}>
+          <DailyApplicationsWidget userId={userId} />
+        </Suspense>
+        <Suspense fallback={<EmployabilityScoreSkeleton />}>
+          <EmployabilityScoreWidget userId={userId} />
+        </Suspense>
       </div>
 
       {/* Active CV card or empty state */}
