@@ -1,9 +1,9 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import Script from "next/script";
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { frFR } from '@clerk/localizations';
+import { Agentation } from 'agentation';
 import { CookieConsent } from '@/components/cookie-consent';
 
 export const metadata: Metadata = {
@@ -32,22 +32,13 @@ export default function RootLayout({
       >
       <head>
         {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/@react-grab/mcp/dist/client.global.js"
-            strategy="lazyOnload"
-          />
+          <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossOrigin="anonymous" />
         )}
       </head>
         <body className="min-h-[100dvh] bg-white dark:bg-black">
           {children}
           <CookieConsent />
+          {process.env.NODE_ENV === 'development' && <Agentation />}
         </body>
       </html>
     </ClerkProvider>
