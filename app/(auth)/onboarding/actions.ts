@@ -11,6 +11,7 @@ import {
   updateUserOnboardingStep1,
   updateUserOnboardingStep2,
 } from '@/lib/db/kandid-queries';
+import { ensureCurrentUser } from '@/lib/auth/ensure-user';
 import { signBridgeCookie } from '@/lib/bridge-cookie';
 
 type ActionResult =
@@ -43,6 +44,7 @@ export async function syncExistingUserOnboarding(): Promise<{ synced: boolean }>
 export async function saveStep1Action(formData: FormData): Promise<ActionResult> {
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
+  await ensureCurrentUser(userId);
 
   const raw = {
     sector: formData.get('sector') as string,
@@ -77,6 +79,7 @@ export async function saveStep1Action(formData: FormData): Promise<ActionResult>
 export async function saveStep2Action(formData: FormData): Promise<ActionResult> {
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
+  await ensureCurrentUser(userId);
 
   const raw = {
     careerSummary: formData.get('careerSummary') as string,

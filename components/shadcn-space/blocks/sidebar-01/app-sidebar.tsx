@@ -31,8 +31,8 @@ export const navData: NavItem[] = [
 
   { label: "Trouver", isSection: true },
   { title: "Offres d'emploi", icon: Briefcase, href: "/dashboard/jobs" },
-  { title: "Recherches sauvegardees", icon: Search, href: "/dashboard/saved-searches" },
-  { title: "Offres sauvegardees", icon: Bookmark, href: "/dashboard/saved-jobs" },
+  { title: "Recherches sauvegardées", icon: Search, href: "/dashboard/saved-searches" },
+  { title: "Offres sauvegardées", icon: Bookmark, href: "/dashboard/saved-jobs" },
 
   { label: "Postuler", isSection: true },
   { title: "Analyser un CV", icon: FileSearch, href: "/dashboard/cv-analysis" },
@@ -43,7 +43,7 @@ export const navData: NavItem[] = [
   { title: "Statistiques", icon: BarChart3, href: "/dashboard/analytics" },
 
   { label: "Compte", isSection: true },
-  { title: "Parametres", icon: Settings, href: "/dashboard/settings" },
+  { title: "Paramètres", icon: Settings, href: "/dashboard/settings" },
 ];
 
 export function AppSidebar({ children }: { children: React.ReactNode }) {
@@ -78,7 +78,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                 Beta
               </span>
               <span className="text-xs font-medium text-white/70 dark:text-black/70">
-                Acces complet
+                Accès complet
               </span>
             </div>
           </div>

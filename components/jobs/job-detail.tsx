@@ -2,29 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import {
-  MapPin,
-  Calendar,
-  Briefcase,
-  Clock,
   ExternalLink,
   Bookmark,
   BookmarkCheck,
-  Building2,
-  BarChart3,
   FileText,
   Send,
+  ArrowRight,
 } from 'lucide-react';
 import { ApplyWizard } from '@/components/application/apply-wizard';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import { MatchBadge } from './match-badge';
 import { MatchBreakdown } from './match-breakdown';
 import { LegitimacyBadge } from './legitimacy-badge';
+import { EmptyJobIllustration } from './empty-illustration';
 import { cn } from '@/lib/utils';
 import { sourceLabel } from '@/lib/source-label';
 import { formatJobDescription } from '@/lib/format-description';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export interface JobDetailData {
   id: string;
@@ -52,6 +45,16 @@ interface JobDetailProps {
   cvFileName?: string | null;
 }
 
+const CANTON_LABELS: Record<string, string> = {
+  GE: 'Genève',
+  VD: 'Vaud',
+  VS: 'Valais',
+  NE: 'Neuchâtel',
+  FR: 'Fribourg',
+  JU: 'Jura',
+  BE: 'Berne',
+};
+
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return '';
   const date = new Date(dateStr + 'T00:00:00');
@@ -62,24 +65,20 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-function getMatchVerdict(score: number): {
-  label: string;
-  color: string;
-} {
-  if (score >= 80)
-    return { label: 'Correspondance excellente', color: 'text-emerald-700 dark:text-emerald-400' };
-  if (score >= 40)
-    return { label: 'Bon potentiel', color: 'text-amber-700 dark:text-amber-400' };
-  return { label: 'A ameliorer', color: 'text-red-700 dark:text-red-400' };
+function getMatchVerdict(score: number): string {
+  if (score >= 80) return 'Alignement excellent';
+  if (score >= 60) return 'Bon alignement';
+  if (score >= 40) return 'Alignement partiel';
+  return 'Alignement faible';
 }
 
-function getProgressColor(score: number): string {
-  if (score >= 80) return '[&>div[data-slot=progress-indicator]]:bg-emerald-500';
-  if (score >= 40) return '[&>div[data-slot=progress-indicator]]:bg-amber-500';
-  return '[&>div[data-slot=progress-indicator]]:bg-red-500';
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      {children}
+    </p>
+  );
 }
-
-import { sanitizeHtml } from '@/lib/sanitize';
 
 export function JobDetail({
   job,
@@ -92,91 +91,135 @@ export function JobDetail({
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [aiScore, setAiScore] = useState<number | null>(null);
 
-  // Reset breakdown state when switching jobs
   useEffect(() => {
     setShowBreakdown(false);
     setAiScore(null);
   }, [job?.id]);
 
-  // Empty state
   if (!job) {
     return (
-      <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
-        <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold text-foreground">
-          Selectionnez une offre pour voir les details
+      <div className="flex flex-col items-center justify-center h-full min-h-[480px] text-center p-8">
+        <EmptyJobIllustration className="w-48 h-40 text-foreground mb-6" />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Aucune offre sélectionnée
+        </p>
+        <h3 className="mt-3 text-xl font-bold tracking-tight text-foreground">
+          Choisissez une offre pour lire les détails
         </h3>
-        <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-          Cliquez sur une offre dans la liste pour afficher ses details ici.
+        <p className="mt-3 max-w-sm text-sm text-muted-foreground leading-relaxed">
+          Kandid affiche ici la description complète, votre score d&apos;alignement et les actions
+          pour postuler en un clic.
         </p>
       </div>
     );
   }
 
-  const matchVerdict =
-    job.matchScore !== null ? getMatchVerdict(job.matchScore) : null;
+  const displayScore = aiScore ?? job.matchScore;
+  const verdict = displayScore !== null ? getMatchVerdict(displayScore) : null;
+  const cantonLabel = CANTON_LABELS[job.canton] ?? job.canton;
+
+  const eyebrowMeta = [
+    job.publishedAt ? formatDate(job.publishedAt) : null,
+    cantonLabel,
+    job.contractType,
+    job.activityRate,
+    job.salary,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-bold tracking-tight text-foreground leading-tight">
-              {job.title}
-            </h2>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-muted">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <span className="text-base text-foreground font-medium">
-                {job.company}
-              </span>
-            </div>
+    <div className="space-y-10">
+      {/* Header — display typography + grand cercle */}
+      <header className="flex items-start justify-between gap-6">
+        <div className="flex-1 min-w-0">
+          {eyebrowMeta && <SectionEyebrow>{eyebrowMeta}</SectionEyebrow>}
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground leading-tight sm:text-3xl">
+            {job.title}
+          </h2>
+          <p className="mt-2 text-base text-muted-foreground">
+            {job.company}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <LegitimacyBadge tier={job.legitimacyTier ?? null} score={job.legitimacyScore} />
           </div>
-          <MatchBadge score={aiScore ?? job.matchScore} className="text-sm shrink-0" />
         </div>
+        <div className="shrink-0">
+          <MatchBadge score={displayScore} size="lg" />
+        </div>
+      </header>
 
-        {/* Meta tags */}
-        <div className="flex flex-wrap items-center gap-3 mt-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            {job.canton}
-          </span>
-          {job.publishedAt && (
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              {formatDate(job.publishedAt)}
-            </span>
+      {/* CTA group */}
+      <div className="flex flex-wrap items-center gap-3">
+        {hasCvAnalysis && cvAnalysisId ? (
+          <ApplyWizard
+            jobId={job.id}
+            jobTitle={job.title}
+            jobCompany={job.company}
+            cvAnalysisId={cvAnalysisId}
+            jobSourceUrl={job.sourceUrl}
+            trigger={
+              <button
+                type="button"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90"
+              >
+                <Send className="h-4 w-4" />
+                Postuler
+              </button>
+            }
+          />
+        ) : (
+          <a
+            href="/dashboard/cv-analysis"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90"
+          >
+            <FileText className="h-4 w-4" />
+            Analyser mon CV d&apos;abord
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        )}
+
+        <a
+          href={job.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background px-6 text-sm font-medium text-foreground transition-colors hover:border-foreground"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Voir sur {sourceLabel(job.source)}
+        </a>
+
+        <button
+          type="button"
+          onClick={onToggleSave}
+          className={cn(
+            'inline-flex h-12 items-center gap-2 rounded-full border px-6 text-sm font-medium transition-colors',
+            isSaved
+              ? 'border-foreground bg-foreground text-background'
+              : 'border-border bg-background text-foreground hover:border-foreground'
           )}
-          {job.contractType && (
-            <Badge
-              variant="secondary"
-              className="text-xs bg-muted text-foreground"
-            >
-              {job.contractType}
-            </Badge>
+          aria-pressed={isSaved}
+        >
+          {isSaved ? (
+            <>
+              <BookmarkCheck className="h-4 w-4 fill-current" />
+              Sauvegardée
+            </>
+          ) : (
+            <>
+              <Bookmark className="h-4 w-4" />
+              Sauvegarder
+            </>
           )}
-          {job.activityRate && (
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              {job.activityRate}
-            </span>
-          )}
-          {job.salary && (
-            <span className="text-foreground font-medium">{job.salary}</span>
-          )}
-          <LegitimacyBadge tier={job.legitimacyTier ?? null} score={job.legitimacyScore} />
-        </div>
+        </button>
       </div>
 
-      <Separator />
+      {/* Compatibilité */}
+      {hasCvAnalysis && displayScore !== null && verdict && (
+        <section className="space-y-4 border-t border-border pt-8">
+          <SectionEyebrow>Compatibilité</SectionEyebrow>
 
-      {/* Match summary box — hidden when AI breakdown is shown */}
-      {hasCvAnalysis && job.matchScore !== null && matchVerdict && (
-        <>
           {showBreakdown && cvAnalysisId ? (
-            /* AI Detailed Match Breakdown replaces the quick summary */
             <MatchBreakdown
               jobId={job.id}
               cvAnalysisId={cvAnalysisId}
@@ -184,63 +227,65 @@ export function JobDetail({
               onScoreLoaded={(score) => setAiScore(score)}
             />
           ) : (
-            /* Quick algorithmic match summary */
-            <div className="rounded-lg border bg-muted p-4 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <BarChart3 className="h-4 w-4" />
-                Compatibilite avec votre profil
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className={cn('font-medium', matchVerdict.color)}>
-                    {matchVerdict.label}
-                  </span>
-                  <span className="font-semibold text-foreground">
-                    {job.matchScore}%
-                  </span>
+            <div className="rounded-3xl border border-border bg-background p-6">
+              <div className="flex items-start justify-between gap-6">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Score algorithmique
+                  </p>
+                  <p className="mt-2 text-lg font-bold tracking-tight text-foreground">
+                    {verdict}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    Calcul basé sur vos cantons cibles, votre secteur et votre parcours. Pour une
+                    analyse fine avec justifications, lancez l&apos;analyse IA détaillée.
+                  </p>
                 </div>
-                <Progress
-                  value={job.matchScore}
-                  className={cn('h-2.5', getProgressColor(job.matchScore))}
-                />
+                <div className="shrink-0">
+                  <div className="flex flex-col items-end">
+                    <span className="text-5xl font-bold tabular-nums leading-none text-foreground">
+                      {displayScore}
+                    </span>
+                    <span className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      / 100
+                    </span>
+                  </div>
+                </div>
               </div>
+
               {cvAnalysisId && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-foreground hover:text-foreground p-0 h-auto font-medium"
+                <button
+                  type="button"
                   onClick={() => setShowBreakdown(true)}
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
                 >
-                  Voir l'analyse detaillee
-                </Button>
+                  Voir l&apos;analyse détaillée
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
               )}
             </div>
           )}
-
-          <Separator />
-        </>
+        </section>
       )}
 
-      {/* Job description */}
+      {/* Description */}
       {job.description && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
-            Description du poste
-          </h3>
+        <section className="space-y-4 border-t border-border pt-8">
+          <SectionEyebrow>Description du poste</SectionEyebrow>
           <div
             className="prose prose-sm prose-gray max-w-none break-words overflow-hidden
               [overflow-wrap:anywhere]
               [&_*]:max-w-full [&_*]:overflow-wrap-anywhere
-              [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2
-              [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-2
-              [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1
-              [&_p]:text-sm [&_p]:text-foreground [&_p]:leading-relaxed [&_p]:my-1.5
+              [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-5 [&_h1]:mb-2 [&_h1]:text-foreground
+              [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-foreground
+              [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-1 [&_h3]:text-foreground
+              [&_p]:text-sm [&_p]:text-foreground [&_p]:leading-relaxed [&_p]:my-2
               [&_br]:block [&_br]:content-[''] [&_br]:my-1
               [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2
               [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2
               [&_li]:text-sm [&_li]:text-foreground [&_li]:my-0.5
-              [&_a]:text-foreground [&_a]:underline
-              [&_strong]:font-semibold
+              [&_a]:text-foreground [&_a]:underline [&_a]:underline-offset-4
+              [&_strong]:font-semibold [&_strong]:text-foreground
               [&_table]:w-full [&_table]:text-sm
               [&_td]:p-1 [&_th]:p-1 [&_th]:text-left [&_th]:font-semibold
               [&_div]:max-w-full [&_span]:max-w-full
@@ -253,79 +298,22 @@ export function JobDetail({
               __html: sanitizeHtml(formatJobDescription(job.description)),
             }}
           />
-        </div>
+        </section>
       )}
 
-      <Separator />
-
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        {hasCvAnalysis && cvAnalysisId ? (
-          <ApplyWizard
-            jobId={job.id}
-            jobTitle={job.title}
-            jobCompany={job.company}
-            cvAnalysisId={cvAnalysisId}
-            jobSourceUrl={job.sourceUrl}
-            trigger={
-              <Button className="flex-1 sm:flex-none">
-                <Send className="h-4 w-4 mr-2" />
-                Postuler
-              </Button>
-            }
-          />
-        ) : (
-          <Button asChild variant="outline" className="flex-1 sm:flex-none">
-            <a href="/dashboard/cv-analysis">
-              <FileText className="h-4 w-4 mr-2" />
-              Analysez d&apos;abord votre CV
-            </a>
-          </Button>
-        )}
-
-        <Button asChild variant="outline" size="sm">
-          <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Voir sur {sourceLabel(job.source)}
-          </a>
-        </Button>
-
-        <Button
-          variant="outline"
-          onClick={onToggleSave}
-          className={cn(
-            isSaved && 'border-foreground text-foreground'
-          )}
-        >
-          {isSaved ? (
-            <>
-              <BookmarkCheck className="h-4 w-4 mr-2 fill-current" />
-              Sauvegardee
-            </>
-          ) : (
-            <>
-              <Bookmark className="h-4 w-4 mr-2" />
-              Sauvegarder
-            </>
-          )}
-        </Button>
-      </div>
-
-      {/* Company info */}
-      <div className="rounded-lg border p-4 space-y-2">
-        <h4 className="text-sm font-semibold text-foreground">
-          A propos de l'entreprise
-        </h4>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-muted">
-            <Building2 className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="font-medium text-foreground">{job.company}</p>
-            <p className="text-xs text-muted-foreground">{job.canton}</p>
-          </div>
+      {/* Entreprise */}
+      <section className="space-y-4 border-t border-border pt-8">
+        <SectionEyebrow>Entreprise</SectionEyebrow>
+        <div className="rounded-3xl border border-border bg-background p-6">
+          <p className="text-lg font-bold tracking-tight text-foreground">
+            {job.company}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {cantonLabel}
+            {job.contractType ? ` · ${job.contractType}` : ''}
+          </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

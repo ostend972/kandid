@@ -2,20 +2,16 @@
 
 import { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import useSWR, { mutate as globalMutate } from 'swr';
 import {
   ChevronLeft,
   ChevronRight,
-  FileText,
-  Briefcase,
   SearchX,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { JobFilters } from '@/components/jobs/job-filters';
 import { JobCard, JobCardSkeleton, type JobCardData } from '@/components/jobs/job-card';
 import { JobDetail, type JobDetailData } from '@/components/jobs/job-detail';
+import { cn } from '@/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -24,6 +20,8 @@ interface JobsApiResponse {
   total: number;
   page: number;
   totalPages: number;
+  alignedCount?: number;
+  hasProfile?: boolean;
 }
 
 interface JobDetailApiResponse {
@@ -52,30 +50,24 @@ export function JobsPageContent() {
   const searchParams = useSearchParams();
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
-  // Build API URL from search params
   const apiUrl = `/api/jobs?${searchParams.toString()}`;
 
-  // Fetch jobs list
-  const {
-    data: jobsData,
-    isLoading: jobsLoading,
-  } = useSWR<JobsApiResponse>(apiUrl, fetcher, {
-    keepPreviousData: true,
-  });
+  const { data: jobsData, isLoading: jobsLoading } = useSWR<JobsApiResponse>(
+    apiUrl,
+    fetcher,
+    { keepPreviousData: true }
+  );
 
-  // Fetch saved job IDs
   const { data: savedIdsData } = useSWR<SavedIdsResponse>(
     '/api/jobs/saved-ids',
     fetcher
   );
 
-  // Fetch applied job IDs
   const { data: appliedIdsData } = useSWR<AppliedIdsResponse>(
     '/api/jobs/applied-ids',
     fetcher
   );
 
-  // Fetch selected job detail
   const { data: detailData } = useSWR<JobDetailApiResponse>(
     selectedJobId ? `/api/jobs/${selectedJobId}` : null,
     fetcher
@@ -86,6 +78,7 @@ export function JobsPageContent() {
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
   const totalPages = jobsData?.totalPages ?? 1;
   const total = jobsData?.total ?? 0;
+  const alignedCount = jobsData?.alignedCount ?? 0;
 
   // ─── Handlers ──────────────────────────────────────────────────────────
 
@@ -101,16 +94,11 @@ export function JobsPageContent() {
     async (jobId: string) => {
       const isSaved = savedJobIds.has(jobId);
 
-      // Optimistic update
       const newIds = isSaved
         ? [...savedJobIds].filter((id) => id !== jobId)
         : [...savedJobIds, jobId];
 
-      globalMutate(
-        '/api/jobs/saved-ids',
-        { ids: newIds },
-        false
-      );
+      globalMutate('/api/jobs/saved-ids', { ids: newIds }, false);
 
       try {
         await fetch('/api/jobs/save', {
@@ -118,10 +106,8 @@ export function JobsPageContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ jobId }),
         });
-        // Revalidate
         globalMutate('/api/jobs/saved-ids');
       } catch {
-        // Revert on error
         globalMutate('/api/jobs/saved-ids');
       }
     },
@@ -141,128 +127,133 @@ export function JobsPageContent() {
   // ─── Render ────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-4">
-      {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Offres d'emploi
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {total > 0
-            ? `${total.toLocaleString('fr-CH')} offres en Suisse romande`
-            : 'Parcourez les offres d\'emploi en Suisse romande.'}
-        </p>
-      </div>
-
-      {/* No CV banner */}
-      {detailData && !detailData.hasCvAnalysis && (
-        <div className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3">
-          <FileText className="h-5 w-5 text-foreground shrink-0" />
-          <p className="text-sm text-foreground flex-1">
-            Analysez votre CV pour voir votre compatibilite avec chaque offre
-          </p>
-          <Button asChild size="sm" variant="outline" className="shrink-0">
-            <Link href="/dashboard/cv-analysis">Analyser mon CV</Link>
-          </Button>
-        </div>
-      )}
-
+    <div className="space-y-6">
       {/* Filter bar */}
       <JobFilters />
 
-      {/* Split view: desktop = side-by-side, mobile = list only */}
-      <div className="flex gap-4 min-h-[calc(100vh-20rem)]">
-        {/* Left panel — Job list */}
-        <div className="w-full lg:w-[40%] lg:min-w-[340px] lg:max-w-[480px] flex flex-col">
-          <ScrollArea className="flex-1 -mx-1 px-1">
-            <div className="space-y-2 pb-4">
-              {jobsLoading ? (
-                // Skeleton loading state
-                Array.from({ length: 8 }).map((_, i) => (
-                  <JobCardSkeleton key={i} />
-                ))
-              ) : jobsData && jobsData.jobs.length > 0 ? (
-                jobsData.jobs.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    isActive={selectedJobId === job.id}
-                    isSaved={savedJobIds.has(job.id)}
-                    isApplied={appliedJobIds.has(job.id)}
-                    onSelect={() => {
-                      if (window.matchMedia('(min-width: 1024px)').matches) {
-                        handleSelectJob(job.id);
-                      } else {
-                        handleSelectJobMobile(job.id);
-                      }
-                    }}
-                    onToggleSave={() => handleToggleSave(job.id)}
-                  />
-                ))
-              ) : (
-                // Empty state
-                <div className="flex flex-col items-center py-16 text-center">
-                  <SearchX className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-base font-semibold text-foreground">
-                    Aucune offre ne correspond a vos filtres
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-                    Essayez d'elargir votre recherche ou de modifier vos
-                    criteres de filtrage.
-                  </p>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+      {/* Meta line — total + aligned */}
+      {!jobsLoading && total > 0 && (
+        <div className="flex items-baseline justify-between gap-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {total.toLocaleString('fr-CH')}{' '}
+            {total === 1 ? 'offre' : 'offres'}
+            {alignedCount > 0 && (
+              <>
+                {' · '}
+                <span className="text-foreground">
+                  {alignedCount.toLocaleString('fr-CH')} alignées
+                </span>
+              </>
+            )}
+          </p>
+        </div>
+      )}
+
+      {/* Split view */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(340px,480px)_1fr]">
+        {/* Left — list */}
+        <div className="flex min-w-0 flex-col">
+          <div className="space-y-3">
+            {jobsLoading ? (
+              Array.from({ length: 6 }).map((_, i) => <JobCardSkeleton key={i} />)
+            ) : jobsData && jobsData.jobs.length > 0 ? (
+              jobsData.jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  isActive={selectedJobId === job.id}
+                  isSaved={savedJobIds.has(job.id)}
+                  isApplied={appliedJobIds.has(job.id)}
+                  onSelect={() => {
+                    if (window.matchMedia('(min-width: 1024px)').matches) {
+                      handleSelectJob(job.id);
+                    } else {
+                      handleSelectJobMobile(job.id);
+                    }
+                  }}
+                  onToggleSave={() => handleToggleSave(job.id)}
+                />
+              ))
+            ) : (
+              <EmptyState />
+            )}
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t pt-3 mt-2">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-5">
+              <button
+                type="button"
                 disabled={currentPage <= 1}
                 onClick={() => goToPage(currentPage - 1)}
+                className={cn(
+                  'inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-background px-4 text-sm font-medium transition-colors',
+                  currentPage <= 1
+                    ? 'opacity-40 cursor-not-allowed'
+                    : 'text-foreground hover:border-foreground'
+                )}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Precedent
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Page {currentPage} sur {totalPages}
+                <ChevronLeft className="h-4 w-4" />
+                Précédent
+              </button>
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground tabular-nums">
+                Page {currentPage} / {totalPages}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                type="button"
                 disabled={currentPage >= totalPages}
                 onClick={() => goToPage(currentPage + 1)}
+                className={cn(
+                  'inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-background px-4 text-sm font-medium transition-colors',
+                  currentPage >= totalPages
+                    ? 'opacity-40 cursor-not-allowed'
+                    : 'text-foreground hover:border-foreground'
+                )}
               >
                 Suivant
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
 
-        {/* Right panel — Job detail (desktop only) */}
-        <div className="hidden lg:block flex-1 min-w-0">
-          <div className="sticky top-0">
-            <ScrollArea className="h-[calc(100vh-16rem)]">
-              <div className="rounded-lg border bg-card p-6">
-                <JobDetail
-                  job={detailData?.job ?? null}
-                  isSaved={selectedJobId ? savedJobIds.has(selectedJobId) : false}
-                  onToggleSave={() => {
-                    if (selectedJobId) handleToggleSave(selectedJobId);
-                  }}
-                  hasCvAnalysis={detailData?.hasCvAnalysis ?? false}
-                  cvAnalysisId={detailData?.cvAnalysisId ?? null}
-                  cvFileName={detailData?.cvFileName ?? null}
-                />
-              </div>
-            </ScrollArea>
+        {/* Right — detail (desktop only) */}
+        <div className="hidden min-w-0 lg:block">
+          <div className="sticky top-6">
+            <div className="rounded-3xl border border-border bg-background p-6 sm:p-8 max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <JobDetail
+                job={detailData?.job ?? null}
+                isSaved={selectedJobId ? savedJobIds.has(selectedJobId) : false}
+                onToggleSave={() => {
+                  if (selectedJobId) handleToggleSave(selectedJobId);
+                }}
+                hasCvAnalysis={detailData?.hasCvAnalysis ?? false}
+                cvAnalysisId={detailData?.cvAnalysisId ?? null}
+                cvFileName={detailData?.cvFileName ?? null}
+              />
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="rounded-3xl border border-dashed border-border bg-background p-10 text-center">
+      <div className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full border border-border">
+        <SearchX className="h-6 w-6 text-muted-foreground" />
+      </div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Aucun résultat
+      </p>
+      <h3 className="mt-3 text-lg font-bold tracking-tight text-foreground">
+        Aucune offre ne correspond à vos filtres
+      </h3>
+      <p className="mt-3 max-w-xs mx-auto text-sm text-muted-foreground leading-relaxed">
+        Élargissez votre recherche ou modifiez vos critères pour voir davantage d&apos;opportunités.
+      </p>
     </div>
   );
 }
