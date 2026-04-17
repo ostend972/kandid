@@ -250,7 +250,6 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <NavigationMenu
-            align="center"
             className="max-lg:hidden p-0.5 rounded-full"
           >
             <NavigationMenuList className="gap-1">
