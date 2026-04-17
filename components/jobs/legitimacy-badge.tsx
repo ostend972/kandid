@@ -1,24 +1,23 @@
-import { ShieldCheck, AlertTriangle, ShieldAlert } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 type LegitimacyTier = 'high' | 'caution' | 'suspicious';
 
-const TIER_CONFIG: Record<LegitimacyTier, { label: string; icon: typeof ShieldCheck; className: string }> = {
+const TIER_CONFIG: Record<
+  LegitimacyTier,
+  { label: string; className: string }
+> = {
   high: {
     label: 'Fiable',
-    icon: ShieldCheck,
-    className: 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400 border-transparent',
+    className: 'bg-foreground text-background border-foreground',
   },
   caution: {
     label: 'À vérifier',
-    icon: AlertTriangle,
-    className: 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400 border-transparent',
+    className: 'bg-background text-foreground border-border',
   },
   suspicious: {
     label: 'Suspect',
-    icon: ShieldAlert,
-    className: 'bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400 border-transparent',
+    className:
+      'bg-background text-muted-foreground border-dashed border-muted-foreground/40',
   },
 };
 
@@ -32,13 +31,17 @@ export function LegitimacyBadge({ tier, score, className }: LegitimacyBadgeProps
   if (!tier || !(tier in TIER_CONFIG)) return null;
 
   const config = TIER_CONFIG[tier as LegitimacyTier];
-  const Icon = config.icon;
 
   return (
-    <Badge variant="outline" className={cn('text-xs px-2 py-0 gap-1', config.className, className)}>
-      <Icon className="h-3 w-3" />
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.12em]',
+        config.className,
+        className
+      )}
+    >
       {config.label}
-      {score != null && <span className="opacity-75">({score})</span>}
-    </Badge>
+      {score != null && <span className="opacity-70 normal-case tracking-normal">· {score}</span>}
+    </span>
   );
 }

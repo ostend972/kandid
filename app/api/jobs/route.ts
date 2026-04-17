@@ -161,11 +161,14 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const start = (page - 1) * limit;
     const paged = filtered.slice(start, start + limit);
+    const alignedCount = scoredJobs.filter((j) => (j.matchScore ?? 0) >= 60).length;
     return NextResponse.json({
       jobs: paged,
       total,
       page,
       totalPages,
+      alignedCount,
+      hasProfile: true,
     });
   }
 
@@ -175,10 +178,15 @@ export async function GET(request: NextRequest) {
   }
 
   // ── 7. Return response ─────────────────────────────────────────────
+  const alignedCount = profile
+    ? scoredJobs.filter((j) => (j.matchScore ?? 0) >= 60).length
+    : 0;
   return NextResponse.json({
     jobs: scoredJobs,
     total: searchResult.total,
     page: searchResult.page,
     totalPages: searchResult.totalPages,
+    alignedCount,
+    hasProfile: profile != null,
   });
 }

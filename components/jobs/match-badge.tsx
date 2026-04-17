@@ -6,77 +6,82 @@ import { HelpCircle } from 'lucide-react';
 interface MatchBadgeProps {
   score: number | null;
   className?: string;
+  size?: 'sm' | 'lg';
 }
 
-export function MatchBadge({ score, className }: MatchBadgeProps) {
+export function MatchBadge({ score, className, size = 'sm' }: MatchBadgeProps) {
+  const isLarge = size === 'lg';
+
   if (score === null || score === undefined) {
     return (
       <span
         className={cn(
-          'inline-flex items-center justify-center h-10 w-10 rounded-full bg-muted text-muted-foreground',
+          'inline-flex items-center justify-center rounded-full border border-border bg-background text-muted-foreground',
+          isLarge ? 'h-28 w-28' : 'h-12 w-12',
           className
         )}
-        title="Analysez votre CV pour voir votre compatibilite"
+        title="Analysez votre CV pour voir votre compatibilité"
       >
-        <HelpCircle className="h-4 w-4" />
+        <HelpCircle className={cn(isLarge ? 'h-6 w-6' : 'h-4 w-4')} />
       </span>
     );
   }
 
-  const ringColor =
-    score >= 80
-      ? 'text-emerald-500'
-      : score >= 40
-        ? 'text-amber-500'
-        : 'text-red-500';
+  // Bichrome intensity : plus le score est haut, plus le remplissage est opaque.
+  const dim = score >= 80 ? 1 : score >= 60 ? 0.7 : score >= 40 ? 0.45 : 0.22;
 
-  const textColor =
-    score >= 80
-      ? 'text-emerald-700 dark:text-emerald-400'
-      : score >= 40
-        ? 'text-amber-700 dark:text-amber-400'
-        : 'text-red-700 dark:text-red-400';
-
-  // SVG circle progress
-  const size = 52;
-  const center = size / 2;
-  const radius = 20;
+  const px = isLarge ? 112 : 48;
+  const strokeW = isLarge ? 6 : 3;
+  const center = px / 2;
+  const radius = center - strokeW;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 100) * circumference;
 
   return (
     <div
       className={cn('relative inline-flex items-center justify-center shrink-0', className)}
-      title={`Compatibilite : ${score}%`}
+      title={`Compatibilité : ${score}%`}
+      style={{ width: px, height: px }}
     >
-      <svg width={size} height={size} className="-rotate-90">
-        {/* Background circle */}
+      <svg width={px} height={px} className="-rotate-90">
         <circle
           cx={center}
           cy={center}
           r={radius}
           fill="none"
           stroke="currentColor"
-          strokeWidth="3.5"
+          strokeWidth={strokeW}
           className="text-border"
         />
-        {/* Progress circle */}
         <circle
           cx={center}
           cy={center}
           r={radius}
           fill="none"
           stroke="currentColor"
-          strokeWidth="3.5"
+          strokeWidth={strokeW}
           strokeDasharray={circumference}
           strokeDashoffset={circumference - progress}
           strokeLinecap="round"
-          className={ringColor}
+          className="text-foreground"
+          style={{ opacity: dim }}
         />
       </svg>
-      <span className={cn('absolute text-sm font-bold', textColor)}>
-        {score}
-      </span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span
+          className={cn(
+            'font-bold tabular-nums leading-none text-foreground',
+            isLarge ? 'text-4xl' : 'text-base'
+          )}
+        >
+          {score}
+        </span>
+        {isLarge && (
+          <span className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            / 100
+          </span>
+        )}
+      </div>
     </div>
   );
 }
