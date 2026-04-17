@@ -30,7 +30,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Parametres</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Parametres</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Gerez votre profil et vos preferences.
         </p>
@@ -48,14 +48,14 @@ export default async function SettingsPage() {
         <CardContent>
           <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium text-gray-500">Nom</p>
-              <p className="text-sm text-gray-900">
+              <p className="text-sm font-medium text-muted-foreground">Nom</p>
+              <p className="text-sm text-foreground">
                 {user?.fullName ?? '—'}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Email</p>
-              <p className="text-sm text-gray-900">
+              <p className="text-sm font-medium text-muted-foreground">Email</p>
+              <p className="text-sm text-foreground">
                 {user?.email ?? '—'}
               </p>
             </div>
@@ -109,7 +109,7 @@ export default async function SettingsPage() {
             <Badge variant="secondary" className="text-sm">
               Beta gratuite
             </Badge>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Acces complet a toutes les fonctionnalites
             </p>
           </div>
@@ -117,9 +117,9 @@ export default async function SettingsPage() {
       </Card>
 
       {/* Danger zone */}
-      <Card className="border-red-200">
+      <Card className="border-destructive/40">
         <CardHeader>
-          <CardTitle className="text-red-600">Zone dangereuse</CardTitle>
+          <CardTitle className="text-destructive">Zone dangereuse</CardTitle>
           <CardDescription>
             Actions irreversibles sur votre compte.
           </CardDescription>

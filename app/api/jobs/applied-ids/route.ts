@@ -5,7 +5,7 @@ import { getAppliedJobIds } from '@/lib/db/kandid-queries';
 export async function GET() {
   const { userId } = await auth();
   if (!userId) {
-    return NextResponse.json({ ids: [] });
+    return NextResponse.json({ error: 'Non autorise.' }, { status: 401 });
   }
 
   try {

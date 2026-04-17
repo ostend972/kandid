@@ -26,7 +26,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <Button variant="ghost" size="sm" onClick={handleCopy} className="h-7 px-2">
       {copied ? (
-        <Check className="h-3.5 w-3.5 text-green-500" />
+        <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
       ) : (
         <Copy className="h-3.5 w-3.5" />
       )}
@@ -58,15 +58,15 @@ function ComparisonBlock({
             <p className="mb-1 text-xs font-medium text-muted-foreground">Actuel</p>
             <p className="text-sm">{current}</p>
           </div>
-          <div className="rounded-lg border border-green-200 bg-green-50/50 p-3 dark:border-green-900 dark:bg-green-950/20">
-            <p className="mb-1 text-xs font-medium text-green-700 dark:text-green-400">
+          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
+            <p className="mb-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
               Optimise
             </p>
             <p className="text-sm">{optimized}</p>
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-green-200 bg-green-50/50 p-3 dark:border-green-900 dark:bg-green-950/20">
+        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
           <p className="text-sm">{optimized}</p>
         </div>
       )}

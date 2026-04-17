@@ -5,9 +5,9 @@ import { getTopMatchesForUser } from '@/lib/db/kandid-queries';
 import { Briefcase } from 'lucide-react';
 
 function scoreBadgeClass(score: number): string {
-  if (score >= 70) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-  if (score >= 50) return 'bg-amber-100 text-amber-700 border-amber-200';
-  return 'bg-red-100 text-red-700 border-red-200';
+  if (score >= 70) return 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400 border-transparent';
+  if (score >= 50) return 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400 border-transparent';
+  return 'bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400 border-transparent';
 }
 
 export async function TopMatchesWidget({
@@ -25,13 +25,13 @@ export async function TopMatchesWidget({
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center py-4 text-center">
-            <Briefcase className="h-8 w-8 text-gray-400" />
+            <Briefcase className="h-8 w-8 text-muted-foreground" />
             <p className="mt-2 text-sm text-muted-foreground">
               Parcourez les offres pour voir vos meilleurs matchs
             </p>
             <Link
               href="/dashboard/jobs"
-              className="mt-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              className="mt-2 text-sm font-medium text-foreground hover:text-muted-foreground"
             >
               Voir les offres →
             </Link>
@@ -51,13 +51,13 @@ export async function TopMatchesWidget({
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center py-4 text-center">
-            <Briefcase className="h-8 w-8 text-gray-400" />
+            <Briefcase className="h-8 w-8 text-muted-foreground" />
             <p className="mt-2 text-sm text-muted-foreground">
               Parcourez les offres pour voir vos meilleurs matchs
             </p>
             <Link
               href="/dashboard/jobs"
-              className="mt-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              className="mt-2 text-sm font-medium text-foreground hover:text-muted-foreground"
             >
               Voir les offres →
             </Link>

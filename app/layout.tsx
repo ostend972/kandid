@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import Script from "next/script";
-import { Manrope } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { frFR } from '@clerk/localizations';
 import { CookieConsent } from '@/components/cookie-consent';
@@ -17,7 +17,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const manrope = Manrope({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,
@@ -28,7 +28,7 @@ export default function RootLayout({
     <ClerkProvider localization={frFR}>
       <html
         lang="fr"
-        className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
+        className={`bg-white dark:bg-black text-black dark:text-white ${inter.className}`}
       >
       <head>
         {process.env.NODE_ENV === "development" && (
@@ -45,7 +45,7 @@ export default function RootLayout({
           />
         )}
       </head>
-        <body className="min-h-[100dvh] bg-gray-50">
+        <body className="min-h-[100dvh] bg-white dark:bg-black">
           {children}
           <CookieConsent />
         </body>

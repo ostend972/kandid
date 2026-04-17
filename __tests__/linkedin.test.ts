@@ -164,9 +164,9 @@ const mockSelect = vi.fn(() => ({ from: mockFrom }));
 
 vi.mock('@/lib/db/drizzle', () => ({
   db: {
-    update: (...args: unknown[]) => mockUpdate(...args),
-    insert: (...args: unknown[]) => mockInsert(...args),
-    select: (...args: unknown[]) => mockSelect(...args),
+    update: (...args: Parameters<typeof mockUpdate>) => mockUpdate(...args),
+    insert: (...args: Parameters<typeof mockInsert>) => mockInsert(...args),
+    select: (...args: Parameters<typeof mockSelect>) => mockSelect(...args),
   },
   client: {},
 }));

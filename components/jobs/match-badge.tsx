@@ -13,7 +13,7 @@ export function MatchBadge({ score, className }: MatchBadgeProps) {
     return (
       <span
         className={cn(
-          'inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-400',
+          'inline-flex items-center justify-center h-10 w-10 rounded-full bg-muted text-muted-foreground',
           className
         )}
         title="Analysez votre CV pour voir votre compatibilite"
@@ -30,19 +30,12 @@ export function MatchBadge({ score, className }: MatchBadgeProps) {
         ? 'text-amber-500'
         : 'text-red-500';
 
-  const bgColor =
-    score >= 80
-      ? 'bg-emerald-50'
-      : score >= 40
-        ? 'bg-amber-50'
-        : 'bg-red-50';
-
   const textColor =
     score >= 80
-      ? 'text-emerald-700'
+      ? 'text-emerald-700 dark:text-emerald-400'
       : score >= 40
-        ? 'text-amber-700'
-        : 'text-red-700';
+        ? 'text-amber-700 dark:text-amber-400'
+        : 'text-red-700 dark:text-red-400';
 
   // SVG circle progress
   const size = 52;
@@ -65,7 +58,7 @@ export function MatchBadge({ score, className }: MatchBadgeProps) {
           fill="none"
           stroke="currentColor"
           strokeWidth="3.5"
-          className="text-gray-200"
+          className="text-border"
         />
         {/* Progress circle */}
         <circle

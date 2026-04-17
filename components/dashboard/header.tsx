@@ -16,7 +16,7 @@ export function DashboardHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-4 lg:px-6">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background px-4 lg:px-6">
         {/* Mobile hamburger */}
         <Button
           variant="ghost"

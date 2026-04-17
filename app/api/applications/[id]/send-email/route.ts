@@ -3,6 +3,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { getApplicationById, updateApplicationEmailStatus } from '@/lib/db/kandid-queries';
 import { getApplicationFileBuffer } from '@/lib/storage/cv-upload';
 import { sendDossierEmail } from '@/lib/email/resend';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_RETRIES = 3;
@@ -16,6 +17,9 @@ export async function POST(
   if (!user) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
+
+  const rateLimited = await checkRateLimit(user.id, 'email');
+  if (rateLimited) return rateLimited;
 
   const { id } = await params;
 

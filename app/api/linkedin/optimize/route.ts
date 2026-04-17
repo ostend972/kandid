@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getLinkedinProfile, getUserById, updateLinkedinOptimized } from "@/lib/db/kandid-queries";
 import { optimizeLinkedinHeadline } from "@/lib/ai/linkedin-optimize";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { LinkedinStructuredProfile } from "@/lib/validations/linkedin";
 
 export async function POST() {
@@ -12,6 +13,9 @@ export async function POST() {
       { status: 401 }
     );
   }
+
+  const rateLimited = await checkRateLimit(userId, 'ai');
+  if (rateLimited) return rateLimited;
 
   const profile = await getLinkedinProfile(userId);
   if (!profile?.structured) {

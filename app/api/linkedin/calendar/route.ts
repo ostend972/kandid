@@ -6,7 +6,8 @@ import {
   createLinkedinPosts,
 } from "@/lib/db/kandid-queries";
 import { generateEditorialCalendar } from "@/lib/ai/linkedin-calendar";
-import type { LinkedinStructuredProfile } from "@/lib/validations/linkedin";
+import { checkRateLimit } from "@/lib/rate-limit";
+import type { LinkedinStructuredProfile, LinkedinCalendarResult } from "@/lib/validations/linkedin";
 import crypto from "crypto";
 
 export async function POST() {
@@ -17,6 +18,9 @@ export async function POST() {
       { status: 401 }
     );
   }
+
+  const rateLimited = await checkRateLimit(userId, 'ai');
+  if (rateLimited) return rateLimited;
 
   const profile = await getLinkedinProfile(userId);
   if (!profile?.structured) {
@@ -42,7 +46,7 @@ export async function POST() {
     userContext.strengths = structured.skills.slice(0, 5);
   }
 
-  let calendarPosts;
+  let calendarPosts: LinkedinCalendarResult;
   try {
     calendarPosts = await generateEditorialCalendar(structured, userId, userContext);
   } catch (error) {
@@ -56,7 +60,7 @@ export async function POST() {
   const batchId = crypto.randomUUID();
 
   try {
-    const postsToInsert = calendarPosts.map((post, index) => ({
+    const postsToInsert = calendarPosts.map((post: LinkedinCalendarResult[number], index: number) => ({
       userId,
       profileId: profile.id,
       weekNumber: post.weekNumber,

@@ -147,7 +147,7 @@ const mockUpdate = vi.fn(() => ({ set: mockSet }));
 
 vi.mock('@/lib/db/drizzle', () => ({
   db: {
-    update: (...args: unknown[]) => mockUpdate(...args),
+    update: (...args: Parameters<typeof mockUpdate>) => mockUpdate(...args),
   },
   client: {},
 }));

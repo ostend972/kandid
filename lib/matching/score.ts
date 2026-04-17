@@ -400,6 +400,162 @@ export function calculateActivityRateMatch(
   return 0;
 }
 
+// Stopwords — generic words ignored when comparing job titles
+const TITLE_STOPWORDS = new Set([
+  'de', 'du', 'des', 'le', 'la', 'les', 'un', 'une', 'et', 'ou', 'pour',
+  'avec', 'sur', 'dans', 'par', 'au', 'aux', 'en', 'sans',
+  'senior', 'junior', 'stagiaire', 'stage', 'apprenti',
+  'cdi', 'cdd', 'temporaire', 'fixe', 'permanent',
+]);
+
+// Job-role semantic families. Each family groups interchangeable / related
+// role keywords. When a CV title AND a job title share a family, it's a
+// strong signal that the role is aligned — even when they use different words.
+const ROLE_FAMILIES: Record<string, string[]> = {
+  commercial: [
+    'commercial', 'commerciale', 'vente', 'ventes', 'vendeur', 'vendeuse',
+    'conseiller', 'conseillere', 'consultante', 'consultant',
+    'account', 'sales', 'seller', 'negociateur', 'negociatrice',
+    'clientele', 'client', 'clients',
+    'attache', 'attachee', 'charge', 'chargee',
+    'representant', 'representante', 'business', 'bd',
+    'developpement', 'prospecteur', 'kam', 'cam',
+    'support', 'supporter', 'pme', 'b2b', 'btob', 'btoc', 'b2c',
+    'relation', 'relations', 'souscripteur', 'courtier',
+  ],
+  management: [
+    'responsable', 'manager', 'chef', 'cheffe', 'directeur', 'directrice',
+    'head', 'lead', 'leader', 'superviseur', 'superviseuse',
+    'coordinateur', 'coordinatrice', 'coordination',
+    'encadrant', 'encadrante', 'adjoint', 'adjointe',
+  ],
+  assistance: [
+    'assistant', 'assistante', 'secretaire', 'collaborateur', 'collaboratrice',
+    'office', 'administratif', 'administrative', 'reception', 'receptionniste',
+  ],
+  tech: [
+    'ingenieur', 'ingenieure', 'technicien', 'technicienne',
+    'developpeur', 'developpeuse', 'developer', 'dev',
+    'programmeur', 'programmeuse',
+    'architecte', 'devops', 'sysadmin',
+    'operateur', 'operatrice', 'mecanicien', 'mecanicienne',
+    'monteur', 'monteuse', 'cableur', 'cableuse',
+    'electricien', 'electricienne',
+  ],
+  finance: [
+    'comptable', 'fiduciaire', 'auditeur', 'auditrice',
+    'controleur', 'controleuse', 'fiscaliste',
+    'financier', 'financiere', 'tresorier', 'tresoriere',
+  ],
+  hr: [
+    'rh', 'hr', 'recruteur', 'recruteuse', 'recruitment',
+    'paie', 'talent', 'gestionnaire',
+  ],
+  legal: [
+    'juriste', 'legal', 'avocat', 'avocate', 'notaire', 'paralegal',
+  ],
+  marketing: [
+    'marketing', 'communication', 'communicant', 'communicante',
+    'seo', 'seomanager', 'cm', 'community', 'growth', 'digital',
+    'brand', 'contenu', 'content',
+  ],
+  manual: [
+    'ouvrier', 'ouvriere', 'manutentionnaire', 'maçon', 'macon',
+    'paysagiste', 'jardinier', 'jardiniere', 'peintre', 'plombier',
+  ],
+  healthcare: [
+    'infirmier', 'infirmiere', 'medecin', 'medical', 'medicale',
+    'soignant', 'soignante', 'aide',
+  ],
+  hospitality: [
+    'cuisinier', 'cuisiniere', 'serveur', 'serveuse', 'chef',
+    'boulanger', 'boulangere', 'patissier', 'patissiere', 'traiteur',
+    'snacking',
+  ],
+};
+
+// Invert for fast lookup: word -> family key
+const ROLE_WORD_TO_FAMILY = new Map<string, string>();
+for (const [family, words] of Object.entries(ROLE_FAMILIES)) {
+  for (const w of words) ROLE_WORD_TO_FAMILY.set(w, family);
+}
+
+function tokenize(text: string): string[] {
+  if (!text) return [];
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .split(/[\s,/\-'()·•–—&\.\[\]]+/)
+    .map((w) => w.replace(/[^a-z0-9]/g, ''))
+    .filter((w) => w.length >= 3 && !TITLE_STOPWORDS.has(w) && !/^\d+$/.test(w));
+}
+
+function extractFamilies(tokens: string[]): Set<string> {
+  const out = new Set<string>();
+  for (const t of tokens) {
+    const fam = ROLE_WORD_TO_FAMILY.get(t);
+    if (fam) out.add(fam);
+  }
+  return out;
+}
+
+/**
+ * Role affinity: compares the JOB's role families (inferred from title +
+ * first lines of description) against the CV's role families (from all
+ * past/current positions).
+ *
+ * Returns 0-100:
+ *   - 100 → all job families are represented in CV
+ *   - 50  → half of job families are in CV
+ *   - 0   → no family overlap (strong negative signal, role is off-track)
+ *   - -1  → not enough data to compute
+ */
+export function calculateRoleAffinity(
+  cvTitles: string[],
+  jobTitle?: string,
+  jobDescription?: string
+): number {
+  if ((!jobTitle && !jobDescription) || !cvTitles || cvTitles.length === 0)
+    return -1;
+
+  const cvTokens: string[] = [];
+  for (const title of cvTitles) cvTokens.push(...tokenize(title));
+  const cvFamilies = extractFamilies(cvTokens);
+
+  if (cvFamilies.size === 0) return -1;
+
+  // Job families: heavily weight the title, but fall back to description excerpt
+  const jobTitleTokens = tokenize(jobTitle || '');
+  const titleFamilies = extractFamilies(jobTitleTokens);
+
+  const descExcerpt = (jobDescription || '').substring(0, 600);
+  const descTokens = tokenize(descExcerpt);
+  const descFamilies = extractFamilies(descTokens);
+
+  // Merge: title has full weight, description fills gaps
+  const jobFamilies = new Set<string>([...titleFamilies, ...descFamilies]);
+  if (jobFamilies.size === 0) return -1;
+
+  let matched = 0;
+  for (const fam of jobFamilies) {
+    if (cvFamilies.has(fam)) matched++;
+  }
+  const ratio = matched / jobFamilies.size;
+
+  // Bonus: if the title alone has a strong family match, boost the score
+  let titleBonus = 0;
+  if (titleFamilies.size > 0) {
+    let titleMatched = 0;
+    for (const fam of titleFamilies) {
+      if (cvFamilies.has(fam)) titleMatched++;
+    }
+    titleBonus = (titleMatched / titleFamilies.size) * 20;
+  }
+
+  return Math.min(100, Math.round(ratio * 100 + titleBonus));
+}
+
 export function calculateSeniorityMatch(
   cvExperienceYears: number | undefined,
   jobTitle?: string,
@@ -452,19 +608,42 @@ export function calculateMatchScore(
     job.description
   );
 
+  // Role affinity: compare job title with CV positions (current + past)
+  const cvTitles: string[] = [];
+  if (profile.title) cvTitles.push(profile.title);
+  if (profile.experiences?.length) {
+    for (const exp of profile.experiences) {
+      if (exp.position) cvTitles.push(exp.position);
+    }
+  }
+  const roleAffinityRaw = calculateRoleAffinity(cvTitles, job.title, job.description);
+
   // -1 means "no data available" — don't count this criterion
   const criteria: Array<{ value: number; weight: number; key: string }> = [];
 
-  if (skillsRaw >= 0) criteria.push({ value: skillsRaw, weight: 0.40, key: "skills" });
-  if (languagesRaw >= 0) criteria.push({ value: languagesRaw, weight: 0.20, key: "languages" });
-  if (sectorRaw >= 0) criteria.push({ value: sectorRaw, weight: 0.15, key: "sector" });
-  criteria.push({ value: activityRate, weight: 0.10, key: "activityRate" });
-  if (seniorityRaw >= 0) criteria.push({ value: seniorityRaw, weight: 0.15, key: "seniority" });
+  if (skillsRaw >= 0) criteria.push({ value: skillsRaw, weight: 0.35, key: "skills" });
+  if (languagesRaw >= 0) criteria.push({ value: languagesRaw, weight: 0.15, key: "languages" });
+  if (sectorRaw >= 0) criteria.push({ value: sectorRaw, weight: 0.10, key: "sector" });
+  criteria.push({ value: activityRate, weight: 0.05, key: "activityRate" });
+  if (seniorityRaw >= 0) criteria.push({ value: seniorityRaw, weight: 0.10, key: "seniority" });
+  if (roleAffinityRaw >= 0) criteria.push({ value: roleAffinityRaw, weight: 0.25, key: "roleAffinity" });
 
   const totalWeight = criteria.reduce((sum, c) => sum + c.weight, 0);
   let score = 0;
   for (const c of criteria) {
     score += c.value * (c.weight / totalWeight);
+  }
+
+  // Hard cap: if the job has structured skills AND we match almost nothing,
+  // the job is clearly out of domain — cap the score to avoid noise.
+  const hasStructuredJobSkills = job.skills && job.skills.length > 0;
+  if (
+    hasStructuredJobSkills &&
+    skillsRaw >= 0 &&
+    skillsRaw < 20 &&
+    (roleAffinityRaw < 0 || roleAffinityRaw < 25)
+  ) {
+    score = Math.min(score, 45);
   }
 
   // Confidence based on how many criteria had data

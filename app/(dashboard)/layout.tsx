@@ -1,4 +1,4 @@
-import AppSidebar from '@/components/shadcn-space/blocks/dashboard-shell-03/app-sidebar';
+import { AppSidebar } from '@/components/shadcn-space/blocks/sidebar-01/app-sidebar';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });

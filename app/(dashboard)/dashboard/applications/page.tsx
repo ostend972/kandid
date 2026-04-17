@@ -70,7 +70,7 @@ export default async function ApplicationsPage() {
 
   return (
     <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-bold">Mes candidatures</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Mes candidatures</h1>
       {sectionOrder.map((level) => {
         const items = grouped[level];
         if (items.length === 0) return null;

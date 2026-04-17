@@ -23,6 +23,7 @@ import { getApplicationWithContext, getApplicationTransitions } from '@/lib/db/k
 import { Timeline } from '@/components/applications/timeline';
 import { NotesEditor } from '@/components/applications/notes-editor';
 import { SendEmailButton } from '@/components/applications/send-email-button';
+import { sanitizeHtml } from '@/lib/sanitize';
 import type { ApplicationStatus } from '@/lib/db/schema';
 
 function formatDate(date: Date | string | null): string {
@@ -115,7 +116,7 @@ export default async function ApplicationDetailPage({
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-indigo-600">
+              <span className="text-3xl font-bold text-foreground">
                 {cachedMatch.overallScore}%
               </span>
               <span className="text-sm text-muted-foreground">
@@ -271,14 +272,14 @@ export default async function ApplicationDetailPage({
                 [&_*]:max-w-full
                 [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2
                 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-2
-                [&_p]:text-sm [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:my-1.5
+                [&_p]:text-sm [&_p]:text-foreground [&_p]:leading-relaxed [&_p]:my-1.5
                 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2
-                [&_li]:text-sm [&_li]:text-gray-700 [&_li]:my-0.5
-                [&_a]:text-indigo-600 [&_a]:underline
+                [&_li]:text-sm [&_li]:text-foreground [&_li]:my-0.5
+                [&_a]:text-foreground [&_a]:underline
                 [&_strong]:font-semibold
                 [&_img]:hidden"
               dangerouslySetInnerHTML={{
-                __html: (app.jobDescription || job?.description || ''),
+                __html: sanitizeHtml(app.jobDescription || job?.description || ''),
               }}
             />
           </div>

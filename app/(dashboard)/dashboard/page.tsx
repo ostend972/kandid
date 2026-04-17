@@ -32,6 +32,8 @@ import {
   EmployabilityScoreSkeleton,
 } from '@/components/dashboard/widget-skeletons';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const { userId } = await auth();
   if (!userId) {
@@ -52,7 +54,7 @@ export default async function DashboardPage() {
       {/* Welcome card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Bonjour {firstName}</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">Bonjour {firstName}</CardTitle>
           <CardDescription>
             Bienvenue sur votre tableau de bord Kandid. Analysez votre CV et
             trouvez les meilleures offres en Suisse romande.
@@ -65,8 +67,8 @@ export default async function DashboardPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                <BarChart3 className="h-5 w-5 text-indigo-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <BarChart3 className="h-5 w-5 text-foreground" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -83,8 +85,8 @@ export default async function DashboardPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-                <FileText className="h-5 w-5 text-emerald-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <FileText className="h-5 w-5 text-foreground" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -99,8 +101,8 @@ export default async function DashboardPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100">
-                <Bookmark className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                <Bookmark className="h-5 w-5 text-foreground" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -116,11 +118,11 @@ export default async function DashboardPage() {
       {/* Quick action buttons */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Link href="/dashboard/cv-analysis">
-          <Card className="cursor-pointer transition-shadow hover:shadow-md">
+          <Card className="cursor-pointer transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
             <CardContent className="flex items-center justify-between pt-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600">
-                  <FileText className="h-5 w-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-black text-white dark:bg-white dark:text-black">
+                  <FileText className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-medium">Analyser un CV</p>
@@ -129,17 +131,17 @@ export default async function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ArrowRight className="h-5 w-5 text-gray-400" />
+              <ArrowRight className="h-5 w-5 text-muted-foreground" />
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/jobs">
-          <Card className="cursor-pointer transition-shadow hover:shadow-md">
+          <Card className="cursor-pointer transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
             <CardContent className="flex items-center justify-between pt-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-600">
-                  <Briefcase className="h-5 w-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-black text-white dark:bg-white dark:text-black">
+                  <Briefcase className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-medium">Chercher des offres</p>
@@ -148,7 +150,7 @@ export default async function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ArrowRight className="h-5 w-5 text-gray-400" />
+              <ArrowRight className="h-5 w-5 text-muted-foreground" />
             </CardContent>
           </Card>
         </Link>
@@ -175,7 +177,7 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Profil actif</CardTitle>
+              <CardTitle className="text-lg font-bold tracking-tight">Profil actif</CardTitle>
               <ActiveCvSelector
                 analyses={analyses.map((a) => ({
                   id: a.id,
@@ -190,7 +192,7 @@ export default async function DashboardPage() {
           <CardContent>
             {activeCv ? (
               <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-indigo-600" />
+                <FileText className="h-8 w-8 text-foreground" />
                 <div>
                   <p className="font-medium">{activeCv.fileName}</p>
                   <p className="text-sm text-muted-foreground">
@@ -213,11 +215,11 @@ export default async function DashboardPage() {
       ) : (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-10 text-center">
-            <FileText className="h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">
+            <FileText className="h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">
               Commencez par analyser votre CV
             </h3>
-            <p className="mt-2 max-w-sm text-sm text-gray-600">
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
               Commencez par analyser votre CV pour decouvrir votre score ATS et
               obtenir des recommandations personnalisees.
             </p>

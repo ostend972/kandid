@@ -14,11 +14,10 @@ interface AuditResultsProps {
 
 function ScoreGauge({ score }: { score: number }) {
   const color =
-    score < 40 ? "text-red-500" : score < 70 ? "text-orange-500" : "text-green-500";
-  const bgColor =
-    score < 40 ? "stroke-red-100" : score < 70 ? "stroke-orange-100" : "stroke-green-100";
+    score < 40 ? "text-red-700 dark:text-red-400" : score < 70 ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400";
+  const bgColor = "stroke-border";
   const fgColor =
-    score < 40 ? "stroke-red-500" : score < 70 ? "stroke-orange-500" : "stroke-green-500";
+    score < 40 ? "stroke-red-500" : score < 70 ? "stroke-amber-500" : "stroke-emerald-500";
   const circumference = 2 * Math.PI * 45;
   const offset = circumference - (score / 100) * circumference;
 
@@ -56,15 +55,15 @@ function ScoreGauge({ score }: { score: number }) {
 }
 
 const impactColors: Record<string, string> = {
-  haute: "bg-red-100 text-red-700",
-  moyenne: "bg-orange-100 text-orange-700",
-  basse: "bg-blue-100 text-blue-700",
+  haute: "bg-red-500/10 text-red-700 dark:text-red-400",
+  moyenne: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  basse: "bg-muted text-foreground",
 };
 
 const priorityColors: Record<string, string> = {
-  haute: "bg-red-100 text-red-700",
-  moyenne: "bg-orange-100 text-orange-700",
-  basse: "bg-blue-100 text-blue-700",
+  haute: "bg-red-500/10 text-red-700 dark:text-red-400",
+  moyenne: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  basse: "bg-muted text-foreground",
 };
 
 export function AuditResults({
@@ -108,17 +107,17 @@ export function AuditResults({
       {auditResult.weaknesses.length > 0 && (
         <div className="space-y-3">
           <h4 className="flex items-center gap-2 text-sm font-semibold">
-            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             Points faibles
           </h4>
           <ul className="space-y-2">
-            {auditResult.weaknesses.map((w, i) => (
+            {auditResult.weaknesses.map((w: LinkedinAuditResult["weaknesses"][number], i: number) => (
               <li key={i} className="rounded-lg border p-3">
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
                       "rounded-full px-2 py-0.5 text-xs font-medium",
-                      impactColors[w.impact] || "bg-gray-100 text-gray-700"
+                      impactColors[w.impact] || "bg-muted text-muted-foreground"
                     )}
                   >
                     {w.category}
@@ -126,7 +125,7 @@ export function AuditResults({
                   <span
                     className={cn(
                       "rounded-full px-2 py-0.5 text-xs",
-                      impactColors[w.impact] || "bg-gray-100 text-gray-700"
+                      impactColors[w.impact] || "bg-muted text-muted-foreground"
                     )}
                   >
                     Impact {w.impact}
@@ -142,17 +141,17 @@ export function AuditResults({
       {auditResult.recommendations.length > 0 && (
         <div className="space-y-3">
           <h4 className="flex items-center gap-2 text-sm font-semibold">
-            <Lightbulb className="h-4 w-4 text-yellow-500" />
+            <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             Recommandations
           </h4>
           <ul className="space-y-2">
-            {auditResult.recommendations.map((r, i) => (
+            {auditResult.recommendations.map((r: LinkedinAuditResult["recommendations"][number], i: number) => (
               <li key={i} className="rounded-lg border p-3">
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
                       "rounded-full px-2 py-0.5 text-xs font-medium",
-                      priorityColors[r.priority] || "bg-gray-100 text-gray-700"
+                      priorityColors[r.priority] || "bg-muted text-muted-foreground"
                     )}
                   >
                     {r.category}
@@ -160,7 +159,7 @@ export function AuditResults({
                   <span
                     className={cn(
                       "rounded-full px-2 py-0.5 text-xs",
-                      priorityColors[r.priority] || "bg-gray-100 text-gray-700"
+                      priorityColors[r.priority] || "bg-muted text-muted-foreground"
                     )}
                   >
                     Priorite {r.priority}

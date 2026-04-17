@@ -145,8 +145,8 @@ export default function LinkedinPage() {
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-2">
-          <Linkedin className="h-5 w-5 text-[#0A66C2]" />
-          <h1 className="text-2xl font-bold">LinkedIn</h1>
+          <Linkedin className="h-5 w-5 text-foreground" />
+          <h1 className="text-2xl font-bold tracking-tight">LinkedIn</h1>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
           Optimisez votre profil LinkedIn et planifiez votre strategie de contenu.
@@ -156,7 +156,7 @@ export default function LinkedinPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="import" className="flex items-center gap-1">
-            {hasProfile && <CheckCircle2 className="h-3 w-3 text-green-500" />}
+            {hasProfile && <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
             Import
           </TabsTrigger>
           <TabsTrigger value="audit" disabled={!hasProfile}>
@@ -173,15 +173,15 @@ export default function LinkedinPage() {
         <TabsContent value="import" className="mt-6">
           {hasProfile ? (
             <div className="space-y-4">
-              <div className="rounded-lg border bg-green-50 p-4">
+              <div className="rounded-lg border bg-emerald-500/10 p-4">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  <p className="text-sm font-medium text-green-800">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
                     Profil LinkedIn importe avec succes
                   </p>
                 </div>
                 {profile.headline && (
-                  <p className="mt-2 text-sm text-green-700">
+                  <p className="mt-2 text-sm text-foreground">
                     {profile.headline}
                   </p>
                 )}

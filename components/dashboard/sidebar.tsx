@@ -47,13 +47,13 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col bg-slate-900">
+    <div className="flex h-full flex-col bg-black text-white dark:bg-white dark:text-black">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-          <span className="text-sm font-bold text-white">K</span>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black dark:bg-black dark:text-white">
+          <span className="text-sm font-bold">K</span>
         </div>
-        <span className="text-lg font-semibold text-white">Kandid</span>
+        <span className="text-lg font-bold tracking-tight">Kandid</span>
       </div>
 
       {/* Navigation */}
@@ -69,10 +69,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-white text-black dark:bg-black dark:text-white'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white dark:text-black/70 dark:hover:bg-black/10 dark:hover:text-black'
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
@@ -83,8 +83,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-slate-700 px-6 py-4">
-        <p className="text-xs text-slate-400">Beta gratuite</p>
+      <div className="border-t border-white/10 dark:border-black/10 px-6 py-4">
+        <p className="text-xs text-white/60 dark:text-black/60">Beta gratuite</p>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import {
   createJobMatch,
 } from "@/lib/db/kandid-queries";
 import { matchJobWithRetry, matchJobStructured } from "@/lib/ai/match-job";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { ExtractedProfile } from "@/lib/ai/analyze-cv";
 import type { JobMatchResult, StructuredMatchResult } from "@/lib/ai/match-job";
 
@@ -26,6 +27,9 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   }
+
+  const rateLimited = await checkRateLimit(userId, 'ai');
+  if (rateLimited) return rateLimited;
 
   // ── 2. Parse body ─────────────────────────────────────────────────────
   let body: { jobId?: string; cvAnalysisId?: string };
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
   // ── 3. Check cache ────────────────────────────────────────────────────
   try {
     const cachedMatch = await getJobMatch(cvAnalysisId, jobId);
-    if (cachedMatch) {
+    if (cachedMatch && cachedMatch.userId === userId) {
       const reqs = cachedMatch.requirements as Record<string, unknown> | null;
       const isV2 = reqs && typeof reqs === "object" && reqs.matchVersion === 2;
 

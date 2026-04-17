@@ -40,7 +40,7 @@ export function NotesEditor({
         className="resize-y"
       />
       {saved && (
-        <p className="text-xs text-green-600">Sauvegardé</p>
+        <p className="text-xs text-emerald-700 dark:text-emerald-400">Sauvegardé</p>
       )}
     </div>
   );

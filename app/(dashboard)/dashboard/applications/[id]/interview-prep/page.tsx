@@ -37,18 +37,18 @@ const categoryConfig: Record<
   InterviewPrepQuestion["category"],
   { label: string; className: string }
 > = {
-  technical: { label: "Technique", className: "bg-blue-100 text-blue-800" },
+  technical: { label: "Technique", className: "bg-muted text-foreground" },
   behavioral: {
     label: "Comportemental",
-    className: "bg-green-100 text-green-800",
+    className: "bg-muted text-foreground",
   },
   role_specific: {
     label: "Poste",
-    className: "bg-purple-100 text-purple-800",
+    className: "bg-muted text-foreground",
   },
   red_flag: {
     label: "Point sensible",
-    className: "bg-red-100 text-red-800",
+    className: "bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400",
   },
 };
 
@@ -56,9 +56,9 @@ const priorityConfig: Record<
   TechnicalChecklistItem["priority"],
   { label: string; className: string }
 > = {
-  high: { label: "Haute", className: "bg-red-100 text-red-800" },
-  medium: { label: "Moyenne", className: "bg-orange-100 text-orange-800" },
-  low: { label: "Basse", className: "bg-gray-100 text-gray-600" },
+  high: { label: "Haute", className: "bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400" },
+  medium: { label: "Moyenne", className: "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400" },
+  low: { label: "Basse", className: "bg-muted text-muted-foreground" },
 };
 
 export default function InterviewPrepPage() {
@@ -142,7 +142,7 @@ export default function InterviewPrepPage() {
         </Button>
       </div>
 
-      <h1 className="text-2xl font-bold">Préparation entretien</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Préparation entretien</h1>
 
       {error && (
         <Card className="border-destructive">
@@ -238,7 +238,7 @@ function StoriesSection({ stories }: { stories: InterviewPrepStory[] }) {
               <AccordionContent>
                 <div className="space-y-3">
                   {story.likelyQuestion && (
-                    <div className="rounded-md bg-muted p-3 text-sm">
+                    <div className="rounded-lg bg-muted p-3 text-sm">
                       <span className="font-medium">Question probable :</span>{" "}
                       {story.likelyQuestion}
                     </div>
@@ -332,7 +332,7 @@ function QuestionsSection({
                 {qs.map((q, i) => (
                   <div
                     key={i}
-                    className="rounded-md border p-3 space-y-1.5 text-sm"
+                    className="rounded-lg border p-3 space-y-1.5 text-sm"
                   >
                     <p className="font-medium">{q.question}</p>
                     <p className="text-muted-foreground">
@@ -458,7 +458,7 @@ function ChecklistSection({ items }: { items: TechnicalChecklistItem[] }) {
             return (
               <div
                 key={i}
-                className="flex items-start gap-3 rounded-md border p-3"
+                className="flex items-start gap-3 rounded-lg border p-3"
               >
                 <Badge
                   variant="outline"

@@ -54,7 +54,7 @@ function ScoreBar({
         />
       </div>
       {hint && (
-        <p className="text-xs text-amber-600">
+        <p className="text-xs text-muted-foreground">
           <Link href={hint} className="hover:underline">
             {label.includes('CV')
               ? 'Analysez votre CV →'
@@ -108,7 +108,7 @@ export async function EmployabilityScoreWidget({
           <ScoreBar
             label="Profil"
             value={profileCompleteness}
-            hint={profileCompleteness < 100 ? '/dashboard/profile' : undefined}
+            hint={profileCompleteness < 100 ? '/dashboard/settings' : undefined}
           />
           <ScoreBar
             label="Qualité CV"

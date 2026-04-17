@@ -33,7 +33,34 @@ import { isValidTransition, computeNextFollowUpDate } from '../cadence';
 
 export async function getUserById(id: string) {
   const result = await db
-    .select()
+    .select({
+      id: users.id,
+      email: users.email,
+      fullName: users.fullName,
+      avatarUrl: users.avatarUrl,
+      photoUrl: users.photoUrl,
+      plan: users.plan,
+      activeCvAnalysisId: users.activeCvAnalysisId,
+      preferredCantons: users.preferredCantons,
+      preferredActivityRate: users.preferredActivityRate,
+      weeklyDigestEnabled: users.weeklyDigestEnabled,
+      sector: users.sector,
+      position: users.position,
+      experienceLevel: users.experienceLevel,
+      targetCantons: users.targetCantons,
+      languages: users.languages,
+      salaryExpectation: users.salaryExpectation,
+      availability: users.availability,
+      contractTypes: users.contractTypes,
+      careerSummary: users.careerSummary,
+      strengths: users.strengths,
+      motivation: users.motivation,
+      differentiator: users.differentiator,
+      onboardingStep: users.onboardingStep,
+      onboardingCompletedAt: users.onboardingCompletedAt,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    })
     .from(users)
     .where(eq(users.id, id))
     .limit(1);
@@ -748,7 +775,7 @@ export async function createApplication(data: {
   jobTitle?: string;
   jobCompany?: string;
   jobDescription?: string;
-  status?: string;
+  status?: ApplicationStatus;
 }) {
   const [app] = await db
     .insert(applications)
@@ -836,7 +863,7 @@ export async function updateApplication(
     referencesPageUrl: string | null;
     dossierUrl: string | null;
     dossierMode: string | null;
-    status: string;
+    status: ApplicationStatus;
   }>
 ) {
   const result = await db
@@ -876,9 +903,11 @@ export async function countApplicationsByUser(userId: string) {
 export async function logAiGeneration(
   userId: string,
   type: string,
-  applicationId: string,
+  applicationId: string | null,
   usage?: { promptTokens: number; completionTokens: number; totalTokens: number }
 ) {
+  if (!applicationId) return null;
+
   const promptCost = (usage?.promptTokens || 0) * 2.50 / 1_000_000;
   const completionCost = (usage?.completionTokens || 0) * 10.00 / 1_000_000;
   const totalCost = promptCost + completionCost;
@@ -1393,10 +1422,20 @@ export async function upsertLinkedinProfile(data: {
         structured: data.structured,
         headline: data.headline ?? null,
         summary: data.summary ?? null,
+        // Reset des champs derives — obsoletes apres un nouveau profil
+        auditScore: null,
+        auditResult: null,
+        optimizedHeadline: null,
+        optimizedSummary: null,
         updatedAt: new Date(),
       },
     })
     .returning();
+
+  // Supprime les posts generes pour l'ancien profil
+  await db
+    .delete(linkedinPosts)
+    .where(eq(linkedinPosts.userId, data.userId));
 
   return profile;
 }

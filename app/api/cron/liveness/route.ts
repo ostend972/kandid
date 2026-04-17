@@ -7,7 +7,6 @@ export const maxDuration = 600;
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
-  const querySecret = request.nextUrl.searchParams.get("secret");
   const cronSecret = process.env.CRON_SECRET;
 
   if (!cronSecret) {
@@ -17,7 +16,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const providedSecret = authHeader?.replace("Bearer ", "") || querySecret;
+  const providedSecret = authHeader?.replace("Bearer ", "");
   if (providedSecret !== cronSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -73,9 +72,10 @@ export async function GET(request: NextRequest) {
     });
 
     child.on("error", (err) => {
+      console.error("[cron/liveness] Process spawn error:", err);
       resolve(
         NextResponse.json(
-          { error: `Failed to spawn batch process: ${err.message}` },
+          { error: "Failed to spawn batch process" },
           { status: 500 },
         ),
       );

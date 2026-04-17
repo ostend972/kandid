@@ -24,10 +24,10 @@ const contentTypeConfig: Record<
   string,
   { label: string; color: string }
 > = {
-  expertise: { label: "Expertise", color: "bg-blue-100 text-blue-700" },
-  actualite: { label: "Actualite", color: "bg-purple-100 text-purple-700" },
-  success_story: { label: "Success Story", color: "bg-green-100 text-green-700" },
-  recommandation: { label: "Recommandation", color: "bg-amber-100 text-amber-700" },
+  expertise: { label: "Expertise", color: "bg-muted text-foreground" },
+  actualite: { label: "Actualite", color: "bg-muted text-foreground" },
+  success_story: { label: "Success Story", color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" },
+  recommandation: { label: "Recommandation", color: "bg-muted text-foreground" },
 };
 
 const dayOrder = ["lundi", "mardi", "mercredi", "jeudi", "vendredi"];
@@ -48,7 +48,7 @@ function PostCard({
 
   const typeConfig = contentTypeConfig[post.contentType] ?? {
     label: post.contentType,
-    color: "bg-gray-100 text-gray-700",
+    color: "bg-muted text-muted-foreground",
   };
 
   async function handleSave() {
@@ -99,7 +99,7 @@ function PostCard({
           {editing ? (
             <>
               <textarea
-                className="w-full rounded-md border p-3 text-sm min-h-[200px] resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full rounded-lg border p-3 text-sm min-h-[200px] resize-y focus:outline-none focus:ring-2 focus:ring-ring"
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
               />

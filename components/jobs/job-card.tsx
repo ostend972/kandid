@@ -74,25 +74,25 @@ export function JobCard({
         }
       }}
       className={cn(
-        'relative rounded-lg border bg-card p-4 cursor-pointer transition-all hover:shadow-md',
+        'relative rounded-lg border bg-card p-4 cursor-pointer transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]',
         isActive
-          ? 'border-indigo-500 ring-1 ring-indigo-500 shadow-md'
-          : 'border-border hover:border-gray-300'
+          ? 'border-foreground ring-1 ring-foreground shadow-[0_4px_16px_rgba(0,0,0,0.08)]'
+          : 'border-border hover:border-foreground/40'
       )}
     >
       {/* Top row: title + match badge */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm text-gray-900 leading-tight line-clamp-2">
+          <h3 className="font-semibold text-sm text-foreground leading-tight line-clamp-2">
             {job.title}
           </h3>
-          <p className="text-sm text-gray-600 mt-0.5 line-clamp-1">{job.company}</p>
+          <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{job.company}</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {isApplied && (
             <Badge
               variant="secondary"
-              className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 py-0 gap-1"
+              className="bg-muted text-foreground border-border text-xs px-2 py-0 gap-1"
             >
               <CheckCircle2 className="h-3 w-3" />
               Postulé
@@ -103,7 +103,7 @@ export function JobCard({
       </div>
 
       {/* Meta row */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           {job.canton}
@@ -127,12 +127,7 @@ export function JobCard({
           {job.contractType && (
             <Badge
               variant="secondary"
-              className={cn(
-                'text-xs px-2 py-0',
-                job.contractType === 'CDI'
-                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                  : 'bg-amber-50 text-amber-700 border-amber-200'
-              )}
+              className="text-xs px-2 py-0 bg-muted text-foreground border-border"
             >
               {job.contractType}
             </Badge>
@@ -146,8 +141,8 @@ export function JobCard({
           className={cn(
             'h-7 w-7 shrink-0',
             isSaved
-              ? 'text-indigo-600 hover:text-indigo-700'
-              : 'text-gray-400 hover:text-gray-600'
+              ? 'text-foreground hover:text-foreground'
+              : 'text-muted-foreground hover:text-foreground'
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -174,18 +169,18 @@ export function JobCardSkeleton() {
     <div className="rounded-lg border bg-card p-4 animate-pulse">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-3/4" />
-          <div className="h-3.5 bg-gray-200 rounded w-1/2" />
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3.5 bg-muted rounded w-1/2" />
         </div>
-        <div className="h-5 w-16 bg-gray-200 rounded-full" />
+        <div className="h-5 w-16 bg-muted rounded-full" />
       </div>
       <div className="flex items-center gap-3 mt-3">
-        <div className="h-3 bg-gray-200 rounded w-20" />
-        <div className="h-3 bg-gray-200 rounded w-24" />
+        <div className="h-3 bg-muted rounded w-20" />
+        <div className="h-3 bg-muted rounded w-24" />
       </div>
       <div className="flex items-center justify-between mt-3">
-        <div className="h-5 w-12 bg-gray-200 rounded-full" />
-        <div className="h-7 w-7 bg-gray-200 rounded" />
+        <div className="h-5 w-12 bg-muted rounded-full" />
+        <div className="h-7 w-7 bg-muted rounded" />
       </div>
     </div>
   );

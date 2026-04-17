@@ -8,7 +8,7 @@ export default function JobsPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
+          <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full" />
         </div>
       }
     >

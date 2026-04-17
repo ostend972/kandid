@@ -144,7 +144,7 @@ export function JobsPageContent() {
     <div className="space-y-4">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Offres d'emploi
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -156,9 +156,9 @@ export function JobsPageContent() {
 
       {/* No CV banner */}
       {detailData && !detailData.hasCvAnalysis && (
-        <div className="flex items-center gap-3 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3">
-          <FileText className="h-5 w-5 text-indigo-600 shrink-0" />
-          <p className="text-sm text-indigo-800 flex-1">
+        <div className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3">
+          <FileText className="h-5 w-5 text-foreground shrink-0" />
+          <p className="text-sm text-foreground flex-1">
             Analysez votre CV pour voir votre compatibilite avec chaque offre
           </p>
           <Button asChild size="sm" variant="outline" className="shrink-0">
@@ -182,41 +182,31 @@ export function JobsPageContent() {
                   <JobCardSkeleton key={i} />
                 ))
               ) : jobsData && jobsData.jobs.length > 0 ? (
-                // Job cards
                 jobsData.jobs.map((job) => (
-                  <div key={job.id}>
-                    {/* Desktop: select in split view */}
-                    <div className="hidden lg:block">
-                      <JobCard
-                        job={job}
-                        isActive={selectedJobId === job.id}
-                        isSaved={savedJobIds.has(job.id)}
-                        isApplied={appliedJobIds.has(job.id)}
-                        onSelect={() => handleSelectJob(job.id)}
-                        onToggleSave={() => handleToggleSave(job.id)}
-                      />
-                    </div>
-                    {/* Mobile: navigate to detail page */}
-                    <div className="lg:hidden">
-                      <JobCard
-                        job={job}
-                        isActive={false}
-                        isSaved={savedJobIds.has(job.id)}
-                        isApplied={appliedJobIds.has(job.id)}
-                        onSelect={() => handleSelectJobMobile(job.id)}
-                        onToggleSave={() => handleToggleSave(job.id)}
-                      />
-                    </div>
-                  </div>
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    isActive={selectedJobId === job.id}
+                    isSaved={savedJobIds.has(job.id)}
+                    isApplied={appliedJobIds.has(job.id)}
+                    onSelect={() => {
+                      if (window.matchMedia('(min-width: 1024px)').matches) {
+                        handleSelectJob(job.id);
+                      } else {
+                        handleSelectJobMobile(job.id);
+                      }
+                    }}
+                    onToggleSave={() => handleToggleSave(job.id)}
+                  />
                 ))
               ) : (
                 // Empty state
                 <div className="flex flex-col items-center py-16 text-center">
-                  <SearchX className="h-12 w-12 text-gray-300 mb-4" />
-                  <h3 className="text-base font-semibold text-gray-600">
+                  <SearchX className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-base font-semibold text-foreground">
                     Aucune offre ne correspond a vos filtres
                   </h3>
-                  <p className="text-sm text-gray-400 mt-2 max-w-xs">
+                  <p className="text-sm text-muted-foreground mt-2 max-w-xs">
                     Essayez d'elargir votre recherche ou de modifier vos
                     criteres de filtrage.
                   </p>
@@ -237,7 +227,7 @@ export function JobsPageContent() {
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Precedent
               </Button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-muted-foreground">
                 Page {currentPage} sur {totalPages}
               </span>
               <Button

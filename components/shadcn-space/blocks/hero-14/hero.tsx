@@ -11,7 +11,7 @@ const HeroSection = () => {
           playsInline
           autoPlay
           muted
-          poster="/hero-poster.jpg"
+          poster=""
           className="absolute top-0 left-0 w-full h-full object-cover rounded-3xl"
         />
         <div className="absolute inset-0 w-full h-full rounded-3xl pointer-events-none bg-linear-to-t from-gray-950 to-50% to-gray-950/0" />

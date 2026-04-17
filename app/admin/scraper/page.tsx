@@ -133,20 +133,7 @@ function formatDateTime(dateStr: string | null): string {
   });
 }
 
-function sanitizeHtml(html: string): string {
-  let clean = html;
-  clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
-  clean = clean.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "");
-  clean = clean.replace(/<img\b[^>]*>/gi, "");
-  clean = clean.replace(/<link\b[^>]*>/gi, "");
-  clean = clean.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
-  clean = clean.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, 'href="#"');
-  clean = clean.replace(/\s+style\s*=\s*"[^"]*"/gi, "");
-  clean = clean.replace(/\s+style\s*=\s*'[^']*'/gi, "");
-  clean = clean.replace(/\s+class\s*=\s*"[^"]*"/gi, "");
-  clean = clean.replace(/\s+class\s*=\s*'[^']*'/gi, "");
-  return clean;
-}
+import { sanitizeHtml } from "@/lib/sanitize";
 
 function StatusBadge({ status }: { status: string | null }) {
   if (!status) return <span>---</span>;

@@ -5,6 +5,15 @@ export const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = "Kandid <noreply@kandid.ch>";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://kandid.ch";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // =============================================================================
 // Send Functions
 // =============================================================================
@@ -259,13 +268,16 @@ function buildDossierEmailHtml(params: {
   company: string;
   body?: string;
 }): string {
-  const bodyText =
-    params.body ||
-    `Veuillez trouver ci-joint le dossier de candidature de ${params.candidateName} pour le poste de ${params.jobTitle} chez ${params.company}.`;
+  const safeCandidate = escapeHtml(params.candidateName);
+  const safeJobTitle = escapeHtml(params.jobTitle);
+  const safeCompany = escapeHtml(params.company);
+  const bodyText = params.body
+    ? escapeHtml(params.body)
+    : `Veuillez trouver ci-joint le dossier de candidature de ${safeCandidate} pour le poste de ${safeJobTitle} chez ${safeCompany}.`;
 
   const content = `
     <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#18181b;">
-      Candidature — ${params.jobTitle}
+      Candidature — ${safeJobTitle}
     </h1>
     <p style="margin:0 0 16px;font-size:15px;color:#3f3f46;line-height:1.6;">
       ${bodyText}
@@ -274,14 +286,14 @@ function buildDossierEmailHtml(params: {
       <tr>
         <td style="padding:12px 16px;background-color:#f4f4f5;border-radius:8px;">
           <p style="margin:0 0 4px;font-size:13px;color:#71717a;">Candidat</p>
-          <p style="margin:0;font-size:15px;font-weight:600;color:#18181b;">${params.candidateName}</p>
+          <p style="margin:0;font-size:15px;font-weight:600;color:#18181b;">${safeCandidate}</p>
         </td>
       </tr>
       <tr><td style="height:8px;"></td></tr>
       <tr>
         <td style="padding:12px 16px;background-color:#f4f4f5;border-radius:8px;">
           <p style="margin:0 0 4px;font-size:13px;color:#71717a;">Poste</p>
-          <p style="margin:0;font-size:15px;font-weight:600;color:#18181b;">${params.jobTitle} — ${params.company}</p>
+          <p style="margin:0;font-size:15px;font-weight:600;color:#18181b;">${safeJobTitle} — ${safeCompany}</p>
         </td>
       </tr>
     </table>
@@ -357,21 +369,27 @@ function buildSearchAlertHtml(params: {
   searchName: string;
   newJobs: Array<{ title: string; company: string; canton: string; url?: string }>;
 }): string {
-  const greeting = params.firstName ? `Bonjour ${params.firstName},` : "Bonjour,";
+  const safeFirstName = params.firstName ? escapeHtml(params.firstName) : "";
+  const greeting = safeFirstName ? `Bonjour ${safeFirstName},` : "Bonjour,";
   const count = params.newJobs.length;
 
   const jobRows = params.newJobs
     .slice(0, 10)
     .map(
-      (job) => `
+      (job) => {
+        const safeTitle = escapeHtml(job.title);
+        const safeCompany = escapeHtml(job.company);
+        const safeCanton = escapeHtml(job.canton);
+        return `
       <tr>
         <td style="padding:10px 12px;border-bottom:1px solid #e4e4e7;">
           <p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#18181b;">
-            ${job.url ? `<a href="${APP_URL}${job.url}" style="color:#18181b;text-decoration:none;">${job.title}</a>` : job.title}
+            ${job.url ? `<a href="${APP_URL}${escapeHtml(job.url)}" style="color:#18181b;text-decoration:none;">${safeTitle}</a>` : safeTitle}
           </p>
-          <p style="margin:0;font-size:13px;color:#71717a;">${job.company} — ${job.canton}</p>
+          <p style="margin:0;font-size:13px;color:#71717a;">${safeCompany} — ${safeCanton}</p>
         </td>
-      </tr>`
+      </tr>`;
+      }
     )
     .join("");
 
@@ -385,7 +403,7 @@ function buildSearchAlertHtml(params: {
       ${greeting}
     </h1>
     <p style="margin:0 0 16px;font-size:15px;color:#3f3f46;line-height:1.6;">
-      <strong>${count} nouvelle${count > 1 ? "s" : ""} offre${count > 1 ? "s" : ""}</strong> correspondent à votre recherche sauvegardée <strong>"${params.searchName}"</strong>.
+      <strong>${count} nouvelle${count > 1 ? "s" : ""} offre${count > 1 ? "s" : ""}</strong> correspondent à votre recherche sauvegardée <strong>"${escapeHtml(params.searchName)}"</strong>.
     </p>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #e4e4e7;border-radius:8px;overflow:hidden;margin:0 0 16px;">
       ${jobRows}

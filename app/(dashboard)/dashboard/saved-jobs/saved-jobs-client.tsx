@@ -32,20 +32,20 @@ export function SortToggle({ currentSort }: SortToggleProps) {
       <span className="text-muted-foreground">Trier par :</span>
       <button
         onClick={() => setSort('date')}
-        className={`rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${
+        className={`rounded-full px-2.5 py-1 text-sm font-medium transition-colors ${
           currentSort === 'date'
-            ? 'bg-gray-900 text-white'
-            : 'text-gray-600 hover:bg-gray-100'
+            ? 'bg-black text-white dark:bg-white dark:text-black'
+            : 'text-muted-foreground hover:bg-muted'
         }`}
       >
         Date
       </button>
       <button
         onClick={() => setSort('score')}
-        className={`rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${
+        className={`rounded-full px-2.5 py-1 text-sm font-medium transition-colors ${
           currentSort === 'score'
-            ? 'bg-gray-900 text-white'
-            : 'text-gray-600 hover:bg-gray-100'
+            ? 'bg-black text-white dark:bg-white dark:text-black'
+            : 'text-muted-foreground hover:bg-muted'
         }`}
       >
         Pertinence

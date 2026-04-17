@@ -36,15 +36,8 @@ import { GET } from '@/app/api/cron/search-alerts/route';
 import { NextRequest } from 'next/server';
 
 function makeCronRequest(secret?: string): NextRequest {
-  const url = secret
-    ? `http://localhost:3000/api/cron/search-alerts?secret=${secret}`
-    : 'http://localhost:3000/api/cron/search-alerts';
-  return new NextRequest(url);
-}
-
-function makeCronRequestWithHeader(secret: string): NextRequest {
   return new NextRequest('http://localhost:3000/api/cron/search-alerts', {
-    headers: { authorization: `Bearer ${secret}` },
+    headers: secret ? { authorization: `Bearer ${secret}` } : {},
   });
 }
 
@@ -69,15 +62,9 @@ describe('Cron: search-alerts', () => {
       expect(res.status).toBe(401);
     });
 
-    it('accepts query param secret', async () => {
-      mockGetSavedSearchesWithAlerts.mockResolvedValue([]);
-      const res = await GET(makeCronRequest(CRON_SECRET));
-      expect(res.status).toBe(200);
-    });
-
     it('accepts Bearer token', async () => {
       mockGetSavedSearchesWithAlerts.mockResolvedValue([]);
-      const res = await GET(makeCronRequestWithHeader(CRON_SECRET));
+      const res = await GET(makeCronRequest(CRON_SECRET));
       expect(res.status).toBe(200);
     });
 

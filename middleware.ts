@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { verifyBridgeCookie } from "@/lib/bridge-cookie";
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
@@ -15,12 +16,13 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
-  // Onboarding gate — redirect non-onboarded users (D001: uses sessionClaims, not DB)
   const isOnboardingRoute = req.nextUrl.pathname.startsWith("/onboarding");
   if (isProtectedRoute(req) && !isOnboardingRoute) {
-    const { sessionClaims } = await auth();
+    const { sessionClaims, userId } = await auth();
     const metadata = sessionClaims?.metadata as Record<string, unknown> | undefined;
-    if (!metadata?.onboardingComplete) {
+    const cookieValue = req.cookies.get("onboarding_complete")?.value;
+    const hasBridgeCookie = userId && cookieValue ? await verifyBridgeCookie(cookieValue, userId) : false;
+    if (!metadata?.onboardingComplete && !hasBridgeCookie) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
   }
@@ -31,17 +33,14 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
 
-    // Fetch user from Clerk to check public_metadata.role
     try {
       const client = await clerkClient();
       const user = await client.users.getUser(userId);
       const role = (user.publicMetadata as Record<string, unknown>)?.role;
-      console.log('[ADMIN MIDDLEWARE] userId:', userId, 'role:', role);
       if (role !== "admin") {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
-    } catch (err) {
-      console.error('[ADMIN MIDDLEWARE] Error:', err);
+    } catch {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }

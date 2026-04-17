@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { stripe } from '../payments/stripe';
 import { db } from './drizzle';
 import {
@@ -45,8 +46,11 @@ async function createStripeProducts() {
 
 async function seed() {
   const email = 'test@test.com';
-  const password = 'admin123';
+  const password = process.env.SEED_PASSWORD || crypto.randomUUID();
   const passwordHash = hashSync(password, 10);
+  if (!process.env.SEED_PASSWORD) {
+    console.log(`Generated seed password (save it): ${password}`);
+  }
 
   const [user] = await db
     .insert(users)

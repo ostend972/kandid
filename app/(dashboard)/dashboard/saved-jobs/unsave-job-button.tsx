@@ -24,7 +24,7 @@ export function UnsaveJobButton({ jobId }: UnsaveJobButtonProps) {
       size="icon"
       onClick={handleUnsave}
       disabled={isPending}
-      className="text-gray-400 hover:text-red-600 shrink-0"
+      className="text-muted-foreground hover:text-destructive shrink-0"
       title="Retirer des offres sauvegardees"
     >
       {isPending ? (

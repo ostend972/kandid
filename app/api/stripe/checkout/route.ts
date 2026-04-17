@@ -3,9 +3,15 @@ import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
+import { auth } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 
 export async function GET(request: NextRequest) {
+  const { userId: authedUserId } = await auth();
+  if (!authedUserId) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const sessionId = searchParams.get('session_id');
 
@@ -20,6 +26,11 @@ export async function GET(request: NextRequest) {
 
     if (!session.customer || typeof session.customer === 'string') {
       throw new Error('Invalid customer data from Stripe.');
+    }
+
+    const userId = session.client_reference_id;
+    if (!userId || userId !== authedUserId) {
+      throw new Error('Session does not belong to authenticated user.');
     }
 
     const customerId = session.customer.id;
@@ -42,13 +53,6 @@ export async function GET(request: NextRequest) {
       throw new Error('No plan found for this subscription.');
     }
 
-    // The client_reference_id is the Clerk user ID
-    const userId = session.client_reference_id;
-    if (!userId) {
-      throw new Error("No user ID found in session's client_reference_id.");
-    }
-
-    // Update the Kandid users table with Stripe info
     await db
       .update(users)
       .set({

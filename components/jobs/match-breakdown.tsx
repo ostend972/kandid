@@ -82,9 +82,9 @@ function getVerdictConfig(verdict: string, score: number) {
     return {
       label: 'Correspondance excellente',
       description: 'Votre profil est bien adapte a ce poste.',
-      color: 'text-emerald-700',
-      bgColor: 'bg-emerald-50',
-      borderColor: 'border-emerald-200',
+      color: 'text-emerald-700 dark:text-emerald-400',
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/20',
       progressColor: '[&>div[data-slot=progress-indicator]]:bg-emerald-500',
     };
   }
@@ -92,18 +92,18 @@ function getVerdictConfig(verdict: string, score: number) {
     return {
       label: 'Bon potentiel',
       description: 'Votre profil a du potentiel pour ce poste, avec quelques ajustements.',
-      color: 'text-amber-700',
-      bgColor: 'bg-amber-50',
-      borderColor: 'border-amber-200',
+      color: 'text-amber-700 dark:text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/20',
       progressColor: '[&>div[data-slot=progress-indicator]]:bg-amber-500',
     };
   }
   return {
     label: 'A ameliorer',
     description: 'Votre profil necessite des ameliorations pour ce poste.',
-    color: 'text-red-700',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
+    color: 'text-red-700 dark:text-red-400',
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-500/20',
     progressColor: '[&>div[data-slot=progress-indicator]]:bg-red-500',
   };
 }
@@ -124,21 +124,21 @@ function getStatusIcon(status: string) {
 function getStatusBgColor(status: string) {
   switch (status) {
     case 'met':
-      return 'bg-emerald-50 border-emerald-100';
+      return 'bg-emerald-500/10 border-emerald-500/20';
     case 'partial':
-      return 'bg-amber-50 border-amber-100';
+      return 'bg-amber-500/10 border-amber-500/20';
     case 'not_met':
-      return 'bg-red-50 border-red-100';
+      return 'bg-red-500/10 border-red-500/20';
     default:
-      return 'bg-gray-50 border-gray-100';
+      return 'bg-muted border-border';
   }
 }
 
 function NullBlockFallback() {
   return (
-    <div className="flex items-center gap-2 py-3 px-4 bg-gray-50 rounded-md border border-gray-100">
-      <Info className="h-4 w-4 text-gray-400 shrink-0" />
-      <p className="text-sm text-gray-500 italic">
+    <div className="flex items-center gap-2 py-3 px-4 bg-muted rounded-lg border">
+      <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+      <p className="text-sm text-muted-foreground italic">
         Analyse incomplete pour cette section
       </p>
     </div>
@@ -147,9 +147,9 @@ function NullBlockFallback() {
 
 function PriorityBadge({ priority }: { priority: 'high' | 'medium' | 'low' }) {
   const config = {
-    high: 'bg-red-100 text-red-700 border-red-200',
-    medium: 'bg-amber-100 text-amber-700 border-amber-200',
-    low: 'bg-gray-100 text-gray-600 border-gray-200',
+    high: 'bg-red-500/10 text-red-700 dark:text-red-400 border-transparent',
+    medium: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-transparent',
+    low: 'bg-muted text-muted-foreground border-transparent',
   };
   return (
     <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full border', config[priority])}>
@@ -175,15 +175,15 @@ function BlockARender({ data }: { data: BlockA }) {
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
         {fields.map((f) => (
-          <div key={f.label} className="bg-gray-50 rounded-md px-3 py-2 border border-gray-100">
-            <p className="text-xs text-gray-500">{f.label}</p>
-            <p className="text-sm font-medium text-gray-900">{f.value}</p>
+          <div key={f.label} className="bg-muted rounded-lg px-3 py-2 border border-border">
+            <p className="text-xs text-muted-foreground">{f.label}</p>
+            <p className="text-sm font-medium text-foreground">{f.value}</p>
           </div>
         ))}
       </div>
-      <div className="bg-indigo-50 border border-indigo-100 rounded-md px-4 py-3">
-        <p className="text-sm font-medium text-indigo-700">TL;DR</p>
-        <p className="text-sm text-indigo-600 mt-1">{data.tldr}</p>
+      <div className="bg-muted border rounded-lg px-4 py-3">
+        <p className="text-sm font-medium text-foreground">TL;DR</p>
+        <p className="text-sm text-muted-foreground mt-1">{data.tldr}</p>
       </div>
     </div>
   );
@@ -204,22 +204,22 @@ function BlockBRender({ data }: { data: BlockB }) {
           <div className="flex items-start gap-2.5">
             {getStatusIcon(req.status)}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">{req.requirement}</p>
-              <p className="text-sm text-gray-600 mt-1 leading-relaxed">{req.explanation}</p>
+              <p className="text-sm font-medium text-foreground">{req.requirement}</p>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{req.explanation}</p>
             </div>
           </div>
           {req.gapAnalysis && (
-            <div className="ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
-              <p className="text-xs font-medium text-gray-500 mb-1">Analyse des ecarts</p>
-              <p className="text-sm text-gray-700 leading-relaxed">{req.gapAnalysis}</p>
+            <div className="ml-[30px] bg-background/70 rounded-lg px-3 py-2 border">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Analyse des ecarts</p>
+              <p className="text-sm text-foreground leading-relaxed">{req.gapAnalysis}</p>
             </div>
           )}
           {req.mitigationStrategy && (
-            <div className="flex items-start gap-2 ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
+            <div className="flex items-start gap-2 ml-[30px] bg-background/70 rounded-lg px-3 py-2 border">
               <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-medium text-gray-500 mb-1">Strategie</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{req.mitigationStrategy}</p>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Strategie</p>
+                <p className="text-sm text-foreground leading-relaxed">{req.mitigationStrategy}</p>
               </div>
             </div>
           )}
@@ -231,19 +231,19 @@ function BlockBRender({ data }: { data: BlockB }) {
 
 function BlockCRender({ data }: { data: BlockC }) {
   const alignmentConfig = {
-    match: { label: 'Alignement', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
-    above: { label: 'Au-dessus', color: 'text-amber-700 bg-amber-50 border-amber-200' },
-    below: { label: 'En-dessous', color: 'text-red-700 bg-red-50 border-red-200' },
+    match: { label: 'Alignement', color: 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border-transparent' },
+    above: { label: 'Au-dessus', color: 'text-amber-700 dark:text-amber-400 bg-amber-500/10 border-transparent' },
+    below: { label: 'En-dessous', color: 'text-red-700 dark:text-red-400 bg-red-500/10 border-transparent' },
   };
   const align = alignmentConfig[data.alignment] ?? alignmentConfig.match;
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-50 rounded-md px-3 py-2 border border-gray-100">
+        <div className="bg-muted rounded-lg px-3 py-2 border border-border">
           <p className="text-xs text-gray-500">Niveau demande</p>
           <p className="text-sm font-medium text-gray-900">{data.detectedLevel}</p>
         </div>
-        <div className="bg-gray-50 rounded-md px-3 py-2 border border-gray-100">
+        <div className="bg-muted rounded-lg px-3 py-2 border border-border">
           <p className="text-xs text-gray-500">Votre niveau</p>
           <p className="text-sm font-medium text-gray-900">{data.candidateLevel}</p>
         </div>
@@ -253,7 +253,7 @@ function BlockCRender({ data }: { data: BlockC }) {
           {align.label}
         </span>
       </div>
-      <p className="text-sm text-gray-700 leading-relaxed">{data.strategy}</p>
+      <p className="text-sm text-foreground leading-relaxed">{data.strategy}</p>
     </div>
   );
 }
@@ -261,36 +261,36 @@ function BlockCRender({ data }: { data: BlockC }) {
 function BlockDRender({ data }: { data: BlockD }) {
   return (
     <div className="space-y-3">
-      <div className="bg-gray-50 rounded-md px-4 py-3 border border-gray-100">
-        <p className="text-xs text-gray-500 mb-1">Fourchette salariale ({data.salaryRange.canton})</p>
-        <p className="text-lg font-semibold text-gray-900">
+      <div className="bg-muted rounded-lg px-4 py-3 border">
+        <p className="text-xs text-muted-foreground mb-1">Fourchette salariale ({data.salaryRange.canton})</p>
+        <p className="text-lg font-semibold text-foreground">
           {data.salaryRange.currency} {data.salaryRange.min.toLocaleString('fr-CH')} – {data.salaryRange.max.toLocaleString('fr-CH')}
         </p>
       </div>
       <div className="grid grid-cols-1 gap-2 text-sm">
         {data.thirteenthMonth && (
           <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">13e mois:</span>
-            <span className="text-gray-700">{data.thirteenthMonth}</span>
+            <span className="text-muted-foreground shrink-0">13e mois:</span>
+            <span className="text-foreground">{data.thirteenthMonth}</span>
           </div>
         )}
         {data.lppNote && (
           <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">LPP:</span>
-            <span className="text-gray-700">{data.lppNote}</span>
+            <span className="text-muted-foreground shrink-0">LPP:</span>
+            <span className="text-foreground">{data.lppNote}</span>
           </div>
         )}
         {data.cctReference && (
           <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">CCT:</span>
-            <span className="text-gray-700">{data.cctReference}</span>
+            <span className="text-muted-foreground shrink-0">CCT:</span>
+            <span className="text-foreground">{data.cctReference}</span>
           </div>
         )}
         {data.marketContext && (
-          <p className="text-gray-600 leading-relaxed">{data.marketContext}</p>
+          <p className="text-muted-foreground leading-relaxed">{data.marketContext}</p>
         )}
       </div>
-      <p className="text-xs text-gray-400 italic border-t border-gray-100 pt-2">
+      <p className="text-xs text-muted-foreground italic border-t pt-2">
         Base sur les donnees disponibles — a titre indicatif uniquement
       </p>
     </div>
@@ -302,21 +302,21 @@ function BlockERender({ data }: { data: BlockE }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Cible</th>
-            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Section</th>
-            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Etat actuel</th>
-            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Recommandation</th>
-            <th className="text-left py-2 px-2 text-xs font-medium text-gray-500">Priorite</th>
+          <tr className="border-b">
+            <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Cible</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Section</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Etat actuel</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Recommandation</th>
+            <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground">Priorite</th>
           </tr>
         </thead>
         <tbody>
           {data.changes.map((change, i) => (
-            <tr key={i} className="border-b border-gray-100 last:border-0">
-              <td className="py-2 px-2 text-gray-600 capitalize">{change.target}</td>
-              <td className="py-2 px-2 text-gray-900 font-medium">{change.section}</td>
-              <td className="py-2 px-2 text-gray-600">{change.currentState}</td>
-              <td className="py-2 px-2 text-gray-700">{change.recommendedChange}</td>
+            <tr key={i} className="border-b last:border-0">
+              <td className="py-2 px-2 text-muted-foreground capitalize">{change.target}</td>
+              <td className="py-2 px-2 text-foreground font-medium">{change.section}</td>
+              <td className="py-2 px-2 text-muted-foreground">{change.currentState}</td>
+              <td className="py-2 px-2 text-foreground">{change.recommendedChange}</td>
               <td className="py-2 px-2">
                 <PriorityBadge priority={change.priority} />
               </td>
@@ -339,23 +339,23 @@ function BlockFRender({ data }: { data: BlockF }) {
           <div className="px-4 py-3 space-y-2 text-sm">
             <div>
               <span className="font-medium text-indigo-600">S — </span>
-              <span className="text-gray-700">{story.situation}</span>
+              <span className="text-foreground">{story.situation}</span>
             </div>
             <div>
               <span className="font-medium text-indigo-600">T — </span>
-              <span className="text-gray-700">{story.task}</span>
+              <span className="text-foreground">{story.task}</span>
             </div>
             <div>
               <span className="font-medium text-indigo-600">A — </span>
-              <span className="text-gray-700">{story.action}</span>
+              <span className="text-foreground">{story.action}</span>
             </div>
             <div>
               <span className="font-medium text-indigo-600">R — </span>
-              <span className="text-gray-700">{story.result}</span>
+              <span className="text-foreground">{story.result}</span>
             </div>
             <div>
               <span className="font-medium text-indigo-600">R — </span>
-              <span className="text-gray-700">{story.reflection}</span>
+              <span className="text-foreground">{story.reflection}</span>
             </div>
           </div>
         </div>
@@ -376,7 +376,7 @@ function V1RequirementsList({ requirements }: { requirements: Requirement[] }) {
 
   return (
     <div className="p-4 space-y-3">
-      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
         Connaissances et competences requises
       </h4>
       <div className="space-y-2.5">
@@ -388,14 +388,14 @@ function V1RequirementsList({ requirements }: { requirements: Requirement[] }) {
             <div className="flex items-start gap-2.5">
               {getStatusIcon(req.status)}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900">{req.requirement}</p>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{req.explanation}</p>
+                <p className="text-sm font-medium text-foreground">{req.requirement}</p>
+                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{req.explanation}</p>
               </div>
             </div>
             {req.suggestion && (
-              <div className="flex items-start gap-2 ml-[30px] bg-white/70 rounded-md px-3 py-2 border border-gray-100">
+              <div className="flex items-start gap-2 ml-[30px] bg-background/70 rounded-lg px-3 py-2 border">
                 <Lightbulb className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-700 leading-relaxed">{req.suggestion}</p>
+                <p className="text-sm text-foreground leading-relaxed">{req.suggestion}</p>
               </div>
             )}
           </div>
@@ -437,10 +437,10 @@ function V2AccordionView({ blocks }: { blocks: StructuredMatchResult['blocks'] }
             <AccordionItem key={key} value={`block-${key}`}>
               <AccordionTrigger className="px-1">
                 <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-gray-500" />
+                  <Icon className="h-4 w-4 text-muted-foreground" />
                   <span>{label}</span>
                   {summary && (
-                    <span className="text-xs text-gray-400 font-normal ml-2">{summary}</span>
+                    <span className="text-xs text-muted-foreground font-normal ml-2">{summary}</span>
                   )}
                 </div>
               </AccordionTrigger>
@@ -515,15 +515,15 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-6">
+      <div className="rounded-lg border bg-muted p-6">
         <div className="flex flex-col items-center justify-center gap-3 py-4">
           <div className="relative">
-            <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
-            <Sparkles className="h-4 w-4 text-indigo-400 absolute -top-1 -right-1 animate-pulse" />
+            <Loader2 className="h-8 w-8 text-foreground animate-spin" />
+            <Sparkles className="h-4 w-4 text-muted-foreground absolute -top-1 -right-1 animate-pulse" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-medium text-indigo-700">Analyse en cours...</p>
-            <p className="text-xs text-indigo-500 mt-1">
+            <p className="text-sm font-medium text-foreground">Analyse en cours...</p>
+            <p className="text-xs text-muted-foreground mt-1">
               L'IA compare votre profil avec les exigences du poste
             </p>
           </div>
@@ -534,12 +534,12 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-sm text-red-700">{error}</p>
+      <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+        <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
         <Button
           variant="ghost"
           size="sm"
-          className="text-red-600 hover:text-red-700 mt-2 p-0 h-auto font-medium"
+          className="text-red-700 dark:text-red-400 hover:text-red-800 mt-2 p-0 h-auto font-medium"
           onClick={fetchMatch}
         >
           Reessayer l'analyse
@@ -564,15 +564,15 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
               {verdictConfig.label}
             </span>
           </div>
-          <span className="text-lg font-bold text-gray-900">{result.overallScore}%</span>
+          <span className="text-lg font-bold text-foreground">{result.overallScore}%</span>
         </div>
         <Progress
           value={result.overallScore}
           className={cn('h-2.5', verdictConfig.progressColor)}
         />
-        <p className="text-sm text-gray-600">{verdictConfig.description}</p>
+        <p className="text-sm text-muted-foreground">{verdictConfig.description}</p>
         {result.cached && (
-          <p className="text-xs text-gray-400 italic">
+          <p className="text-xs text-muted-foreground italic">
             Resultat en cache — analyse effectuee precedemment
           </p>
         )}
@@ -586,9 +586,9 @@ export function MatchBreakdown({ jobId, cvAnalysisId, cvFileName, onScoreLoaded 
       )}
 
       {/* Footer */}
-      <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-        <p className="text-xs text-gray-400">
-          Analyse basee sur : <span className="font-medium text-gray-500">{cvFileName}</span>
+      <div className="px-4 py-3 bg-muted border-t">
+        <p className="text-xs text-muted-foreground">
+          Analyse basee sur : <span className="font-medium text-foreground">{cvFileName}</span>
         </p>
       </div>
     </div>

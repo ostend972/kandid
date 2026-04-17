@@ -8,17 +8,17 @@ const TIER_CONFIG: Record<LegitimacyTier, { label: string; icon: typeof ShieldCh
   high: {
     label: 'Fiable',
     icon: ShieldCheck,
-    className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    className: 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400 border-transparent',
   },
   caution: {
     label: 'À vérifier',
     icon: AlertTriangle,
-    className: 'bg-amber-50 text-amber-700 border-amber-200',
+    className: 'bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400 border-transparent',
   },
   suspicious: {
     label: 'Suspect',
     icon: ShieldAlert,
-    className: 'bg-red-50 text-red-700 border-red-200',
+    className: 'bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400 border-transparent',
   },
 };
 

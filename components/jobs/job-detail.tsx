@@ -23,6 +23,8 @@ import { MatchBadge } from './match-badge';
 import { MatchBreakdown } from './match-breakdown';
 import { LegitimacyBadge } from './legitimacy-badge';
 import { cn } from '@/lib/utils';
+import { sourceLabel } from '@/lib/source-label';
+import { formatJobDescription } from '@/lib/format-description';
 
 export interface JobDetailData {
   id: string;
@@ -33,6 +35,7 @@ export interface JobDetailData {
   activityRate: string | null;
   publishedAt: string | null;
   sourceUrl: string;
+  source?: string | null;
   matchScore: number | null;
   description?: string;
   salary?: string | null;
@@ -64,10 +67,10 @@ function getMatchVerdict(score: number): {
   color: string;
 } {
   if (score >= 80)
-    return { label: 'Correspondance excellente', color: 'text-emerald-700' };
+    return { label: 'Correspondance excellente', color: 'text-emerald-700 dark:text-emerald-400' };
   if (score >= 40)
-    return { label: 'Bon potentiel', color: 'text-amber-700' };
-  return { label: 'A ameliorer', color: 'text-red-700' };
+    return { label: 'Bon potentiel', color: 'text-amber-700 dark:text-amber-400' };
+  return { label: 'A ameliorer', color: 'text-red-700 dark:text-red-400' };
 }
 
 function getProgressColor(score: number): string {
@@ -76,32 +79,7 @@ function getProgressColor(score: number): string {
   return '[&>div[data-slot=progress-indicator]]:bg-red-500';
 }
 
-/**
- * Sanitize HTML by stripping script tags and event handlers,
- * keeping basic formatting (p, br, strong, em, ul, li, h1-h6, a, span, div, table, tr, td, th).
- */
-function sanitizeHtml(html: string): string {
-  let clean = html;
-  // Remove script tags and their content
-  clean = clean.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  // Remove style tags and their content
-  clean = clean.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-  // Remove all images (logos, banners, photos from job postings)
-  clean = clean.replace(/<img\b[^>]*>/gi, '');
-  // Remove link tags (CSS imports)
-  clean = clean.replace(/<link\b[^>]*>/gi, '');
-  // Remove event handler attributes
-  clean = clean.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-  // Remove javascript: urls
-  clean = clean.replace(/href\s*=\s*["']javascript:[^"']*["']/gi, 'href="#"');
-  // Remove inline style attributes (they break our layout)
-  clean = clean.replace(/\s+style\s*=\s*"[^"]*"/gi, '');
-  clean = clean.replace(/\s+style\s*=\s*'[^']*'/gi, '');
-  // Remove class attributes from JobUp templates (we apply our own)
-  clean = clean.replace(/\s+class\s*=\s*"[^"]*"/gi, '');
-  clean = clean.replace(/\s+class\s*=\s*'[^']*'/gi, '');
-  return clean;
-}
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export function JobDetail({
   job,
@@ -124,11 +102,11 @@ export function JobDetail({
   if (!job) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
-        <FileText className="h-16 w-16 text-gray-300 mb-4" />
-        <h3 className="text-lg font-semibold text-gray-500">
+        <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-semibold text-foreground">
           Selectionnez une offre pour voir les details
         </h3>
-        <p className="text-sm text-gray-400 mt-2 max-w-xs">
+        <p className="text-sm text-muted-foreground mt-2 max-w-xs">
           Cliquez sur une offre dans la liste pour afficher ses details ici.
         </p>
       </div>
@@ -144,14 +122,14 @@ export function JobDetail({
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-bold text-gray-900 leading-tight">
+            <h2 className="text-xl font-bold tracking-tight text-foreground leading-tight">
               {job.title}
             </h2>
             <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center justify-center h-8 w-8 rounded-md bg-gray-100">
-                <Building2 className="h-4 w-4 text-gray-500" />
+              <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-muted">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
               </div>
-              <span className="text-base text-gray-700 font-medium">
+              <span className="text-base text-foreground font-medium">
                 {job.company}
               </span>
             </div>
@@ -160,38 +138,33 @@ export function JobDetail({
         </div>
 
         {/* Meta tags */}
-        <div className="flex flex-wrap items-center gap-3 mt-4 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-3 mt-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <MapPin className="h-4 w-4 text-gray-400" />
+            <MapPin className="h-4 w-4 text-muted-foreground" />
             {job.canton}
           </span>
           {job.publishedAt && (
             <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-gray-400" />
+              <Calendar className="h-4 w-4 text-muted-foreground" />
               {formatDate(job.publishedAt)}
             </span>
           )}
           {job.contractType && (
             <Badge
               variant="secondary"
-              className={cn(
-                'text-xs',
-                job.contractType === 'CDI'
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'bg-amber-50 text-amber-700'
-              )}
+              className="text-xs bg-muted text-foreground"
             >
               {job.contractType}
             </Badge>
           )}
           {job.activityRate && (
             <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-gray-400" />
+              <Clock className="h-4 w-4 text-muted-foreground" />
               {job.activityRate}
             </span>
           )}
           {job.salary && (
-            <span className="text-gray-700 font-medium">{job.salary}</span>
+            <span className="text-foreground font-medium">{job.salary}</span>
           )}
           <LegitimacyBadge tier={job.legitimacyTier ?? null} score={job.legitimacyScore} />
         </div>
@@ -212,8 +185,8 @@ export function JobDetail({
             />
           ) : (
             /* Quick algorithmic match summary */
-            <div className="rounded-lg border bg-gray-50 p-4 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <div className="rounded-lg border bg-muted p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <BarChart3 className="h-4 w-4" />
                 Compatibilite avec votre profil
               </div>
@@ -222,7 +195,7 @@ export function JobDetail({
                   <span className={cn('font-medium', matchVerdict.color)}>
                     {matchVerdict.label}
                   </span>
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-foreground">
                     {job.matchScore}%
                   </span>
                 </div>
@@ -235,7 +208,7 @@ export function JobDetail({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-indigo-600 hover:text-indigo-700 p-0 h-auto font-medium"
+                  className="text-foreground hover:text-foreground p-0 h-auto font-medium"
                   onClick={() => setShowBreakdown(true)}
                 >
                   Voir l'analyse detaillee
@@ -251,7 +224,7 @@ export function JobDetail({
       {/* Job description */}
       {job.description && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">
             Description du poste
           </h3>
           <div
@@ -261,12 +234,12 @@ export function JobDetail({
               [&_h1]:text-lg [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2
               [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-2
               [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1
-              [&_p]:text-sm [&_p]:text-gray-700 [&_p]:leading-relaxed [&_p]:my-1.5
+              [&_p]:text-sm [&_p]:text-foreground [&_p]:leading-relaxed [&_p]:my-1.5
               [&_br]:block [&_br]:content-[''] [&_br]:my-1
               [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2
               [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2
-              [&_li]:text-sm [&_li]:text-gray-700 [&_li]:my-0.5
-              [&_a]:text-indigo-600 [&_a]:underline
+              [&_li]:text-sm [&_li]:text-foreground [&_li]:my-0.5
+              [&_a]:text-foreground [&_a]:underline
               [&_strong]:font-semibold
               [&_table]:w-full [&_table]:text-sm
               [&_td]:p-1 [&_th]:p-1 [&_th]:text-left [&_th]:font-semibold
@@ -277,7 +250,7 @@ export function JobDetail({
               [&_.C_PHEADHTML]:text-sm [&_.C_PHEADHTML]:leading-relaxed [&_.C_PHEADHTML]:my-2
               [&_.C_PLOGOHTML]:hidden"
             dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(job.description),
+              __html: sanitizeHtml(formatJobDescription(job.description)),
             }}
           />
         </div>
@@ -295,7 +268,7 @@ export function JobDetail({
             cvAnalysisId={cvAnalysisId}
             jobSourceUrl={job.sourceUrl}
             trigger={
-              <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-none">
+              <Button className="flex-1 sm:flex-none">
                 <Send className="h-4 w-4 mr-2" />
                 Postuler
               </Button>
@@ -313,7 +286,7 @@ export function JobDetail({
         <Button asChild variant="outline" size="sm">
           <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4 mr-2" />
-            Voir sur JobUp
+            Voir sur {sourceLabel(job.source)}
           </a>
         </Button>
 
@@ -321,7 +294,7 @@ export function JobDetail({
           variant="outline"
           onClick={onToggleSave}
           className={cn(
-            isSaved && 'border-indigo-200 text-indigo-600'
+            isSaved && 'border-foreground text-foreground'
           )}
         >
           {isSaved ? (
@@ -340,16 +313,16 @@ export function JobDetail({
 
       {/* Company info */}
       <div className="rounded-lg border p-4 space-y-2">
-        <h4 className="text-sm font-semibold text-gray-700">
+        <h4 className="text-sm font-semibold text-foreground">
           A propos de l'entreprise
         </h4>
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-100">
-            <Building2 className="h-5 w-5 text-gray-400" />
+          <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-muted">
+            <Building2 className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <p className="font-medium text-gray-900">{job.company}</p>
-            <p className="text-xs text-gray-500">{job.canton}</p>
+            <p className="font-medium text-foreground">{job.company}</p>
+            <p className="text-xs text-muted-foreground">{job.canton}</p>
           </div>
         </div>
       </div>

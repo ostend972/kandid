@@ -40,17 +40,17 @@ export function DeleteAccountSection() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
+            <AlertTriangle className="h-5 w-5 text-destructive" />
             Supprimer votre compte
           </DialogTitle>
           <DialogDescription>
             Cette action est{' '}
-            <span className="font-semibold text-red-600">irreversible</span>.
+            <span className="font-semibold text-destructive">irreversible</span>.
             Toutes vos donnees seront definitivement supprimees, y compris :
           </DialogDescription>
         </DialogHeader>
 
-        <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600">
+        <ul className="ml-4 list-disc space-y-1 text-sm text-muted-foreground">
           <li>Vos analyses de CV et fichiers importes</li>
           <li>Vos offres d&apos;emploi sauvegardees</li>
           <li>Vos resultats de matching</li>
@@ -59,7 +59,7 @@ export function DeleteAccountSection() {
         </ul>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400">
             {error}
           </div>
         )}

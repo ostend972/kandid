@@ -42,9 +42,9 @@ export function ActiveCvSelector({
 
   if (analyses.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center">
-        <FileText className="mx-auto h-10 w-10 text-gray-400" />
-        <p className="mt-3 text-sm text-gray-600">
+      <div className="rounded-lg border border-dashed bg-background p-6 text-center">
+        <FileText className="mx-auto h-10 w-10 text-muted-foreground" />
+        <p className="mt-3 text-sm text-muted-foreground">
           Vous n'avez pas encore analyse de CV
         </p>
       </div>
@@ -81,23 +81,23 @@ export function ActiveCvSelector({
                 className={cn(
                   'flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors',
                   isActive
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-foreground bg-muted'
+                    : 'border-border hover:bg-muted'
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-gray-500" />
+                  <FileText className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-foreground">
                       {analysis.fileName}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       Analyse le {date} — Score : {analysis.overallScore}/100
                     </p>
                   </div>
                 </div>
                 {isActive && (
-                  <Check className="h-5 w-5 text-indigo-600 shrink-0" />
+                  <Check className="h-5 w-5 text-foreground shrink-0" />
                 )}
               </button>
             );

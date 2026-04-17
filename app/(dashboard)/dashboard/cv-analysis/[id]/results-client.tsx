@@ -60,18 +60,18 @@ function getVerdict(score: number) {
   if (score >= 80) {
     return {
       text: "Excellent ! Votre CV est bien adapte au marche suisse.",
-      color: "text-green-600",
+      color: "text-emerald-700 dark:text-emerald-400",
     };
   }
   if (score >= 40) {
     return {
       text: "Bon potentiel. Quelques ajustements amelioreront vos chances.",
-      color: "text-amber-600",
+      color: "text-amber-700 dark:text-amber-400",
     };
   }
   return {
     text: "A ameliorer. Votre CV necessite des modifications importantes.",
-    color: "text-red-600",
+    color: "text-red-700 dark:text-red-400",
   };
 }
 
@@ -171,7 +171,7 @@ export function CvResultsClient({
       {/* Back link */}
       <Link
         href="/dashboard/cv-analysis"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-gray-900 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Retour aux analyses
@@ -195,7 +195,7 @@ export function CvResultsClient({
           <Card>
             <CardContent className="flex flex-col items-center py-8">
               <ScoreGauge score={analysis.overallScore} size="lg" />
-              <h2 className="mt-4 text-lg font-bold text-gray-900">
+              <h2 className="mt-4 text-lg font-bold tracking-tight text-foreground">
                 Score Kandid
               </h2>
               <p className={cn("mt-1 text-center text-sm", verdict.color)}>
@@ -279,7 +279,7 @@ function PdfPreviewPanel({
       <CardContent className="space-y-4 pt-6">
         {/* PDF preview image */}
         {imageUrl ? (
-          <div className="overflow-hidden rounded-md border bg-white">
+          <div className="overflow-hidden rounded-lg border bg-background">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
@@ -288,9 +288,9 @@ function PdfPreviewPanel({
             />
           </div>
         ) : (
-          <div className="flex aspect-[3/4] items-center justify-center rounded-md border bg-gray-50">
+          <div className="flex aspect-[3/4] items-center justify-center rounded-lg border bg-muted">
             <div className="text-center">
-              <FileText className="mx-auto h-12 w-12 text-gray-300" />
+              <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
               <p className="mt-2 text-xs text-muted-foreground">
                 Apercu non disponible
               </p>
@@ -300,7 +300,7 @@ function PdfPreviewPanel({
 
         {/* File info */}
         <div>
-          <p className="truncate text-sm font-medium text-gray-900">
+          <p className="truncate text-sm font-medium text-foreground">
             {fileName}
           </p>
           <p className="text-xs text-muted-foreground">{date}</p>

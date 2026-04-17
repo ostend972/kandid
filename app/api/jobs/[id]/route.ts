@@ -87,6 +87,7 @@ export async function GET(
       activityRate: job.activityRate,
       publishedAt: job.publishedAt?.toISOString().split('T')[0] ?? null,
       sourceUrl: job.sourceUrl,
+      source: job.source,
       description: job.description,
       salary: job.salary,
       matchScore,

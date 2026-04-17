@@ -13,6 +13,7 @@ import {
 } from "@/lib/db/kandid-queries";
 import { sendAnalysisCompleteEmail } from "@/lib/email/resend";
 import { uploadProfilePhoto } from "@/lib/storage/cv-upload";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ---------------------------------------------------------------------------
 // POST /api/analyze-cv
@@ -28,8 +29,8 @@ import { uploadProfilePhoto } from "@/lib/storage/cv-upload";
 // Errors: 400 / 401 / 429 / 500
 // ---------------------------------------------------------------------------
 
-const MAX_DAILY_ANALYSES = 3; // free plan limit (not enforced during beta)
-const BETA_MODE = true; // set to false to enforce rate limits
+const MAX_DAILY_ANALYSES = 3;
+const BETA_MODE = false;
 
 export async function POST(request: NextRequest) {
   // ── 1. Authentication ────────────────────────────────────────────────
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   }
+
+  const rateLimited = await checkRateLimit(userId, 'ai');
+  if (rateLimited) return rateLimited;
 
   // ── 2. Parse multipart form data ─────────────────────────────────────
   let formData: FormData;

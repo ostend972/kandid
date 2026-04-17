@@ -91,7 +91,7 @@ export function SendEmailButton({
 
         {status === 'sent' ? (
           <div className="flex flex-col items-center gap-2 py-4">
-            <CheckCircle2 className="h-10 w-10 text-green-500" />
+            <CheckCircle2 className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
             <p className="text-sm text-muted-foreground">
               Dossier envoyé à <strong>{email}</strong>
             </p>
@@ -142,7 +142,7 @@ export function SendEmailButton({
             </div>
 
             {status === 'failed' && (
-              <div className="flex items-center gap-2 text-sm text-red-600">
+              <div className="flex items-center gap-2 text-sm text-destructive">
                 <XCircle className="h-4 w-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>

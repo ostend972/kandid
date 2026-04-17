@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState, useTransition } from "react";
-import { Upload, FileText, X, ClipboardPaste, Loader2 } from "lucide-react";
+import { Upload, FileText, X, ClipboardPaste, Loader2, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { validatePdfFile, formatFileSize } from "@/lib/file-validation";
@@ -160,6 +160,21 @@ export function PdfUploader({ onImportComplete, disabled }: PdfUploaderProps) {
 
       {mode === "pdf" && (
         <>
+          <div className="rounded-lg border bg-muted p-4 space-y-2">
+            <div className="flex items-start gap-2">
+              <HelpCircle className="h-4 w-4 text-foreground mt-0.5 shrink-0" />
+              <div className="text-sm text-foreground">
+                <p className="font-medium">Comment exporter votre profil LinkedIn en PDF ?</p>
+                <ol className="mt-2 space-y-1 text-xs text-muted-foreground list-decimal list-inside">
+                  <li>Connectez-vous sur LinkedIn et allez sur votre profil</li>
+                  <li>Cliquez sur le bouton <span className="font-medium">Plus</span> (en haut de votre profil)</li>
+                  <li>Sélectionnez <span className="font-medium">Enregistrer au format PDF</span></li>
+                  <li>Le fichier se télécharge — importez-le ici</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
           <input
             ref={inputRef}
             type="file"
@@ -205,8 +220,8 @@ export function PdfUploader({ onImportComplete, disabled }: PdfUploaderProps) {
             </div>
           ) : (
             <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
-              <div className="rounded-md bg-primary/10 p-2">
-                <FileText className="h-5 w-5 text-primary" />
+              <div className="rounded-lg bg-muted p-2">
+                <FileText className="h-5 w-5 text-foreground" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">

@@ -10,6 +10,7 @@ import {
   MapPin,
   Building2,
   Home,
+  Target,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,13 @@ const PUBLISHED_SINCE = [
   { value: '30d', label: '30 derniers jours' },
 ] as const;
 
+const MATCH_SCORE_OPTIONS = [
+  { value: '0', label: 'Tous les scores' },
+  { value: '50', label: '>= 50% (correct)' },
+  { value: '70', label: '>= 70% (bon)' },
+  { value: '85', label: '>= 85% (excellent)' },
+] as const;
+
 export function JobFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -88,7 +96,8 @@ export function JobFilters() {
   const remoteOnly = searchParams.get('remoteOnly') === 'true';
   const selectedPositions = searchParams.getAll('positionId').map(Number);
   const industryId = searchParams.get('industryId') || '';
-  const language = searchParams.get('language') || 'fr';
+  const language = searchParams.get('language') || 'all';
+  const minMatchScore = searchParams.get('minMatchScore') || '0';
 
   // Close canton dropdown when clicking outside
   useEffect(() => {
@@ -178,7 +187,8 @@ export function JobFilters() {
     remoteOnly ||
     selectedPositions.length > 0 ||
     industryId ||
-    (language && language !== 'fr');
+    (language && language !== 'all') ||
+    minMatchScore !== '0';
 
   const activeFilterCount = [
     selectedCantons.length > 0,
@@ -189,6 +199,7 @@ export function JobFilters() {
     remoteOnly,
     selectedPositions.length > 0,
     industryId,
+    minMatchScore !== '0',
   ].filter(Boolean).length;
 
   // ── Shared filter components ──────────────────────────────────────────
@@ -198,7 +209,7 @@ export function JobFilters() {
       {CANTONS.map((canton) => (
         <label
           key={canton}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent cursor-pointer text-sm"
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-accent cursor-pointer text-sm"
         >
           <Checkbox
             checked={selectedCantons.includes(canton)}
@@ -215,7 +226,7 @@ export function JobFilters() {
       {POSITIONS.map((pos) => (
         <label
           key={pos.id}
-          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent cursor-pointer text-sm"
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-accent cursor-pointer text-sm"
         >
           <Checkbox
             checked={selectedPositions.includes(pos.id)}
@@ -231,15 +242,15 @@ export function JobFilters() {
 
   return (
     <div className="space-y-3">
-      {/* Desktop filter bar */}
+      {/* ── Row 1 : Recherche principale — QUOI + OU ──────────────────── */}
       <div className="hidden md:flex items-center gap-2 flex-wrap">
         {/* Keyword search */}
-        <div className="relative flex-1 min-w-[180px] max-w-xs">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="Mot-cle..."
+            placeholder="Mot-cle (metier, competence...)"
             className="pl-9 h-9"
           />
           {keyword && (
@@ -250,6 +261,17 @@ export function JobFilters() {
               <X className="h-4 w-4" />
             </button>
           )}
+        </div>
+
+        {/* Company search */}
+        <div className="relative">
+          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={companySearch}
+            onChange={(e) => setCompanySearch(e.target.value)}
+            placeholder="Entreprise..."
+            className="pl-9 h-9 w-[180px]"
+          />
         </div>
 
         {/* Canton dropdown */}
@@ -267,58 +289,39 @@ export function JobFilters() {
             <ChevronDown className="h-3.5 w-3.5 opacity-50" />
           </Button>
           {cantonDropdownOpen && (
-            <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded-md border bg-popover p-2 shadow-md">
+            <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border bg-popover p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
               {cantonCheckboxes}
             </div>
           )}
         </div>
 
+        {/* Remote toggle */}
+        <div className="flex items-center gap-2 px-2 h-9 rounded-md border bg-background">
+          <Home className="h-4 w-4 text-muted-foreground" />
+          <Switch
+            checked={remoteOnly}
+            onCheckedChange={(checked) =>
+              updateFilters({ remoteOnly: checked ? 'true' : null })
+            }
+          />
+          <Label className="text-sm cursor-pointer">Teletravail</Label>
+        </div>
+      </div>
+
+      {/* ── Row 2 : Criteres detailles — TYPE DE POSTE ─────────────────── */}
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
         {/* Contract type */}
         <Select
           value={contractType || 'all'}
           onValueChange={(v) => updateFilters({ contractType: v === 'all' ? null : v })}
         >
-          <SelectTrigger className="w-[110px] h-9" size="sm">
+          <SelectTrigger className="w-[120px] h-9" size="sm">
             <SelectValue placeholder="Contrat" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Contrat</SelectItem>
+            <SelectItem value="all">Tous contrats</SelectItem>
             <SelectItem value="CDI">CDI</SelectItem>
             <SelectItem value="CDD">CDD</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Language */}
-        <Select
-          value={language}
-          onValueChange={(v) => updateFilters({ language: v })}
-        >
-          <SelectTrigger className="w-[120px] h-9" size="sm">
-            <SelectValue placeholder="Langue" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="fr">Francais</SelectItem>
-            <SelectItem value="de">Allemand</SelectItem>
-            <SelectItem value="en">Anglais</SelectItem>
-            <SelectItem value="all">Toutes</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Published since */}
-        <Select
-          value={publishedSince || 'all'}
-          onValueChange={(v) => updateFilters({ publishedSince: v === 'all' ? null : v })}
-        >
-          <SelectTrigger className="w-[140px] h-9" size="sm">
-            <SelectValue placeholder="Date" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes dates</SelectItem>
-            {PUBLISHED_SINCE.map((p) => (
-              <SelectItem key={p.value} value={p.value}>
-                {p.label}
-              </SelectItem>
-            ))}
           </SelectContent>
         </Select>
 
@@ -327,7 +330,7 @@ export function JobFilters() {
           value={industryId || 'all'}
           onValueChange={(v) => updateFilters({ industryId: v === 'all' ? null : v })}
         >
-          <SelectTrigger className="w-[180px] h-9" size="sm">
+          <SelectTrigger className="w-[200px] h-9" size="sm">
             <SelectValue placeholder="Secteur" />
           </SelectTrigger>
           <SelectContent>
@@ -340,28 +343,90 @@ export function JobFilters() {
           </SelectContent>
         </Select>
 
-        {/* Remote toggle */}
-        <div className="flex items-center gap-2 px-2">
-          <Home className="h-4 w-4 text-muted-foreground" />
-          <Switch
-            checked={remoteOnly}
-            onCheckedChange={(checked) =>
-              updateFilters({ remoteOnly: checked ? 'true' : null })
-            }
-          />
-          <Label className="text-sm cursor-pointer">Teletravail</Label>
+        {/* Language */}
+        <Select
+          value={language}
+          onValueChange={(v) => updateFilters({ language: v })}
+        >
+          <SelectTrigger className="w-[130px] h-9" size="sm">
+            <SelectValue placeholder="Langue" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="fr">Francais</SelectItem>
+            <SelectItem value="de">Allemand</SelectItem>
+            <SelectItem value="en">Anglais</SelectItem>
+            <SelectItem value="all">Toutes langues</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Published since */}
+        <Select
+          value={publishedSince || 'all'}
+          onValueChange={(v) => updateFilters({ publishedSince: v === 'all' ? null : v })}
+        >
+          <SelectTrigger className="w-[150px] h-9" size="sm">
+            <SelectValue placeholder="Date" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes dates</SelectItem>
+            {PUBLISHED_SINCE.map((p) => (
+              <SelectItem key={p.value} value={p.value}>
+                {p.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Position checkboxes inline */}
+        <div className="flex items-center gap-3 pl-2 border-l">
+          <span className="text-sm text-muted-foreground">Niveau :</span>
+          {POSITIONS.map((pos) => (
+            <label
+              key={pos.id}
+              className="flex items-center gap-1.5 cursor-pointer text-sm"
+            >
+              <Checkbox
+                checked={selectedPositions.includes(pos.id)}
+                onCheckedChange={() => togglePosition(pos.id)}
+              />
+              {pos.label}
+            </label>
+          ))}
         </div>
+      </div>
+
+      {/* ── Row 3 : Matching + Tri + Actions ──────────────────────────── */}
+      <div className="hidden md:flex items-center gap-2 flex-wrap">
+        {/* Min match score (requires CV) */}
+        <Select
+          value={minMatchScore}
+          onValueChange={(v) => updateFilters({ minMatchScore: v === '0' ? null : v })}
+        >
+          <SelectTrigger className="w-[190px] h-9" size="sm">
+            <Target className="h-4 w-4 text-muted-foreground mr-1" />
+            <SelectValue placeholder="Matching" />
+          </SelectTrigger>
+          <SelectContent>
+            {MATCH_SCORE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {/* Sort */}
-        <Select value={sort} onValueChange={(v) => updateFilters({ sort: v === 'date' ? null : v })}>
-          <SelectTrigger className="w-[150px] h-9" size="sm">
+        <Select value={sort} onValueChange={(v) => updateFilters({ sort: v === 'relevance' ? null : v })}>
+          <SelectTrigger className="w-[180px] h-9" size="sm">
             <SelectValue placeholder="Trier" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="date">Date</SelectItem>
-            <SelectItem value="relevance">Pertinence</SelectItem>
+            <SelectItem value="relevance">Meilleur matching</SelectItem>
+            <SelectItem value="date">Date (recent)</SelectItem>
           </SelectContent>
         </Select>
+
+        <div className="flex-1" />
 
         {/* Save search */}
         <SaveSearchButton
@@ -374,7 +439,8 @@ export function JobFilters() {
             positionId: selectedPositions.length > 0 ? selectedPositions.map(String) : null,
             industryId: industryId || null,
             company: companySearch || null,
-            language: language && language !== 'fr' ? language : null,
+            language: language && language !== 'all' ? language : null,
+            minMatchScore: minMatchScore !== '0' ? minMatchScore : null,
           }}
         />
 
@@ -390,37 +456,6 @@ export function JobFilters() {
             Reinitialiser
           </Button>
         )}
-      </div>
-
-      {/* Second row: company + position (desktop) */}
-      <div className="hidden md:flex items-center gap-2 flex-wrap">
-        {/* Company search */}
-        <div className="relative max-w-xs">
-          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={companySearch}
-            onChange={(e) => setCompanySearch(e.target.value)}
-            placeholder="Entreprise..."
-            className="pl-9 h-9 w-[200px]"
-          />
-        </div>
-
-        {/* Position checkboxes inline */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">Position :</span>
-          {POSITIONS.map((pos) => (
-            <label
-              key={pos.id}
-              className="flex items-center gap-1.5 cursor-pointer text-sm"
-            >
-              <Checkbox
-                checked={selectedPositions.includes(pos.id)}
-                onCheckedChange={() => togglePosition(pos.id)}
-              />
-              {pos.label}
-            </label>
-          ))}
-        </div>
       </div>
 
       {/* ── Mobile ───────────────────────────────────────────────────────── */}
@@ -443,7 +478,7 @@ export function JobFilters() {
           >
             <SlidersHorizontal className="h-4 w-4" />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-indigo-600 text-[10px] text-white flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-black text-[10px] text-white dark:bg-white dark:text-black flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -539,14 +574,30 @@ export function JobFilters() {
               />
             </div>
 
+            {/* Min match score */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Matching CV minimum</p>
+              <Select
+                value={minMatchScore}
+                onValueChange={(v) => updateFilters({ minMatchScore: v === '0' ? null : v })}
+              >
+                <SelectTrigger className="w-full h-9" size="sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MATCH_SCORE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Sort */}
             <div>
               <p className="text-xs font-medium text-muted-foreground mb-2">Trier par</p>
-              <Select value={sort} onValueChange={(v) => updateFilters({ sort: v === 'date' ? null : v })}>
+              <Select value={sort} onValueChange={(v) => updateFilters({ sort: v === 'relevance' ? null : v })}>
                 <SelectTrigger className="w-full h-9" size="sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date">Date de publication</SelectItem>
-                  <SelectItem value="relevance">Pertinence</SelectItem>
+                  <SelectItem value="relevance">Meilleur matching</SelectItem>
+                  <SelectItem value="date">Date (recent)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

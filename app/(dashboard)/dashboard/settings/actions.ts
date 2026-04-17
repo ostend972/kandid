@@ -28,6 +28,20 @@ import {
   deleteApplicationFiles,
 } from '@/lib/storage/cv-upload';
 
+import { z } from 'zod';
+
+const SWISS_CANTONS = [
+  'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
+  'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
+  'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+];
+
+const preferencesSchema = z.object({
+  preferredCantons: z.array(z.enum(SWISS_CANTONS as [string, ...string[]])).max(26),
+  preferredActivityRate: z.number().min(0).max(100).nullable(),
+  weeklyDigestEnabled: z.boolean(),
+});
+
 export async function updatePreferencesAction(data: {
   preferredCantons: string[];
   preferredActivityRate: number | null;
@@ -38,12 +52,17 @@ export async function updatePreferencesAction(data: {
     throw new Error('Non authentifie');
   }
 
+  const parsed = preferencesSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Donnees invalides');
+  }
+
   await db
     .update(users)
     .set({
-      preferredCantons: data.preferredCantons,
-      preferredActivityRate: data.preferredActivityRate,
-      weeklyDigestEnabled: data.weeklyDigestEnabled,
+      preferredCantons: parsed.data.preferredCantons,
+      preferredActivityRate: parsed.data.preferredActivityRate,
+      weeklyDigestEnabled: parsed.data.weeklyDigestEnabled,
       updatedAt: new Date(),
     })
     .where(eq(users.id, userId));

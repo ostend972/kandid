@@ -15,15 +15,15 @@ import {
 import { Loader2, Check } from 'lucide-react';
 import { updatePreferencesAction } from './actions';
 
-const CANTONS = [
-  'Geneve',
-  'Vaud',
-  'Neuchatel',
-  'Valais',
-  'Bale',
-  'Zurich',
-  'Berne',
-  'Fribourg',
+const CANTONS: { code: string; label: string }[] = [
+  { code: 'GE', label: 'Geneve' },
+  { code: 'VD', label: 'Vaud' },
+  { code: 'NE', label: 'Neuchatel' },
+  { code: 'VS', label: 'Valais' },
+  { code: 'BS', label: 'Bale' },
+  { code: 'ZH', label: 'Zurich' },
+  { code: 'BE', label: 'Berne' },
+  { code: 'FR', label: 'Fribourg' },
 ];
 
 const ACTIVITY_RATES = [
@@ -83,14 +83,14 @@ export function SettingsPreferencesForm({
         <div className="grid grid-cols-2 gap-2">
           {CANTONS.map((canton) => (
             <label
-              key={canton}
+              key={canton.code}
               className="flex items-center gap-2 cursor-pointer"
             >
               <Checkbox
-                checked={selectedCantons.includes(canton)}
-                onCheckedChange={() => toggleCanton(canton)}
+                checked={selectedCantons.includes(canton.code)}
+                onCheckedChange={() => toggleCanton(canton.code)}
               />
-              <span className="text-sm">{canton}</span>
+              <span className="text-sm">{canton.label}</span>
             </label>
           ))}
         </div>

@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { getUserById } from '@/lib/db/kandid-queries';
 import OnboardingForm from './onboarding-form';
+import { SyncExistingUser } from './sync-existing-user';
 
 export default async function OnboardingPage() {
   const { userId } = await auth();
@@ -10,7 +11,7 @@ export default async function OnboardingPage() {
   const user = await getUserById(userId);
 
   if (user?.onboardingCompletedAt) {
-    redirect('/dashboard');
+    return <SyncExistingUser />;
   }
 
   const initialStep = user?.onboardingStep === 1 ? 2 : 1;

@@ -63,16 +63,20 @@ export async function POST(
     );
   }
 
-  if (file.type !== "application/pdf") {
+  if (file.size > MAX_SIZE) {
     return NextResponse.json(
-      { error: "Seuls les fichiers PDF sont acceptes." },
+      { error: "Le fichier depasse la taille maximale de 50 Mo." },
       { status: 400 }
     );
   }
 
-  if (file.size > MAX_SIZE) {
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const PDF_MAGIC = Buffer.from([0x25, 0x50, 0x44, 0x46]); // %PDF
+  if (buffer.length < 4 || !buffer.subarray(0, 4).equals(PDF_MAGIC)) {
     return NextResponse.json(
-      { error: "Le fichier depasse la taille maximale de 50 Mo." },
+      { error: "Le fichier n'est pas un PDF valide." },
       { status: 400 }
     );
   }
@@ -85,9 +89,6 @@ export async function POST(
       { status: 404 }
     );
   }
-
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
   const pdfType = type as PdfType;
 
   let path: string;

@@ -60,10 +60,10 @@ function relativeDate(dateStr: string): string {
 function ScoreBadge({ score }: { score: number }) {
   const variant =
     score >= 80
-      ? "bg-green-100 text-green-700"
+      ? "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400"
       : score >= 40
-        ? "bg-amber-100 text-amber-700"
-        : "bg-red-100 text-red-700";
+        ? "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400"
+        : "bg-red-500/10 text-red-700 dark:bg-red-400/10 dark:text-red-400";
 
   return (
     <Badge variant="secondary" className={cn("font-bold tabular-nums", variant)}>
@@ -112,7 +112,7 @@ function DeleteAnalysisButton({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-red-600"
+          className="h-8 w-8 text-muted-foreground hover:text-destructive"
           onClick={(e) => {
             e.stopPropagation();
             setOpen(true);
@@ -234,7 +234,7 @@ export default function CvAnalysisPage() {
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Analyse de CV</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Analyse de CV</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Telechargez votre CV pour obtenir une analyse ATS detaillee adaptee au
           marche suisse.
@@ -253,7 +253,7 @@ export default function CvAnalysisPage() {
           <div>
             <label
               htmlFor="jobDescription"
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="mb-2 block text-sm font-medium text-foreground"
             >
               Description du poste (optionnel)
             </label>
@@ -270,7 +270,7 @@ export default function CvAnalysisPage() {
 
           {/* Error message */}
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400">
               {error}
             </div>
           )}
@@ -279,7 +279,7 @@ export default function CvAnalysisPage() {
           <Button
             onClick={handleSubmit}
             disabled={!file || isAnalyzing}
-            className="w-full bg-indigo-600 hover:bg-indigo-700"
+            className="w-full"
             size="lg"
           >
             {isAnalyzing ? (
@@ -299,23 +299,23 @@ export default function CvAnalysisPage() {
 
       {/* Loading animation overlay (replaces the card when analyzing) */}
       {isAnalyzing && (
-        <Card className="border-indigo-200 bg-indigo-50/50">
+        <Card className="bg-muted">
           <CardContent className="flex flex-col items-center py-10 text-center">
             <div className="relative">
-              <div className="h-16 w-16 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
+              <div className="h-16 w-16 rounded-full border-4 border-border border-t-foreground animate-spin" />
             </div>
-            <h3 className="mt-6 text-lg font-semibold text-gray-900">
+            <h3 className="mt-6 text-lg font-bold tracking-tight text-foreground">
               Analyse en cours...
             </h3>
-            <p className="mt-2 max-w-md text-sm text-gray-600">
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
               Notre IA analyse votre CV selon les criteres ATS suisses.
               Cela peut prendre quelques secondes.
             </p>
             {/* Progress-style dots animation */}
             <div className="mt-4 flex gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:0ms]" />
-              <div className="h-2 w-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:150ms]" />
-              <div className="h-2 w-2 rounded-full bg-indigo-600 animate-bounce [animation-delay:300ms]" />
+              <div className="h-2 w-2 rounded-full bg-foreground animate-bounce [animation-delay:0ms]" />
+              <div className="h-2 w-2 rounded-full bg-foreground animate-bounce [animation-delay:150ms]" />
+              <div className="h-2 w-2 rounded-full bg-foreground animate-bounce [animation-delay:300ms]" />
             </div>
           </CardContent>
         </Card>
@@ -323,7 +323,7 @@ export default function CvAnalysisPage() {
 
       {/* Previous analyses */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-bold tracking-tight text-foreground">
           Analyses precedentes
         </h2>
 
@@ -334,7 +334,7 @@ export default function CvAnalysisPage() {
         ) : previousAnalyses.length === 0 ? (
           <Card className="mt-4 border-dashed">
             <CardContent className="flex flex-col items-center py-8 text-center">
-              <FileText className="h-10 w-10 text-gray-400" />
+              <FileText className="h-10 w-10 text-muted-foreground" />
               <p className="mt-3 text-sm text-muted-foreground">
                 Vous n&apos;avez pas encore analyse de CV
               </p>
@@ -345,17 +345,17 @@ export default function CvAnalysisPage() {
             {previousAnalyses.map((analysis) => (
               <Card
                 key={analysis.id}
-                className="cursor-pointer transition-colors hover:bg-gray-50"
+                className="cursor-pointer transition-colors hover:bg-muted"
                 onClick={() =>
                   router.push(`/dashboard/cv-analysis/${analysis.id}`)
                 }
               >
                 <CardContent className="flex items-center gap-4 py-4">
-                  <div className="rounded-md bg-indigo-50 p-2">
-                    <FileText className="h-5 w-5 text-indigo-600" />
+                  <div className="rounded-lg bg-muted p-2">
+                    <FileText className="h-5 w-5 text-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">
+                    <p className="truncate text-sm font-medium text-foreground">
                       {analysis.fileName}
                     </p>
                     <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">

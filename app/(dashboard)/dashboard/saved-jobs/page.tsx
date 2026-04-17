@@ -126,7 +126,7 @@ export default async function SavedJobsPage({ searchParams }: PageProps) {
       {/* Header row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Offres sauvegardees
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -147,7 +147,7 @@ export default async function SavedJobsPage({ searchParams }: PageProps) {
           {sortedJobs.map(({ savedJob, job, matchScore }) => (
             <Card
               key={savedJob.id}
-              className="transition-shadow hover:shadow-md"
+              className="transition-shadow hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
             >
               <CardContent className="flex items-start gap-4 p-5">
                 {/* Main content — clickable link */}
@@ -156,15 +156,15 @@ export default async function SavedJobsPage({ searchParams }: PageProps) {
                   className="flex-1 min-w-0 group"
                 >
                   {/* Title + company */}
-                  <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                  <h3 className="font-semibold text-foreground group-hover:text-muted-foreground transition-colors line-clamp-2">
                     {job.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-1">
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
                     {job.company}
                   </p>
 
                   {/* Meta row */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5 shrink-0" />
                       {job.canton}
@@ -172,17 +172,13 @@ export default async function SavedJobsPage({ searchParams }: PageProps) {
                     {job.contractType && (
                       <Badge
                         variant="secondary"
-                        className={`text-xs px-2 py-0 ${
-                          job.contractType === 'CDI'
-                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}
+                        className="text-xs px-2 py-0 bg-muted text-foreground border-border"
                       >
                         {job.contractType}
                       </Badge>
                     )}
                     {job.activityRate && (
-                      <span className="text-gray-500">
+                      <span className="text-muted-foreground">
                         {job.activityRate}
                       </span>
                     )}
@@ -223,11 +219,11 @@ export default async function SavedJobsPage({ searchParams }: PageProps) {
       ) : (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-10 text-center">
-            <Bookmark className="h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">
+            <Bookmark className="h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-bold tracking-tight text-foreground">
               Aucune offre sauvegardee
             </h3>
-            <p className="mt-2 max-w-sm text-sm text-gray-600">
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
               Sauvegardez des offres pour les retrouver ici.
             </p>
             <Button asChild className="mt-6">

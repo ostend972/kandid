@@ -34,8 +34,16 @@ export async function GET(request: NextRequest) {
   const positionIds = searchParams.getAll('positionId').map(Number).filter(Boolean);
   const industryId = searchParams.get('industryId') ? Number(searchParams.get('industryId')) : undefined;
   const company = searchParams.get('company') || undefined;
-  const language = searchParams.get('language') || 'fr'; // Default to French
+  const language = searchParams.get('language') || 'all'; // Default: all languages (fr+en in DB)
   const sort = searchParams.get('sort') || 'relevance';
+  const minMatchScoreRaw = parseInt(
+    searchParams.get('minMatchScore') || '0',
+    10
+  );
+  const minMatchScore =
+    Number.isFinite(minMatchScoreRaw) && minMatchScoreRaw > 0
+      ? Math.min(100, Math.max(0, minMatchScoreRaw))
+      : 0;
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const limit = Math.min(
     100,
@@ -71,6 +79,14 @@ export async function GET(request: NextRequest) {
   // ── 3. Search jobs using DB query ───────────────────────────────────
   const contractTypes = contractType ? [contractType] : undefined;
 
+  // Score-aware pagination: whenever we need scores to order or filter results
+  // (user has a CV AND is sorting by relevance, OR is filtering by min score),
+  // we fetch a larger batch from the DB then score/sort/paginate in memory.
+  // Otherwise we let the DB paginate directly by date.
+  const needsInMemoryPagination =
+    profile != null && (minMatchScore > 0 || sort === 'relevance');
+  const BATCH_SIZE = 10000;
+
   const searchResult = await searchJobs({
     cantons: cantons.length > 0 ? cantons : undefined,
     contractTypes,
@@ -82,12 +98,12 @@ export async function GET(request: NextRequest) {
     industryId,
     company,
     language: language === 'all' ? undefined : language,
-    page,
-    limit,
+    page: needsInMemoryPagination ? 1 : page,
+    limit: needsInMemoryPagination ? BATCH_SIZE : limit,
   });
 
   // ── 4. Calculate match scores for returned jobs ─────────────────────
-  const jobsWithScores = searchResult.jobs.map((job) => {
+  const scoredJobs = searchResult.jobs.map((job) => {
     let matchScore: number | null = null;
 
     if (profile) {
@@ -123,20 +139,44 @@ export async function GET(request: NextRequest) {
       activityRate: job.activityRate,
       publishedAt: job.publishedAt?.toISOString().split('T')[0] ?? null,
       sourceUrl: job.sourceUrl,
+      source: job.source,
       matchScore,
       legitimacyTier: job.legitimacyTier ?? null,
       legitimacyScore: job.legitimacyScore ?? null,
     };
   });
 
-  // ── 5. Sort by relevance if requested and profile exists ────────────
-  if (sort === 'relevance' && profile) {
-    jobsWithScores.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
+  // ── 5. Apply match score filter + sort + paginate in memory when needed ─
+  if (needsInMemoryPagination) {
+    const filtered = minMatchScore > 0
+      ? scoredJobs.filter((j) => (j.matchScore ?? 0) >= minMatchScore)
+      : scoredJobs;
+    // Default sort by score desc when relevance/score mode is active
+    if (sort !== 'date') {
+      filtered.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
+    } else {
+      // sort=date already applied at DB level within the batch; keep order
+    }
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const start = (page - 1) * limit;
+    const paged = filtered.slice(start, start + limit);
+    return NextResponse.json({
+      jobs: paged,
+      total,
+      page,
+      totalPages,
+    });
   }
 
-  // ── 6. Return response ─────────────────────────────────────────────
+  // ── 6. Sort by relevance when requested and a profile exists ────────
+  if (sort === 'relevance' && profile) {
+    scoredJobs.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
+  }
+
+  // ── 7. Return response ─────────────────────────────────────────────
   return NextResponse.json({
-    jobs: jobsWithScores,
+    jobs: scoredJobs,
     total: searchResult.total,
     page: searchResult.page,
     totalPages: searchResult.totalPages,
